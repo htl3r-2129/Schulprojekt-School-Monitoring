@@ -3,7 +3,6 @@ FROM php:8.2-apache
 RUN rm -rf /usr/local/apache2/htdocs/*
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin/ --filename=composer
 RUN apt-get update
-RUN apt-get upgrade
 RUN apt-get install -y git
 
 COPY ./public/ /usr/local/apache2/htdocs/
