@@ -5,10 +5,10 @@ class Auth {
     private $users;
 
     public function __construct() {
-        // Passwort-Hashes frisch erzeugt mit password_hash()
+        // Beispiel-Benutzer mit Passwort-Hash für '123456'
         $this->users = [
             'Admin' => password_hash('123456', PASSWORD_DEFAULT),
-            'Maxim' => password_hash('test123', PASSWORD_DEFAULT)
+            'Maxim' => password_hash('test123', PASSWORD_DEFAULT),
         ];
     }
 
