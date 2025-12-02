@@ -8,6 +8,6 @@
         }
     },
     "require": {
-      "joshcam/mysqli-database-class": "v2.9.*"
+      "ext-mysqli": "*"
     }
 }

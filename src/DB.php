@@ -1,10 +1,11 @@
 <?php
 namespace Insi\Ssm;
-use Joshcam\MysqliDb;
+require_once '../vendor/autoload.php';
+use mysqli;
 
 class DB
 {
-    protected $servername = 'localhost';
+    protected $servername = '127.0.0.1';
     protected $username = 'mariadb';
     protected $password = 'mariadb';
     protected $dbname = 'monitor';
@@ -12,12 +13,16 @@ class DB
 
     public function __construct()
     {
-        $this->conn = new MysqliDb($this->servername, $this->username, $this->password, $this->dbname);
-
-        if ($this->conn->connect_error) {
-            die("Connection failed: " . $this->conn->connect_error);
+        try {
+            $this->conn = new mysqli(
+                $this->servername,
+                $this->username,
+                $this->password,
+                $this->dbname
+            );
+        } catch (\mysqli_sql_exception $e) {
+            die("Connection failed: " . $e->getMessage());
         }
-        echo "Connected successfully";
     }
 
     public function getConn()

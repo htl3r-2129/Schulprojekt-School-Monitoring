@@ -12,7 +12,7 @@ $queries = [
         username VARCHAR(16),
         email VARCHAR(255),
         password VARCHAR(255),
-        rank INT,
+        role INT,
         isLocked BOOLEAN,
         2faSuccess BOOLEAN,
         PRIMARY KEY (PK_User_ID)
@@ -34,32 +34,33 @@ $queries = [
     )
     ",
     "
-    CREATE TABLE IF NOT EXISTS post_contentobject(
-        PK_Post_Content_ID INT AUTO_INCREMENT,
-        FK_Post_ID INT DEFAULT 0,
-        FK_Media_ID INT DEFAULT 0,
-        FK_Website_ID INT,
-        FOREIGN KEY FK_Post_ID references post (PK_Post_ID),
-        FOREIGN KEY FK_Media_ID references media (PK_Media_ID),
-        FOREIGN KEY FK_Website_ID references website (PK_Website_ID),
-        PRIMARY KEY (PK_Post_Content_ID) --must be combination of foreign keys
-    )
-    ",
-    "
     CREATE TABLE IF NOT EXISTS media(
         PK_Media_ID INT AUTO_INCREMENT,
+        post INT,
         file_name VARCHAR(255),
         file_path VARCHAR(255),
         alt_text VARCHAR(255),
-        PRIMARY KEY (PK_Media_ID)
+        PRIMARY KEY (PK_Media_ID),
+        FOREIGN KEY (post) REFERENCES post (PK_Post_ID)
     )
     ",
     "
     CREATE TABLE IF NOT EXISTS website(
         PK_Website_ID INT AUTO_INCREMENT,
+        post INT,
         url VARCHAR(255),
         alt_text VARCHAR(255),
-        PRIMARY KEY (PK_Website_ID)
+        PRIMARY KEY (PK_Website_ID),
+        FOREIGN KEY (post) REFERENCES post (PK_Post_ID)
+    )
+    ",
+    "
+    CREATE TABLE IF NOT EXISTS untis(
+        PK_Untis_ID INT AUTO_INCREMENT,
+        post INT,
+        file_path VARCHAR(255),
+        PRIMARY KEY (PK_Untis_ID),
+        FOREIGN KEY (post) REFERENCES post (PK_Post_ID)
     )
     "
 ];
