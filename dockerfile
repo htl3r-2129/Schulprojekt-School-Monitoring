@@ -5,7 +5,7 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 RUN apt-get update
 RUN apt-get install -y git
 
-COPY ./public/ /usr/local/apache2/htdocs/
+COPY . /var/www/html
 
 COPY apache/vhost.conf /usr/local/apache2/conf/conf.d/vhost.conf
 COPY --from=composer/composer:latest-bin /composer /usr/bin/composer

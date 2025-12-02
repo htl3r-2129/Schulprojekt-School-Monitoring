@@ -1,4 +1,13 @@
 {
-  "require": {
-  }
+    "name": "insi/ssm",
+    "description": "A school related Project to create screens that display information.",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "Insi\\Ssm\\": "src/"
+        }
+    },
+    "require": {
+      "joshcam/mysqli-database-class": "v2.9.*"
+    }
 }
