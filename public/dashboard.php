@@ -5,9 +5,8 @@ session_start();
 require __DIR__ . '/../vendor/autoload.php';
 
 // Prüfen, ob der Benutzer eingeloggt ist
-if (!isset($_SESSION['username'])) {
+if (!isset($_SESSION['username'])) { 
     // Wenn nicht angemeldet: HTML für die Fehlermeldung ausgeben und Skript beenden
-    // NUTZT JETZT DAS NEUE DESIGN MIT KLASSEN 'card' und 'button-link'
     ?>
     <!DOCTYPE html>
     <html lang="de">
@@ -18,18 +17,16 @@ if (!isset($_SESSION['username'])) {
     </head>
     <body>
     <header>
-        <a href="www.htlrennweg.at">
+        <a href="https://www.htlrennweg.at">
             <img src="images/logo.png" alt="Logo" class="logo">
         </a>
         <h1>Schulmonitor Dashboard</h1>
     </header>
 
-    <!-- Inhalt in main und card Container verpacken -->
     <main>
         <div class="card">
             <h2>Zugriff verweigert</h2>
             <p>Sie haben keinen Zugriff auf diese Seite, da Sie nicht angemeldet sind.</p>
-            <!-- Nutze button-link, da es ein a-Tag ist -->
             <a href="login.php" class="button-link main">Zur Login-Seite</a>
         </div>
     </main>
@@ -51,7 +48,7 @@ if (!isset($_SESSION['username'])) {
 </head>
 <body>
 <header>
-    <a href="www.htlrennweg.at">
+    <a href="https://www.htlrennweg.at">
         <img src="images/logo.png" alt="Logo" class="logo">
     </a>
     <h1>Schulmonitor Dashboard</h1>
@@ -59,12 +56,12 @@ if (!isset($_SESSION['username'])) {
 
 <main>
     <h2>Willkommen, <?= htmlspecialchars($_SESSION['username']); ?>!</h2>
-    <p>Hier kannst du deine Schulmonitor-Daten einsehen und verwalten.</p>
-
-    <!-- Das Logout-Formular hat bereits die Klasse secondary, die volle Breite hat -->
+    <p>Dies ist das geschützte Dashboard. Ihr Login ist jetzt doppelt gesichert.</p>
+    
     <form method="post" action="logout.php">
         <button type="submit" class="secondary">Logout</button>
     </form>
+    
 </main>
 </body>
 </html>

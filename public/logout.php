@@ -4,7 +4,9 @@ require __DIR__ . '/../vendor/autoload.php';
 
 use App\classes\Auth;
 
-$auth = new Auth();
+// Instanziierung ohne Argument
+$auth = new Auth(); 
+
 $auth->logout();
 
 // Zurück zum Login
