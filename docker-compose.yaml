@@ -6,8 +6,9 @@ services:
       - '80:80'
     volumes:
       - ./public:/var/www/html/public
-      - ./apache/vhost.conf:/etc/apache2/sites-available/000-default.conf
       - ./src:/var/www/html/src
+      - ./vendor:/var/www/html/vendor
+      - ./apache/vhost.conf:/etc/apache2/sites-available/000-default.conf
       - ./composer.json:/var/www/html/composer.json
     depends_on:
       - db
