@@ -2,27 +2,32 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Fullscreen Video</title>
+    <title>mediaPlayer</title>
 </head>
 <body style="margin:0; background:black;">
 
-<video id="vid" src="./media/WALKWAY0025-0220.mp4" autoplay playsinline controls style="width:100%; height:100%;"></video>
+<video id="vid" src="./media/Videos/WALKWAY0025-0220.mp4" autoplay playsinline controls style="width:100%; height:100%;"></video>
 
 <script>
 window.onload = function() {
     const video = document.getElementById("vid");
 
-    // Request fullscreen
-    if (video.requestFullscreen) {
-        video.requestFullscreen();
-    } else if (video.webkitRequestFullscreen) { // Safari
-        video.webkitRequestFullscreen();
-    } else if (video.msRequestFullscreen) { // Older IE/Edge
-        video.msRequestFullscreen();
-    }
+    // Wait for the video to start playing to request fullscreen
+    video.onplay = function() {
+        // Request fullscreen
+        if (video.requestFullscreen) {
+            video.requestFullscreen();
+        } else if (video.webkitRequestFullscreen) { // Safari
+            video.webkigittRequestFullscreen();
+        } else if (video.msRequestFullscreen) { // Older IE/Edge
+            video.msRequestFullscreen();
+        }
+    };
 
     // Start playing (needed for some browsers)
-    video.play().catch(() => {});
+    video.play().catch((error) => {
+        console.error("Error playing video:", error);
+    });
 };
 </script>
 
