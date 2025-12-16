@@ -27,7 +27,8 @@ $queries = [
         text TEXT,
         qPosition INT,
         isInstant BOOLEAN,
-        date DATE,
+        von DATE,
+        bis DATE,
         FOREIGN KEY (submittedBy) REFERENCES user (PK_User_ID),
         FOREIGN KEY (approvedBy) REFERENCES user (PK_User_ID),
         PRIMARY KEY (PK_Post_ID)
