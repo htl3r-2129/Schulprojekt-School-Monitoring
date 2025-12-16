@@ -5,10 +5,11 @@ use mysqli;
 
 class DB
 {
-    protected $servername = '127.0.0.1';
+    protected $servername = 'mariadb'; // Do not use localhost. It will try to connect via socket that does not exist.
     protected $username = 'mariadb';
     protected $password = 'mariadb';
     protected $dbname = 'monitor';
+    protected $port = 3306;
     protected $conn;
 
     public function __construct()
@@ -18,7 +19,8 @@ class DB
                 $this->servername,
                 $this->username,
                 $this->password,
-                $this->dbname
+                $this->dbname,
+                $this->port
             );
         } catch (\mysqli_sql_exception $e) {
             die("Connection failed: " . $e->getMessage());
