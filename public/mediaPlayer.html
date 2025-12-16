@@ -6,25 +6,42 @@
 </head>
 <body style="margin:0; background:black;">
 
-<video id="vid" src="./media/Videos/WALKWAY0025-0220.mp4" autoplay playsinline controls style="width:100%; height:100%;"></video>
+<video id="vid" src="./media/Videos/WALKWAY0025-0220.mp4" autoplay playsinline controls style="width:100vw; height:100vh; object-fit:cover;"></video>
 
 <script>
 window.onload = function() {
     const video = document.getElementById("vid");
 
-    // Wait for the video to start playing to request fullscreen
-    video.onplay = function() {
-        // Request fullscreen
-        if (video.requestFullscreen) {
-            video.requestFullscreen();
-        } else if (video.webkitRequestFullscreen) { // Safari
-            video.webkigittRequestFullscreen();
-        } else if (video.msRequestFullscreen) { // Older IE/Edge
-            video.msRequestFullscreen();
+    // Cross-browser fullscreen helper (targeting desktop Chromium on Raspberry Pi)
+    function requestFullscreenCompat(elem) {
+        if (elem.requestFullscreen) {
+            return elem.requestFullscreen();
+        } else if (elem.webkitRequestFullscreen) {
+            return elem.webkitRequestFullscreen();
+        } else if (elem.mozRequestFullScreen) {
+            return elem.mozRequestFullScreen();
+        } else if (elem.msRequestFullscreen) {
+            return elem.msRequestFullscreen();
+        } else {
+            return Promise.reject(new Error('Fullscreen API is not supported'));
         }
-    };
+    }
 
-    // Start playing (needed for some browsers)
+    // Try to request fullscreen on the document root when playback starts
+    function onPlayOnce() {
+        video.removeEventListener('play', onPlayOnce);
+        const root = document.documentElement;
+        requestFullscreenCompat(root).catch(() => {
+            // fallback to the video element if document fullscreen is blocked
+            requestFullscreenCompat(video).catch(err => {
+                console.warn('Could not enter fullscreen:', err);
+            });
+        });
+    }
+
+    video.addEventListener('play', onPlayOnce);
+
+    // Start playing (needed for some browsers / kiosk setups)
     video.play().catch((error) => {
         console.error("Error playing video:", error);
     });
