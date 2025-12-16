@@ -1,0 +1,42 @@
+services:
+  web:
+    image: ssm-php
+    container_name: apache-web-server
+    ports:
+      - '80:80'
+    volumes:
+      - ./public:/var/www/html/public
+      - ./src:/var/www/html/src
+      - ./vendor:/var/www/html/vendor
+      - ./db:/var/lib/mysql
+      - ./apache/vhost.conf:/etc/apache2/sites-available/000-default.conf
+      - ./composer.json:/var/www/html/composer.json
+    depends_on:
+      - db
+    restart: unless-stopped
+    networks:
+      - app-network
+  db:
+    image: mariadb:latest
+    container_name: mariadb
+    ports:
+      - '3306:3306'
+    restart: unless-stopped
+    networks:
+      - app-network
+    volumes:
+      - db_data:/var/lib/mysql
+    env_file:
+      - .env
+    environment:
+      MARIADB_DATABASE: mariadb
+      MARIADB_USER: mariadb
+      MARIADB_PASSWORD: mariadb
+      MARIADB_ROOT_PASSWORD: rootpassword
+
+volumes:
+  db_data:
+
+networks:
+  app-network:
+    driver: bridge
