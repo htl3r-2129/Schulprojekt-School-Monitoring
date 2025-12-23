@@ -53,17 +53,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <main class="center-wrap">
     <h1 class="page-title">Verify E-Mail</h1>
 
-    <p class="verify-text">A verification code has been sent to <strong><?php echo htmlspecialchars($sent_email ?: 'xxxx@htl.rennweg.at', ENT_QUOTES); ?></strong>.<br>
-        Please enter the code to verify your E-Mail.</p>
+    <p class="verify-text">A verification link has been sent to <strong><?php echo htmlspecialchars($sent_email ?: 'xxxx@htl.rennweg.at', ENT_QUOTES); ?></strong>.<br>
+        Please check your inbox and open the link to verify your E-Mail.</p>
 
     <form method="post" class="login-form" novalidate>
         <?php if (!empty($error)) echo "<p class='error-message'>" . htmlspecialchars($error, ENT_QUOTES) . "</p>"; ?>
         <?php if (!empty($success)) echo "<p class='success-message'>" . htmlspecialchars($success, ENT_QUOTES) . "</p>"; ?>
-
-        <label class="field-label">Code:</label>
-        <input class="code-input" type="text" name="code" placeholder="" autocomplete="one-time-code">
-
-        <button type="submit" class="btn login">Enter</button>
     </form>
 </main>
 
