@@ -22,16 +22,16 @@ $queries = [
     "
     CREATE TABLE IF NOT EXISTS post(
         PK_Post_ID INT AUTO_INCREMENT,
-        submittedBy INT,
-        approvedBy INT,
+        submittedBy VARCHAR(255),
+        approvedBy VARCHAR(255),
         title VARCHAR(64),
         text TEXT,
         qPosition INT,
         isInstant BOOLEAN,
         von DATE,
         bis DATE,
-        FOREIGN KEY (submittedBy) REFERENCES user (PK_User_ID),
-        FOREIGN KEY (approvedBy) REFERENCES user (PK_User_ID),
+        FOREIGN KEY (submittedBy) REFERENCES user(PK_User_ID),
+        FOREIGN KEY (approvedBy) REFERENCES user(PK_User_ID),
         PRIMARY KEY (PK_Post_ID)
     )
     ",
