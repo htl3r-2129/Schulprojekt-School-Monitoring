@@ -8,13 +8,14 @@ $db = new DB;
 $queries = [
     "
     CREATE TABLE IF NOT EXISTS user(
-        PK_User_ID INT AUTO_INCREMENT,
+        PK_User_ID VARCHAR(255),
         username VARCHAR(16),
         email VARCHAR(255),
         password VARCHAR(255),
         role INT,
         isLocked BOOLEAN,
         2faSuccess BOOLEAN,
+        2faCode INT,
         PRIMARY KEY (PK_User_ID)
     )
     ",
