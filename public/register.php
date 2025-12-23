@@ -55,55 +55,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <title>Registrieren</title>
+    <title>Registrierung</title>
     <link rel="stylesheet" href="styles/style.css">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
 </head>
 <body>
-<header>
-    <a href="https://www.htlrennweg.at">
+<header class="topbar">
+    <a href="https://www.htlrennweg.at/" class="logo-link">
         <img src="images/logo.png" alt="Logo" class="logo">
     </a>
-    <h1>Schulmonitor Registrierung</h1>
+    <div class="brand">Schulmonitor</div>
 </header>
 
-<form method="post">
-    <?php if (!empty($error)) echo "<p class='error'>$error</p>"; ?>
-    <?php if (!empty($success)) echo "<p class='success'>$success</p>"; ?>
+<main class="center-wrap">
+    <h1 class="page-title">Sign-Up Page</h1>
 
-    <label>E-Mail (nur <?= htmlspecialchars($required_domain) ?>):</label>
-    <input type="email" name="email" required value="<?= htmlspecialchars($email ?? '') ?>">
+    <form method="post" class="login-form" novalidate>
+        <?php if (!empty($error)) echo "<p class='error-message'>" . htmlspecialchars($error, ENT_QUOTES) . "</p>"; ?>
+        <?php if (!empty($success)) echo "<p class='success-message'>" . $success . "</p>"; ?>
 
-    <label>Passwort:</label>
-    <input type="password" name="password" id="password" required>
-    
-    <label>Passwort bestätigen:</label>
-    <input type="password" name="password_confirm" id="password_confirm" required>
+        <label class="field-label">School E-Mail Address:</label>
+        <input type="email" name="email" placeholder="school@domain.edu" required value="<?= htmlspecialchars($email ?? '') ?>">
 
-    <div class="password-toggle">
-        <input type="checkbox" id="showPassword">
-        <label for="showPassword">Passwort anzeigen</label>
-    </div>
-    
-    <button type="submit" class="main">Registrieren</button>
-    <a href="login.php" class="button-link secondary">Zurück zum Login</a>
-</form>
+        <label class="field-label">Password:</label>
+        <input type="password" name="password" id="password" placeholder="Password" required>
 
-<script>
-    const passwordInput = document.getElementById('password');
-    const passwordConfirmInput = document.getElementById('password_confirm');
-    const toggle = document.getElementById('showPassword');
+        <label class="field-label">Confirm Password:</label>
+        <input type="password" name="password_confirm" id="password_confirm" placeholder="Confirm Password" required>
 
-    if (passwordInput && passwordConfirmInput && toggle) {
-        toggle.addEventListener('change', function() {
-            if (this.checked) {
-                passwordInput.type = 'text';
-                passwordConfirmInput.type = 'text';
-            } else {
-                passwordInput.type = 'password';
-                passwordConfirmInput.type = 'password';
-            }
-        });
-    }
-</script>
+        <button type="submit" class="btn login">Sign-Up</button>
+
+        <div class="links">
+            <a href="login.php">Already have an account? Login</a>
+        </div>
+    </form>
+</main>
+
 </body>
 </html>

@@ -73,7 +73,8 @@ h1.page-title {
 }
 
 input[type="text"],
-input[type="password"] {
+input[type="password"],
+input[type="email"]{
     width: 260px;
     padding: 10px 12px;
     margin: 6px 0 18px;
@@ -194,6 +195,26 @@ p {
     color: #303b46;
     text-decoration: underline;
 }
+
+/* Page-specific helpers for verify/forgot-password page */
+.verify-text {
+    max-width: 520px;
+    margin: 0 auto 18px;
+    text-align: center;
+    font-size: 14px;
+    color: #222; 
+}
+
+.code-input {
+    width: 320px;
+    padding: 10px 12px;
+    border-radius: 5px;
+    border: 2px solid #303b46;
+    font-family: 'Trebuchet MS', Helvetica, Arial, sans-serif;
+    font-size: 16px;
+}
+
+.topbar .actions { display: none; }
 
 @media (max-width: 480px) {
     .login-form { width: 92%; }
