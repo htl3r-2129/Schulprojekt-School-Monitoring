@@ -1,0 +1,172 @@
+/* Grundlayout */
+html, body {
+    background-color: #ffffff !important; /* force white background */
+    height: 100% !important;
+}
+
+body {
+    font-family: 'Trebuchet MS', Helvetica, Arial, sans-serif;
+    color: #303b46;
+    margin: 0 !important;
+    padding: 0 !important;
+    min-height: 100vh !important;
+    background-color: #ffffff !important;
+}
+
+/* Header für alle Seiten */
+/* Top bar/header */
+.topbar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    background-color: #668099;
+    padding: 18px 34px;
+}
+
+.topbar .brand {
+    font-family: 'Helvetica LT Pro', Trebuchet MS, Arial, sans-serif;
+    font-weight: 700;
+    font-size: 28px;
+    color: #e23c21;
+}
+
+.logo {
+    height: 67px;
+    width: auto;
+    display: block;
+}
+
+.logo-link {
+    display: inline-block;
+    margin-right: 18px;
+}
+
+.brand {
+    margin-left: 0;
+}
+
+/* Formulare */
+/* Centered content area */
+.center-wrap {
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 0 20px 60px;
+    background-color: #ffffff !important;
+}
+
+.page-title {
+    text-align: center;
+    font-family: 'Helvetica LT Pro', Trebuchet MS, Arial, sans-serif;
+    font-size: 42px;
+    color: #e23c21;
+    margin: 36px 0 30px;
+}
+
+.login-form {
+    width: 360px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+input[type="text"],
+input[type="password"] {
+    width: 260px;
+    padding: 10px 12px;
+    margin: 6px 0 18px;
+    border: 2px solid #303b46;
+    border-radius: 5px;
+    font-family: 'Trebuchet MS', Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    outline: none;
+    background: #fff;
+}
+
+.field-label {
+    width: 260px;
+    font-size: 12px;
+    color: #303b46;
+    margin-bottom: 6px;
+    align-self: flex-start;
+}
+
+.btn {
+    width: 140px;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 5px;
+    font-family: 'Trebuchet MS', Helvetica, Arial, sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    color: white;
+    cursor: pointer;
+    transition: 0.18s ease;
+    text-align: center;
+}
+
+/* Buttons Hauptfarbe */
+.btn.login {
+    background-color: #303b46;
+}
+
+.btn.login:hover {
+    background-color: #3d4752;
+}
+
+/* Buttons Sekundärfarbe */
+button.secondary {
+    background-color: #668099;
+}
+
+button.secondary:hover {
+    background-color: #56667a;
+}
+
+/* Buttons Akzentfarbe */
+button.accent {
+    background-color: #303b46;
+}
+
+button.accent:hover {
+    background-color: #3d4752;
+}
+
+/* Überschriften */
+h1, h2, h3 {
+    font-family: 'Helvetica LT Pro', Trebuchet MS, Arial, sans-serif;
+    margin: 0 0 15px 0;
+}
+
+/* Body Text */
+p {
+    font-family: 'Trebuchet MS', Helvetica, Arial, sans-serif;
+    font-size: 1em;
+    line-height: 1.5;
+    color: #303b46;
+}
+
+.error-message {
+    color: #e23c21;
+    margin-bottom: 10px;
+    font-size: 13px;
+}
+
+.links {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 12px;
+    align-items: center;
+}
+
+.links a {
+    font-size: 13px;
+    color: #303b46;
+    text-decoration: underline;
+}
+
+@media (max-width: 480px) {
+    .login-form { width: 92%; }
+    input[type="text"], input[type="password"], .field-label { width: 100%; }
+}
