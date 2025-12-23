@@ -6,7 +6,6 @@ html, body {
 
 body {
     font-family: 'Trebuchet MS', Helvetica, Arial, sans-serif;
-    color: #303b46;
     margin: 0 !important;
     padding: 0 !important;
     min-height: 100vh !important;
@@ -19,19 +18,20 @@ body {
     display: flex;
     align-items: center;
     justify-content: flex-start;
+    height: 80px;
     background-color: #668099;
     padding: 18px 34px;
 }
 
 .topbar .brand {
-    font-family: 'Helvetica LT Pro', Trebuchet MS, Arial, sans-serif;
+    font-family: Helvetica, Arial, sans-serif;
     font-weight: 700;
     font-size: 28px;
     color: #e23c21;
 }
 
 .logo {
-    height: 67px;
+    height: 100px;
     width: auto;
     display: block;
 }
@@ -54,10 +54,12 @@ body {
     background-color: #ffffff !important;
 }
 
-.page-title {
+.page-title,
+h1.page-title {
     text-align: center;
-    font-family: 'Helvetica LT Pro', Trebuchet MS, Arial, sans-serif;
-    font-size: 42px;
+    font-family: Helvetica, Arial, sans-serif !important;
+    font-weight: 700 !important;
+    font-size: 60px;
     color: #e23c21;
     margin: 36px 0 30px;
 }
@@ -75,7 +77,7 @@ input[type="password"] {
     width: 260px;
     padding: 10px 12px;
     margin: 6px 0 18px;
-    border: 2px solid #303b46;
+    border: 2px solid;
     border-radius: 5px;
     font-family: 'Trebuchet MS', Helvetica, Arial, sans-serif;
     font-size: 14px;
@@ -85,10 +87,9 @@ input[type="password"] {
 
 .field-label {
     width: 260px;
+    font-family: 'Trebuchet MS', Helvetica, Arial, sans-serif;
     font-size: 12px;
-    color: #303b46;
     margin-bottom: 6px;
-    align-self: flex-start;
 }
 
 .btn {
@@ -105,16 +106,18 @@ input[type="password"] {
     text-align: center;
 }
 
-/* Buttons Hauptfarbe */
+/* Button Normal - Red/Orange */
+.btn,
 .btn.login {
-    background-color: #303b46;
+    background-color: #56667a;
 }
 
+.btn:hover,
 .btn.login:hover {
     background-color: #3d4752;
 }
 
-/* Buttons Sekundärfarbe */
+/* Button Secondary - Blue */
 button.secondary {
     background-color: #668099;
 }
@@ -123,25 +126,49 @@ button.secondary:hover {
     background-color: #56667a;
 }
 
-/* Buttons Akzentfarbe */
+/* Button Accent - Dark */
 button.accent {
-    background-color: #303b46;
-}
-
-button.accent:hover {
     background-color: #3d4752;
 }
 
+button.accent:hover {
+    background-color: #2a3039;
+}
+
 /* Überschriften */
-h1, h2, h3 {
-    font-family: 'Helvetica LT Pro', Trebuchet MS, Arial, sans-serif;
+h1 {
+    font-family: Helvetica, Arial, sans-serif;
+    font-weight: 700;
+    font-size: 60px;
     margin: 0 0 15px 0;
+    color: #303b46;
+}
+
+h1.page-title {
+    font-family: Helvetica, Arial, sans-serif !important;
+    font-weight: 700 !important;
+}
+
+h2 {
+    font-family: Helvetica, Arial, sans-serif;
+    font-weight: 400;
+    font-size: 36px;
+    margin: 0 0 15px 0;
+    color: #303b46;
+}
+
+h3 {
+    font-family: Helvetica, Arial, sans-serif;
+    font-weight: 300;
+    font-size: 26px;
+    margin: 0 0 15px 0;
+    color: #303b46;
 }
 
 /* Body Text */
 p {
     font-family: 'Trebuchet MS', Helvetica, Arial, sans-serif;
-    font-size: 1em;
+    font-size: 24px;
     line-height: 1.5;
     color: #303b46;
 }
@@ -158,9 +185,11 @@ p {
     gap: 6px;
     margin-top: 12px;
     align-items: center;
+    
 }
 
 .links a {
+    font-weight: 700;
     font-size: 13px;
     color: #303b46;
     text-decoration: underline;
