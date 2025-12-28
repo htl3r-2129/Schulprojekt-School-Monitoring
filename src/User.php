@@ -94,4 +94,6 @@ class User
         $stmt->bind_param("s", $this->uuid);
         $stmt->execute();
     }
+
+
 }

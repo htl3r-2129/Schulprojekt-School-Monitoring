@@ -3,7 +3,7 @@ session_start();
 
 require __DIR__ . '/../vendor/autoload.php';
 
-use App\classes\Auth;
+use Insi\Ssm\Auth;
 
 // DEFINITION GANZ OBEN für sauberen Code
 $required_domain = '@htl.rennweg.at'; 
@@ -20,6 +20,7 @@ if (isset($_SESSION['username'])) {
 }
 
 // Variablen für die Formularwerte (werden auch für die Anzeige nach einem Fehler verwendet)
+$username = $_POST['username'] ?? '';
 $email = $_POST['email'] ?? '';
 $password = $_POST['password'] ?? '';
 $password_confirm = $_POST['password_confirm'] ?? '';
@@ -36,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         // --- 2. Registrierungsversuch ---
         // Übergabe der E-Mail als Platzhalter für $username und $email (Datenbank erwartet beides)
-        $registration_result = $auth->register($email, $email, $password); 
+        $registration_result = $auth->register($username, $email, $password);
         
         if ($registration_result === true) {
             // Erfolg
@@ -73,6 +74,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <form method="post" class="login-form" novalidate>
         <?php if (!empty($error)) echo "<p class='error-message'>" . htmlspecialchars($error, ENT_QUOTES) . "</p>"; ?>
         <?php if (!empty($success)) echo "<p class='success-message'>" . $success . "</p>"; ?>
+
+        <label class="field-label">Username:</label>
+        <input type="text" name="username" placeholder="Username" required>
 
         <label class="field-label">School E-Mail Address:</label>
         <input type="email" name="email" placeholder="school@domain.edu" required value="<?= htmlspecialchars($email ?? '') ?>">

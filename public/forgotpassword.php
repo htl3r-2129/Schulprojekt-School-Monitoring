@@ -3,7 +3,7 @@ session_start();
 
 require __DIR__ . '/../vendor/autoload.php';
 
-use App\classes\Auth;
+use Insi\Ssm\Auth;
 
 $auth = new Auth();
 $error = '';

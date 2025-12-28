@@ -1,6 +1,7 @@
 <?php
 namespace Insi\Ssm;
 require_once '../vendor/autoload.php';
+//require_once 'Queries/create_db.php';
 use mysqli;
 
 class DB
