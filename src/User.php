@@ -69,7 +69,11 @@ class User
 
     public function sendTwoFaEmail()
     {
-
+//        TODO: smtp-Server is required to send emails
+//        $msg = "This is a test email for 2-Factor-Authentication for the School Monitor Project.";
+//        $msg = wordwrap($msg, 70);
+//
+//        mail($this->email, "2 Factor Code", $msg);
     }
 
     public function sendResetPasswordEmail()
