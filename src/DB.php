@@ -31,4 +31,9 @@ class DB
     {
         return $this->conn;
     }
+
+    public function status()
+    {
+        return $this->conn->ping();
+    }
 }
