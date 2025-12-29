@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Viewport</title>
+<title>Vertikales Slide-Display mit Video & optionalem Text</title>
 <style>
   :root {
     --gap: 18px;
@@ -108,28 +108,18 @@
    Hier die Daten konfigurieren
    ============================ */
 
-/* ============================
-   Konfiguration
-   ============================ */
+/* Beispiel-Daten (deine Arrays) */
+const titles = ["Wasser","Feuer","Erde"];
+const texts  = ["Feuchtigkeit ist wichtig","", "Ich mag Erde"];
+const videos = ["./media/Videos/WALKWAY0025-0220.mp4","./media/Videos/323661713077374979.mp4","./media/Videos/WALKWAY0025-0220.mp4"];
 
-const titles = ["Wasser", "Feuer", "Erde"];
-
-const texts = [
-  "Feuchtigkeit ist wichtig",
-  "Grrrrrr",
-  "Ich mag Erde"
-];
-
-const media = [
-  { type: "video", src: "./media/Videos/downloadfile-4.mov" },
-  { type: "image", src: "./media/Images/Houser.jpg" },
-  { type: "image", src: "./media/Images/whitewhitey.jpg" }
-];
-
-const slideDurationSeconds = 3;
-//Array overwrites time[]
+/* Slide-Dauer: entweder eine Zahl (Sekunden) für alle Slides
+   oder ein Array mit Sekunden pro Slide. Wenn beide gesetzt,
+   hat das Array Vorrang (falls Länge übereinstimmt/ausreichend). */
+const slideDurationSeconds = 3; // global fallback: 10s
+// Beispiel pro-slide-dauern (optional)
+// const durations = [8, 12, 6];
 const durations = null;
-
 
 /* ============================
    Kein weiteres Editieren nötig
@@ -137,73 +127,62 @@ const durations = null;
 
 const slidesInner = document.getElementById('slidesInner');
 
-const n = titles.length;
+// Bestimme Anzahl Slides (nimmt längstes Array)
+const n = Math.max(titles.length, texts.length, videos.length);
+
+// Einfachheit: falls arrays kürzer sind, benutzen wir '' als Fallback
+function at(arr, i){ return (arr && i < arr.length) ? arr[i] : ""; }
 
 // Erzeuge jede Slide
 const slideData = [];
+for(let i=0;i<n;i++){
+  const t = at(titles,i);
+  const txt = at(texts,i);
+  const vid = at(videos,i);
 
-for (let i = 0; i < n; i++) {
   const slide = document.createElement('section');
   slide.className = 'slide';
   slide.dataset.index = i;
 
-  /* Titel (immer vorhanden) */
+  // Titel
   const h = document.createElement('h1');
-  h.textContent = titles[i];
+  h.textContent = t || ""; // falls leer, bleibt Titel leer
   slide.appendChild(h);
 
-  /* Optionaler Text */
-  if (texts[i] && texts[i].trim() !== "") {
+  // Optionaler Text (nur wenn nicht-leer nach trim)
+  if(txt && txt.toString().trim() !== ""){
     const d = document.createElement('div');
     d.className = 'text';
-    d.textContent = texts[i];
+    d.textContent = txt;
     slide.appendChild(d);
   }
 
-  /* Media-Container */
-  const wrap = document.createElement('div');
-  wrap.className = 'video-wrap';
+  // Video-Container
+  const vwrap = document.createElement('div');
+  vwrap.className = 'video-wrap';
 
-  let videoRef = null;
-
-  if (media[i]?.type === "video") {
+  if(vid && vid.toString().trim() !== ""){
     const video = document.createElement('video');
-    video.src = media[i].src;
+    // wir verwenden kein autoplay-attr, spielen programmatisch, aber setzen muted für Autoplay-Erlaubnis
+    video.src = vid;
     video.preload = 'auto';
     video.muted = true;
-    video.loop = false;
     video.playsInline = true;
-
-    video.addEventListener("ended", () => {
-      // Nur reagieren, wenn dieses Video auch aktiv ist
-      if (slideData[currentIndex]?.video === video) {
-      goTo(currentIndex + 1);
-      }
-    });
-
-    wrap.appendChild(video);
-    videoRef = video;
-  }
-  else if (media[i]?.type === "image") {
-    const img = document.createElement('img');
-    img.src = media[i].src;
-    img.alt = titles[i];
-    img.style.width = "100%";
-    img.style.height = "100%";
-    img.style.objectFit = "contain";
-    img.draggable = false;
-    wrap.appendChild(img);
-  }
-  else {
+    video.loop = true;
+    // pointer events deaktiviert via CSS
+    vwrap.appendChild(video);
+    slideData.push({slide, video});
+  } else {
+    // Platzhalter
     const ph = document.createElement('div');
     ph.className = 'video-placeholder';
-    ph.textContent = 'Kein Medium vorhanden';
-    wrap.appendChild(ph);
+    ph.textContent = 'Kein Video verfügbar';
+    vwrap.appendChild(ph);
+    slideData.push({slide, video: null});
   }
 
-  slide.appendChild(wrap);
+  slide.appendChild(vwrap);
   slidesInner.appendChild(slide);
-  slideData.push({ slide, video: videoRef });
 }
 
 /* Helper: Dauer für slide i in ms */
@@ -224,48 +203,40 @@ function goTo(index){
   if(index >= slideData.length) index = 0;
 
   currentIndex = index;
-
   const y = - index * window.innerHeight;
   slidesInner.style.transform = `translateY(${y}px)`;
 
-  // Alle Videos pausieren, nur aktuelles abspielen
+  // Pause alte Videos und Play neues
   slideData.forEach((sd, idx) => {
     if(sd.video){
       try {
         if(idx === index){
           sd.video.currentTime = 0;
           const playPromise = sd.video.play();
+          // play() returns a Promise in many browsers; ignore rejections silently
           if(playPromise && typeof playPromise.then === 'function'){
-            playPromise.catch(() => {});
+            playPromise.catch(()=>{/* Autoplay blocked? video is muted so unlikely */});
           }
         } else {
           sd.video.pause();
         }
       } catch(e){
+        // ignore
         console.warn('Video play/pause Fehler', e);
       }
     }
   });
 
-  // Timer nur für Slides OHNE Video
+  // (Re)Starte Timer für nächsten Slide
   scheduleNext();
 }
-
 
 /* Timer-Management */
 function scheduleNext(){
   clearTimeout(autoTimer);
-
-  const sd = slideData[currentIndex];
-
-  // ❌ KEIN Timer für Videos
-  if (sd.video) return;
-
-  // ✅ Timer nur für Bilder / Slides ohne Video
   const ms = getDurationMs(currentIndex);
-  autoTimer = setTimeout(() => goTo(currentIndex + 1), ms);
+  autoTimer = setTimeout(()=> goTo(currentIndex + 1), ms);
 }
-
 
 /* Bei Größenänderung neu-positionieren (z.B. Fenster-Resize) */
 window.addEventListener('resize', ()=> {
