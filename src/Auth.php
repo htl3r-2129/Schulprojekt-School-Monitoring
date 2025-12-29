@@ -12,17 +12,13 @@ class Auth {
         $this->db = new DB();
         $this->users = [
             // Beispiel-Benutzer TODO: user aus db auslesen
+            // should contain array with user data as string, not user classes (maybe)
             new User("Max Musterman", "musterman@htl.rennweg.at", "password", $this->db)
         ];
     }
     
     public function login(string $username, string $password) {
-        if (isset($this->users[$username]) && password_verify($password, $this->users[$username])) {
-            $email = $username; 
-            
-            // TODO: Passwort korrekt
-
-        }
+        // TODO: Passwort korrekt
         return false;
     }
 
@@ -32,6 +28,7 @@ class Auth {
     }
     
     public function register(string $username, string $email, string $password) {
+        // TODO: check if e-mail is already in use
         new User($username, $email, $password, $this->db);
         // TODO: notify frontend so user is forwarded to dashboard
         return true;

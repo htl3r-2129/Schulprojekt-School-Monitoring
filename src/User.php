@@ -95,5 +95,9 @@ class User
         $stmt->execute();
     }
 
-
+    public static function getUsersFromDB($database): array
+    {
+        // TODO: read users from return table
+        return [];
+    }
 }
