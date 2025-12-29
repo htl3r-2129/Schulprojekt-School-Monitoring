@@ -94,4 +94,10 @@ class User
         $stmt->bind_param("s", $this->uuid);
         $stmt->execute();
     }
+
+    public static function getUsersFromDB($database): array
+    {
+        // TODO: read users from return table
+        return [];
+    }
 }

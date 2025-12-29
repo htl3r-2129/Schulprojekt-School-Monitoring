@@ -3,7 +3,7 @@ namespace Insi\Ssm\Queries;
 require_once '../vendor/autoload.php';
 use Insi\Ssm\DB;
 
-$db = new DB;
+$db = new DB; // TODO: replace with global db from Auth()
 
 $queries = [
     "
@@ -53,15 +53,6 @@ $queries = [
         url VARCHAR(255),
         alt_text VARCHAR(255),
         PRIMARY KEY (PK_Website_ID),
-        FOREIGN KEY (post) REFERENCES post (PK_Post_ID)
-    )
-    ",
-    "
-    CREATE TABLE IF NOT EXISTS untis(
-        PK_Untis_ID INT AUTO_INCREMENT,
-        post INT,
-        file_path VARCHAR(255),
-        PRIMARY KEY (PK_Untis_ID),
         FOREIGN KEY (post) REFERENCES post (PK_Post_ID)
     )
     "

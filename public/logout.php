@@ -2,7 +2,7 @@
 session_start();
 require __DIR__ . '/../vendor/autoload.php';
 
-use App\classes\Auth;
+use Insi\Ssm\Auth;
 
 // Instanziierung ohne Argument
 $auth = new Auth(); 
