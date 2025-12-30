@@ -8,6 +8,11 @@
         }
     },
     "require": {
-      "ext-mysqli": "*"
+        "php": "^8.2",
+        "ext-curl": "*",
+        "ext-mysqli": "*",
+        "railsware/mailtrap-php": "3.9.*",
+        "symfony/http-client": "7.4.*",
+        "nyholm/psr7": "1.8.*"
     }
 }
