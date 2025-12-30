@@ -129,9 +129,9 @@
     ];
 
     const media = [
-      { type: "video", src: "./media/Videos/downloadfile-4.mov" },
+      { type: "video", src: "./media/Videos/WALKWAY0025-0220.mp4" },
       { type: "image", src: "./media/Images/Houser.jpg" },
-      { type: "image", src: "./media/Images/whitewhitey.jpg" }
+      {}
     ];
 
     const slideDurationSeconds = 3;
@@ -165,9 +165,10 @@
 
 
       /* Media-Container */
+      /* Media-Container */
       let videoRef = null;
 
-      if (media[i] != null) {
+      if (media[i] !== null && media[i] !== undefined && (media[i].type === "video" || media[i].type === "image")) {
         const wrap = document.createElement('div');
         wrap.className = 'video-wrap';
 
@@ -199,8 +200,10 @@
           img.draggable = false;
           wrap.appendChild(img);
         }
-        slide.appendChild(wrap);
+
+        slide.appendChild(wrap);  // Media-Container nur hinzufügen, wenn Medien vorhanden sind
       }
+
       slidesInner.appendChild(slide);
       slideData.push({ slide, video: videoRef });
     }
