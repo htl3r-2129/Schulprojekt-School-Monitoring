@@ -77,83 +77,81 @@ $last_name = 'NACHNAME';   // Would come from DB
 ?>
 <!DOCTYPE html>
 <html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <title>Admin</title>
-    <link rel="stylesheet" href="styles/style.css">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-</head>
-<body>
-<header class="topbar">
-    <a href="https://www.htlrennweg.at/" class="logo-link">
-        <img src="images/logo.png" alt="Logo" class="logo">
-    </a>
-    <div class="brand">Schulmonitor</div>
-    <div class="user-profile">
-        <div class="user-info">
-            <div class="user-role">Administrator</div>
-            <span class="user-name"><?php echo htmlspecialchars($first_name . ' ' . $last_name); ?></span>
+    <head>
+        <meta charset="UTF-8">
+        <title>Admin</title>
+        <link rel="stylesheet" href="styles/style.css">
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+    </head>
+    <body>
+    <header class="topbar">
+        <a href="https://www.htlrennweg.at/" class="logo-link">
+            <img src="images/logo.png" alt="Logo" class="logo">
+        </a>
+        <div class="brand">Schulmonitor</div>
+        <div class="user-profile">
+            <div class="user-info">
+                <div class="user-role">Administrator</div>
+                <span class="user-name"><?php echo htmlspecialchars($first_name . ' ' . $last_name); ?></span>
+            </div>
+            <a href="logout.php" class="btn primary">Log-out</a>
         </div>
-        <a href="logout.php" class="btn logout-btn">Log-out</a>
-    </div>
-</header>
+    </header>
+        <main class="center-wrap">
+            <h2 class="admin-greeting">Hello Admin!</h2>
 
-<main class="center-wrap">
-    <h2 class="admin-greeting">Hello Admin!</h2>
+            <div class="admin-box">
+                <h3>allgemeine Einstellungen</h3>
 
-    <div class="admin-box">
-        <h3>allgemeine Einstellungen</h3>
-        
-        <form method="post" novalidate>
-            <?php if (!empty($error)) echo "<p class='error-message'>" . htmlspecialchars($error, ENT_QUOTES) . "</p>"; ?>
-            <?php if (!empty($success)) echo "<p class='success-message'>" . htmlspecialchars($success, ENT_QUOTES) . "</p>"; ?>
+                <form method="post" novalidate>
+                    <?php if (!empty($error)) echo "<p class='error-message'>" . htmlspecialchars($error, ENT_QUOTES) . "</p>"; ?>
+                    <?php if (!empty($success)) echo "<p class='success-message'>" . htmlspecialchars($success, ENT_QUOTES) . "</p>"; ?>
 
-            <div class="form-row">
-                <label>Betriebszeit:</label>
-                <input type="time" name="betriebszeit_start" value="<?php echo htmlspecialchars($settings['betriebszeit_start']); ?>">
-                <span class="time-separator">-</span>
-                <input type="time" name="betriebszeit_end" value="<?php echo htmlspecialchars($settings['betriebszeit_end']); ?>">
+                    <div class="form-row">
+                        <label>Betriebszeit:</label>
+                        <input type="time" name="betriebszeit_start" value="<?php echo htmlspecialchars($settings['betriebszeit_start']); ?>">
+                        <span class="time-separator">-</span>
+                        <input type="time" name="betriebszeit_end" value="<?php echo htmlspecialchars($settings['betriebszeit_end']); ?>">
+                    </div>
+
+                    <div class="form-row">
+                        <label>Instant-Message:</label>
+                    </div>
+                    <div class="message-wrapper">
+                        <textarea name="instant_message" placeholder="Type your message here..."><?php echo htmlspecialchars($settings['instant_message']); ?></textarea>
+                    </div>
+                    <div class="message-controls">
+                        <input type="number" class="small-input" name="instant_message_time" value="<?php echo htmlspecialchars($settings['instant_message_time']); ?>" placeholder="Zeit in s" min="1">
+                        <button type="submit" name="send_message" class="btn primary send">Send</button>
+                    </div>
+
+                    <div class="form-row">
+                        <label>Bilderzeit:</label>
+                        <input type="text" name="bilderzeit" value="<?php echo htmlspecialchars($settings['bilderzeit']); ?>">
+                    </div>
+
+                    <div class="form-row">
+                        <label>Maximaler Speicherplatz:</label>
+                        <input type="text" name="max_storage" value="<?php echo htmlspecialchars($settings['max_storage']); ?>">
+                    </div>
+
+                    <div class="form-row">
+                        <label>Speicherplatzinfo:</label>
+                        <input type="text" name="storage_info" value="<?php echo htmlspecialchars($settings['storage_info']); ?>" disabled>
+                    </div>
+
+                    <div class="button-group">
+                        <button type="submit" name="reset" class="btn accent reset">reset</button>
+                        <button type="submit" name="save" class="btn primary save">Speichern</button>
+                    </div>
+                </form>
             </div>
 
-            <div class="form-row">
-                <label>Instant-Message:</label>
+            <hr class="section-sep">
+            <div class="admin-actions">
+                <a href="admin_manageusers.php" class="btn accent manage">Manage Users</a>
+                <a href="mod.php" class="btn secondary mod">Mod view</a>
             </div>
-            <div class="message-wrapper">
-                <textarea name="instant_message" placeholder="Type your message here..."><?php echo htmlspecialchars($settings['instant_message']); ?></textarea>
-            </div>
-            <div class="message-controls">
-                <input type="number" class="small-input" name="instant_message_time" value="<?php echo htmlspecialchars($settings['instant_message_time']); ?>" placeholder="Zeit in s" min="1">
-                <button type="submit" name="send_message" class="btn btn-send">Send</button>
-            </div>
-
-            <div class="form-row">
-                <label>Bilderzeit:</label>
-                <input type="text" name="bilderzeit" value="<?php echo htmlspecialchars($settings['bilderzeit']); ?>">
-            </div>
-
-            <div class="form-row">
-                <label>Maximaler Speicherplatz:</label>
-                <input type="text" name="max_storage" value="<?php echo htmlspecialchars($settings['max_storage']); ?>">
-            </div>
-
-            <div class="form-row">
-                <label>Speicherplatzinfo:</label>
-                <input type="text" name="storage_info" value="<?php echo htmlspecialchars($settings['storage_info']); ?>" disabled>
-            </div>
-
-            <div class="button-group">
-                <button type="submit" name="reset" class="btn btn-reset">reset</button>
-                <button type="submit" name="save" class="btn btn-save">Speichern</button>
-            </div>
-        </form>
-    </div>
-
-        <hr class="section-sep">
-    <div class="admin-actions">
-        <a href="admin_manageusers.php" class="btn btn-manage">Manage Users</a>
-        <a href="mod.php" class="btn btn-mod">Mod view</a>
-    </div>
-</main>
-
-</body>
+        </main>
+    </body>
 </html>
