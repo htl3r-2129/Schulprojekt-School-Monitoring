@@ -8,11 +8,16 @@ use Insi\Ssm\Auth;
 
 $auth = new Auth();
 
+if (isset($_COOKIE['user'])) {
+    header(header: 'Location: dashboard.php');
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = $_POST['username'] ?? '';
+    $email = $_POST['email'] ?? '';
     $password = $_POST['password'] ?? '';
 
-    if ($auth->login($username, $password)) {
+    if ($auth->login($email, $password)) {
+        setcookie("user", "$email", time() + (86400 * 30), "/");
         header(header: 'Location: dashboard.php');
         exit;
     } else {
@@ -43,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php if (!empty($error)) echo "<p class='error-message'>" . htmlspecialchars($error, ENT_QUOTES) . "</p>"; ?>
 
         <label class="field-label">School E-Mail Address:</label>
-        <input type="text" name="username" placeholder="school@domain.edu" required>
+        <input type="email" name="email" placeholder="school@domain.edu" required>
 
         <label class="field-label">Password:</label>
         <input type="password" name="password" placeholder="Password" required>
