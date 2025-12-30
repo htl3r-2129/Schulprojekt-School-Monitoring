@@ -22,40 +22,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 <!DOCTYPE html>
 <html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <title>Login</title>
-    <link rel="stylesheet" href="styles/style.css">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-</head>
-<body>
-<header class="topbar">
-    <a href="https://www.htlrennweg.at/" class="logo-link">
-        <img src="images/logo.png" alt="Logo" class="logo">
-    </a>
-    <div class="brand">Schulmonitor</div>
-</header>
+    <head>
+        <meta charset="UTF-8">
+        <title>Login - Schulmonitor</title>
+        <link rel="stylesheet" href="styles/style.css">
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+    </head>
+    <body>
 
-<main class="center-wrap">
-    <h1 class="page-title">Login Page</h1>
+    <header class="topbar">
+        <a href="https://www.htlrennweg.at/" class="logo-link">
+            <img src="images/logo.png" alt="Logo" class="logo">
+        </a>
+        <div class="brand">Schulmonitor</div>
+    </header>
 
-    <form method="post" class="login-form" novalidate>
-        <?php if (!empty($error)) echo "<p class='error-message'>" . htmlspecialchars($error, ENT_QUOTES) . "</p>"; ?>
+    <main class="center-wrap">
+        <h1 class="page-title">Login Page</h1>
 
-        <label class="field-label">School E-Mail Address:</label>
-        <input type="text" name="username" placeholder="school@domain.edu" required>
+        <form method="post" class="login-form">
+            <?php if ($error): ?>
+                <p class="error-message"><?= htmlspecialchars($error) ?></p>
+            <?php endif; ?>
 
-        <label class="field-label">Password:</label>
-        <input type="password" name="password" placeholder="Password" required>
+            <label class="field-label">School E-Mail Address:</label>
+            <input type="text" name="username" placeholder="school@domain.edu" required value="<?= htmlspecialchars($_POST['username'] ?? '') ?>">
 
-        <button type="submit" class="btn login">Login</button>
+            <label class="field-label">Password:</label>
+            <input type="password" name="password" placeholder="Password" required>
 
-        <div class="links">
-            <a href="forgotpassword.php">Forgot password?</a>
-            <a href="register.php">No account? Register now</a>
-        </div>
-    </form>
-</main>
+            <button type="submit" class="btn primary">Login</button>
 
-</body>
+            <div class="links">
+                <a href="forgotpassword.php">Forgot password?</a>
+                <a href="register.php">No account? Register now</a>
+            </div>
+        </form>
+    </main>
+
+    </body>
 </html>
