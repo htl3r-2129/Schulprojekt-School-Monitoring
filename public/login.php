@@ -8,6 +8,10 @@ use Insi\Ssm\Auth;
 
 $auth = new Auth();
 
+if (isset($_COOKIE['user'])) {
+    header(header: 'Location: dashboard.php');
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = $_POST['email'] ?? '';
     $password = $_POST['password'] ?? '';

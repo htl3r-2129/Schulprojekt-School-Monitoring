@@ -34,8 +34,7 @@ class Auth {
     }
 
     public function logout() {
-        $_SESSION = [];
-        session_destroy();
+        setcookie("user", "", time() - 3600);
     }
     
     public function register(string $username, string $email, string $password) {

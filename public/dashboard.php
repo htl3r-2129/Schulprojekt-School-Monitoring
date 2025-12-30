@@ -1,11 +1,11 @@
 <?php
-session_start();
+//session_start();
 
 // Composer Autoload
 require __DIR__ . '/../vendor/autoload.php';
 
 // Prüfen, ob der Benutzer eingeloggt ist
-if (!isset($_SESSION['username'])) { 
+if (!isset($_COOKIE['user'])) {
     // Wenn nicht angemeldet: HTML für die Fehlermeldung ausgeben und Skript beenden
     ?>
     <!DOCTYPE html>
@@ -55,7 +55,7 @@ if (!isset($_SESSION['username'])) {
 </header>
 
 <main>
-    <h2>Willkommen, <?= htmlspecialchars($_SESSION['username']); ?>!</h2>
+    <h2>Willkommen, <?= htmlspecialchars($_COOKIE['user']); ?>!</h2>
     <p>Dies ist das geschützte Dashboard. Ihr Login ist jetzt doppelt gesichert.</p>
     
     <form method="post" action="logout.php">
