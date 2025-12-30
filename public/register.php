@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $email = '';
         } else {
             // Fehler (wird als String von Auth::register zurückgegeben, z.B. "DB-Verbindung fehlgeschlagen")
-            $error = $registration_result; 
+            $error = "Registrierung fehlgeschlagen! Benutzer mit dieser E-Mail existiert bereits.";
         }
     }
 }

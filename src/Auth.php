@@ -17,8 +17,19 @@ class Auth {
 //        ];
     }
     
-    public function login(string $username, string $password) {
-        // TODO: Passwort korrekt
+    public function login(string $email, string $password) {
+        $stmt = $this->db->getConn()->prepare("SELECT password FROM user WHERE email = ?");
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $stmt->bind_result($result);
+        $stmt->fetch();
+
+        $password = hash('sha256', $password);
+//        echo "Set password: " . $result . "<br>";
+//        echo "Given password: " . $password . "<br>";
+        if ($result == $password){
+            return true;
+        }
         return false;
     }
 
@@ -33,10 +44,8 @@ class Auth {
         $stmt->execute();
         if (!$stmt->fetch()){
             new User($username, $email, $password, $this->db);
-            // TODO: notify frontend so user is forwarded to dashboard
             return true;
         }
-        echo "Error: User with that email already exists.";
         // TODO: show the error in a more pleasant way
         return false;
     }
