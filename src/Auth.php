@@ -25,8 +25,6 @@ class Auth {
         $stmt->fetch();
 
         $password = hash('sha256', $password);
-//        echo "Set password: " . $result . "<br>";
-//        echo "Given password: " . $password . "<br>";
         if ($result == $password){
             return true;
         }
