@@ -48,8 +48,8 @@ $queue_items = array_fill(0, 12, ['id' => '1', 'title' => 'Überschrift 1', 'thu
         <h3 class="queue-title">Active Content Queue:</h3>
         
         <div class="content-queue-container">
-            <?php foreach($queue_items as $item): ?>
-            <div class="queue-card">
+            <?php foreach($queue_items as $index => $item): ?>
+            <div class="queue-card" data-content-id="<?php echo $item['id']; ?>" data-title="<?php echo htmlspecialchars($item['title']); ?>" data-thumbnail="<?php echo htmlspecialchars($item['thumbnail_url'] ?? ''); ?>" onclick="openContentModal(this)">
                 <div class="card-preview">
                     <?php if(!empty($item['thumbnail_url']) && file_exists($item['thumbnail_url'])): ?>
                         <img src="<?php echo htmlspecialchars($item['thumbnail_url']); ?>" alt="Thumbnail" class="preview-img">
@@ -64,10 +64,79 @@ $queue_items = array_fill(0, 12, ['id' => '1', 'title' => 'Überschrift 1', 'thu
     </div>
 
     <div class="mod-actions">
-        <button class="btn btn-approver">Content Approver</button>
+        <a href="mod_contentapprover.php" class="btn btn-approver">Content Approver</a>
     </div>
 
 </main>
+
+<!-- Content Preview Modal -->
+<div id="contentModal" class="modal-overlay" onclick="closeContentModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <button class="modal-close" onclick="closeContentModal()">&times;</button>
+        <div class="modal-title">Von [Username]</div>
+        <div class="modal-preview" id="modalPreviewArea">
+            <span class="preview-placeholder">PREVIEW</span>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-delete" onclick="deleteContent()">Delete</button>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentContentId = null;
+
+function openContentModal(cardElement) {
+    const contentId = cardElement.dataset.contentId;
+    const title = cardElement.dataset.title;
+    const thumbnail = cardElement.dataset.thumbnail;
+    
+    currentContentId = contentId;
+    
+    // Update modal title
+    document.querySelector('.modal-title').textContent = 'Von [Username]';
+    
+    // Update preview area
+    const previewArea = document.getElementById('modalPreviewArea');
+    if (thumbnail && thumbnail.trim() !== '') {
+        previewArea.innerHTML = '<img src="' + thumbnail + '" alt="Content Preview" class="modal-preview-img">';
+    } else {
+        previewArea.innerHTML = '<span class="preview-placeholder">PREVIEW</span>';
+    }
+    
+    // Show modal
+    document.getElementById('contentModal').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+function closeContentModal(event) {
+    if (event && event.target !== event.currentTarget) return;
+    
+    document.getElementById('contentModal').style.display = 'none';
+    document.body.style.overflow = 'auto';
+    currentContentId = null;
+}
+
+function deleteContent() {
+    if (!currentContentId) return;
+    
+    // TODO: Add actual delete logic (AJAX call to server)
+    console.log('Deleting content with ID:', currentContentId);
+    
+    // Close modal after deletion
+    closeContentModal();
+    
+    // TODO: Remove the card from DOM or refresh the page
+    alert('Delete functionality to be implemented');
+}
+
+// Close modal on Escape key
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        closeContentModal();
+    }
+});
+</script>
 
 </body>
 </html>
