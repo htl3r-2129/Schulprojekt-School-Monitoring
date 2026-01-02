@@ -49,12 +49,15 @@
 
     //++++++++++++++++++++ DATA CRATION ++++++++++++++++++++
 
-    const titles = ["Wasser ist feucht und wichtig zu trinken !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", "Feuer", "Instant", "Erde"]; //Mandatory!
+    const titles = ["Wasser ist feucht und wichtig zu trinken !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", "Feuer", "Instant", "Erde", "Meme1", "Meme2", "Meme3", "Meme4"]; //Mandatory!
 
     const texts = [
       "Feuchtigkeit ist wichtig",
       "",
       "Ich mag Erde und dies ist eine Instant Nachricht! text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text ",
+      "",
+      "",
+      "",
       ""
     ];
 
@@ -62,13 +65,17 @@
       { type: "video", src: "./media/Videos/WALKWAY0025-0220.mp4", instant: false },
       { type: "image", src: "./media/Images/Houser.jpg", instant: false },
       { instant: true },
-      { type: "image", src: "./media/Images/Houser.jpg", instant: false }
+      { type: "image", src: "./media/Images/ac57c738114cc5b52a4db7f554f18e7c.png", instant: false },
+      { type: "image", src: "./media/Images/AWWWWWWWWWWWW.jpg", instant: false },
+      { type: "image", src: "./media/Images/20240526_064542.jpg", instant: false },
+      { type: "image", src: "./media/Images/20240302_190932.jpg", instant: false }
+
     ];
 
     //++++++++++++++++++++ TIME-CONTROL ++++++++++++++++++++
 
     //default time
-    const slideDurationSeconds = 1;
+    const slideDurationSeconds = 3;
     //instant time
     const instantDurationSeconds = 10;
   
@@ -208,12 +215,21 @@
     //++++++ INSTANT MESSAGE OVERLAY CONTROL ++++++
     const instantOverlay = document.getElementById('instantOverlay');
     const instantContent = document.getElementById('instantContent');
+    let instantTimer = null;
 
     function updateInstantMessageOverlay(index) {
+      // Clear any existing instant message timer
+      clearTimeout(instantTimer);
+
       if (media[index]?.instant === true && texts[index]) {
         // Show overlay with instant message
         instantContent.textContent = texts[index];
         instantOverlay.classList.add('active');
+
+        // Auto-hide after instantDurationSeconds
+        instantTimer = setTimeout(() => {
+          instantOverlay.classList.remove('active');
+        }, Number(instantDurationSeconds) * 1000);
       } else {
         // Hide overlay for non-instant slides
         instantOverlay.classList.remove('active');

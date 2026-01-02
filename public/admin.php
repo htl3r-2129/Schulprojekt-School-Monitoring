@@ -101,7 +101,7 @@ $last_name = 'NACHNAME';   // Would come from DB
             <h2 class="admin-greeting">Hello Admin!</h2>
 
             <div class="admin-box">
-                <h3>allgemeine Einstellungen</h3>
+                <h3>Allgemeine Einstellungen</h3>
 
                 <form method="post" novalidate>
                     <?php if (!empty($error)) echo "<p class='error-message'>" . htmlspecialchars($error, ENT_QUOTES) . "</p>"; ?>
