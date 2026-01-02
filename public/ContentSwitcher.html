@@ -28,6 +28,11 @@
     </div>
   </div>
 
+  <!-- Instant Message Overlay -->
+  <div class="instant-message-overlay" id="instantOverlay">
+    <div class="instant-message-content" id="instantContent"></div>
+  </div>
+
 <!--Here beginns the js sript-->
 
   <script>
@@ -37,7 +42,7 @@
       const now = new Date();
       const hours = String(now.getHours()).padStart(2, '0');
       const minutes = String(now.getMinutes()).padStart(2, '0');
-      document.getElementById('currentTime').textContent = `${hours}:${minutes}`;
+      document.getElementById('currentTime').textContent = `${hours}:${minutes} Uhr`;
     }
     updateTime();
     setInterval(updateTime, 1000);
@@ -48,7 +53,7 @@
 
     const texts = [
       "Feuchtigkeit ist wichtig",
-      "Grrrrrr Grrrrrr Grrrrrr Grrrrrr Grrrrrr Grrrrrr GrrrrrrGrrrrrrGrrrrrrGrrrrrrGrrrrrrGrrrrrr Grrrrrr GrrrrrrGrrrrrrGrrrrrrGrrrrrr",
+      "",
       "Ich mag Erde und dies ist eine Instant Nachricht! text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text ",
       ""
     ];
@@ -200,6 +205,21 @@
     // Re-adjust on window resize
     window.addEventListener('resize', adjustSeparators);
 
+    //++++++ INSTANT MESSAGE OVERLAY CONTROL ++++++
+    const instantOverlay = document.getElementById('instantOverlay');
+    const instantContent = document.getElementById('instantContent');
+
+    function updateInstantMessageOverlay(index) {
+      if (media[index]?.instant === true && texts[index]) {
+        // Show overlay with instant message
+        instantContent.textContent = texts[index];
+        instantOverlay.classList.add('active');
+      } else {
+        // Hide overlay for non-instant slides
+        instantOverlay.classList.remove('active');
+      }
+    }
+
     //++++++ TIME CONTROL ++++++
     function getDurationMs(i) {
       // instant
@@ -223,6 +243,9 @@
 
       const y = - index * window.innerHeight;
       slidesInner.style.transform = `translateY(${y}px)`;
+
+      // Update instant message overlay
+      updateInstantMessageOverlay(index);
 
       //Stops all videos (again) to play the selected one (-> idiotic)
       slideData.forEach((sd, idx) => {
