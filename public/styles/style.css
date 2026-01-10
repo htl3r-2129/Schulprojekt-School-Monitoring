@@ -337,7 +337,6 @@ input[type="email"]{
     font-family: 'Trebuchet MS', Helvetica, Arial, sans-serif;
     font-weight: 700;
     font-size: 13px;
-    color: white;
     cursor: pointer;
     transition: 0.12s ease;
     text-align: center;
@@ -348,6 +347,7 @@ input[type="email"]{
 /* Button Normal - Red/Orange */
 .primary {
     background-color: #e23c21;
+    color: white;
 }
 
 .primary:hover {
@@ -357,6 +357,7 @@ input[type="email"]{
 /* Button Secondary - Blue */
 .secondary {
     background-color: #668099;
+    color: white;
 }
 
 .secondary:hover {
@@ -366,6 +367,7 @@ input[type="email"]{
 /* Button Accent - Dark */
 .accent {
     background-color: #303b46;
+    color: white;
 }
 
 .accent:hover {
@@ -937,7 +939,7 @@ p {
 }
 
 .modal-content {
-    background: #000000;
+    background: transparent;
     color: #ffffff;
     border-radius: 0;
     width: 92%;
