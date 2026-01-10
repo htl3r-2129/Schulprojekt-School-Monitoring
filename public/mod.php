@@ -14,15 +14,220 @@ $username = $_SESSION['username'] ?? 'Moderator';
 $first_name = 'Vorname';
 $last_name = 'NACHNAME';
 
-// Sample content queue (replace with DB fetch)
-$queue_items = array_fill(0, 12, ['id' => '1', 'title' => 'Überschrift 1', 'thumbnail_url' => null]);
+// Sample content queue
+//TODO: (replace with DB fetch)
+$queue_items = [
+    [
+        'id' => '1',
+        'title' => 'Wasser ist feucht und wichtig zu trinken !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!',
+        'thumbnail_url' => 'media/Videos/WALKWAY0025-0220.mp4',
+    ],
+    [
+        'id' => '2',
+        'title' => 'Feuer',
+        'thumbnail_url' => 'media/Images/Houser.jpg',
+    ],
+    [
+        'id' => '2',
+        'title' => 'Erde',
+        'thumbnail_url' => 'media/Images/AWWWWWWWWWWWW.jpg',
+    ]
+];
 ?>
 <!DOCTYPE html>
 <html lang="de">
 <head>
+    <style>
+                .content-queue-container {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 18px;
+                    justify-content: flex-start;
+                    align-items: flex-start;
+                }
+                .btn.accent.delete {
+                    background: var(--primary-red, #e23c21);
+                    color: #fff;
+                    border: none;
+                    border-radius: 8px;
+                    padding: 10px 28px;
+                    font-size: 1.1rem;
+                    font-family: "Segoe UI", Roboto, Arial, sans-serif;
+                    font-weight: 700;
+                    cursor: pointer;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+                    transition: background 0.2s, box-shadow 0.2s;
+                    margin-left: 0;
+                    margin-top: 10px;
+                    display: inline-block;
+                }
+                .btn.accent.delete:hover {
+                    background: #c22c13;
+                    box-shadow: 0 4px 18px rgba(0,0,0,0.13);
+                }
+        .modal-separator {
+            border: none;
+            border-top: 2px solid var(--primary-blue, #668099);
+            margin: 18px 0 0 0;
+            align-self: flex-start;
+            transition: width 0.2s;
+            background: none;
+            height: 0;
+            display: block;
+        }
+    .modal-extra-text {
+        width: 100%;
+        max-width: 900px;
+        font-size: clamp(16px, 2.5vw, 24px);
+        color: var(--dark-blue, #303b46);
+        text-align: center;
+        padding: 16px 0;
+        word-break: break-word;
+        font-weight: 400;
+        font-family: "Segoe UI", Roboto, Arial, sans-serif;
+        line-height: 1.6;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    </style>
+        <style>
+        .modal-content {
+            max-width: 700px;
+            width: 98vw;
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 4px 32px rgba(0,0,0,0.18);
+            padding: 32px 28px 24px 28px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 0;
+        }
+        .modal-title {
+            margin: 0;
+            font-weight: 900;
+            font-size: clamp(20px, 3.5vw, 40px);
+            color: var(--primary-red, #e23c21);
+            text-align: right;
+            padding-top: 100px;
+            word-break: break-word;
+            width: 100%;
+            font-family: "Segoe UI", Roboto, Arial, sans-serif;
+            line-height: 1.1;
+        }
+        .modal-preview {
+            width: 600px;
+            height: 340px;
+            background: #f3f3f3;
+            border-radius: 14px;
+            overflow: hidden;
+            display: block;
+            margin-bottom: 22px;
+            position: relative;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+            max-width: 90vw;
+        }
+        .modal-preview img,
+        .modal-preview video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 14px;
+            background: #e0e0e0;
+            display: block;
+        }
+        .modal-preview .preview-placeholder {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2;
+            font-size: 1.2rem;
+            color: #888;
+        }
+        @media (max-width: 800px) {
+            .modal-content {
+                max-width: 98vw;
+                padding: 18px 2vw 18px 2vw;
+            }
+            .modal-preview {
+                width: 98vw;
+                height: 48vw;
+                min-height: 120px;
+                max-width: 98vw;
+            }
+        }
+        </style>
     <meta charset="UTF-8">
     <title>Moderator</title>
     <link rel="stylesheet" href="styles/style.css">
+    <style>
+        .queue-card {
+            width: 340px;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+            padding: 12px 0 18px 0;
+            transition: box-shadow 0.2s;
+        }
+        .queue-card:hover {
+            box-shadow: 0 4px 18px rgba(0,0,0,0.13);
+        }
+    .card-preview {
+        width: 320px;
+        height: 200px;
+        background: #f3f3f3;
+        overflow: hidden;
+        border-radius: 12px;
+        position: relative;
+        margin: 0 auto 10px auto;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+        padding: 0;
+        display: block;
+    }
+    .card-preview img,
+    .card-preview video {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        display: block;
+        border-radius: 12px;
+        background: #e0e0e0;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+        margin: 0;
+        padding: 0;
+    }
+    .card-preview .preview-placeholder {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 2;
+    }
+    .card-subtitle {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 320px;
+        margin: 0 auto;
+        font-size: 1.15rem;
+        font-weight: 500;
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    </style>
     <meta name="viewport" content="width=device-width,initial-scale=1">
 </head>
 <body>
@@ -48,18 +253,40 @@ $queue_items = array_fill(0, 12, ['id' => '1', 'title' => 'Überschrift 1', 'thu
         <h3 class="queue-title">Active Content Queue:</h3>
         
         <div class="content-queue-container">
-            <?php foreach($queue_items as $index => $item): ?>
-            <div class="queue-card" data-content-id="<?php echo $item['id']; ?>" data-title="<?php echo htmlspecialchars($item['title']); ?>" data-thumbnail="<?php echo htmlspecialchars($item['thumbnail_url'] ?? ''); ?>" onclick="openContentModal(this)">
+            <?php
+            // Only show cards with valid media (image or video)
+            foreach($queue_items as $index => $item) {
+                $media_url = $item['thumbnail_url'] ?? '';
+                $title = $item['title'] ?? '';
+                $extra_text = '';
+                if ($index === 0) {
+                    $extra_text = 'Feuchtigkeit ist wichtig';
+                } elseif ($index === 1) {
+                    $extra_text = 'Das ist ein Beispielbild.';
+                }
+                $media_html = '';
+                $show_card = false;
+                if (!empty($media_url) && file_exists($media_url)) {
+                    $ext = strtolower(pathinfo($media_url, PATHINFO_EXTENSION));
+                    if (in_array($ext, ['mp4', 'webm', 'ogg'])) {
+                        $media_html = '<video src="' . htmlspecialchars($media_url) . '" class="preview-video" muted playsinline></video>';
+                        $show_card = true;
+                    } elseif (in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'])) {
+                        $media_html = '<img src="' . htmlspecialchars($media_url) . '" alt="Preview" class="preview-img" />';
+                        $show_card = true;
+                    }
+                }
+                $max_len = 30;
+                $short_title = mb_strlen($title) > $max_len ? mb_substr($title, 0, $max_len) . ' ...' : $title;
+                if ($show_card) {
+            ?>
+            <div class="queue-card" data-content-id="<?php echo $item['id']; ?>" data-title="<?php echo htmlspecialchars($title); ?>" data-thumbnail="<?php echo htmlspecialchars($media_url); ?>" data-extra-text="<?php echo htmlspecialchars($extra_text); ?>" onclick="openContentModal(this)">
                 <div class="card-preview">
-                    <?php if(!empty($item['thumbnail_url']) && file_exists($item['thumbnail_url'])): ?>
-                        <img src="<?php echo htmlspecialchars($item['thumbnail_url']); ?>" alt="Thumbnail" class="preview-img">
-                    <?php else: ?>
-                        <span class="preview-placeholder">PREVIEW</span>
-                    <?php endif; ?>
+                    <?php echo $media_html; ?>
                 </div>
-                <div class="card-subtitle"><?php echo htmlspecialchars($item['title']); ?></div>
+                <div class="card-subtitle"><?php echo htmlspecialchars($short_title); ?></div>
             </div>
-            <?php endforeach; ?>
+            <?php }} ?>
         </div>
     </div>
 
@@ -73,12 +300,16 @@ $queue_items = array_fill(0, 12, ['id' => '1', 'title' => 'Überschrift 1', 'thu
 <div id="contentModal" class="modal-overlay" onclick="closeContentModal(event)">
     <div class="modal-content" onclick="event.stopPropagation()">
         <button class="btn primary modal-close" onclick="closeContentModal()">&times;</button>
-        <div class="modal-title">Von [Username]</div>
+        <div class="modal-title" id="modalTitle">Von [Username]</div>
+        <hr class="modal-separator" id="modalSeparator" style="display:none;" />
+        <div class="modal-extra-text" id="modalExtraText"></div>
         <div class="modal-preview" id="modalPreviewArea">
             <span class="preview-placeholder">PREVIEW</span>
         </div>
         <div class="modal-footer">
-            <button class="btn secondary delete" onclick="deleteContent()">Delete</button>
+            <button class="btn accent delete" onclick="deleteContent()">Delete</button>
+            <!-- TODO: add username DB fetch implementation -->
+            <span class="modal-uploader" style="margin-left:18px;font-size:1.08rem;font-family:'Segoe UI',Roboto,Arial,sans-serif;color:#374151;font-weight:400;vertical-align:middle;">Von [Vorname] [Nachname]</span>
         </div>
     </div>
 </div>
@@ -86,24 +317,72 @@ $queue_items = array_fill(0, 12, ['id' => '1', 'title' => 'Überschrift 1', 'thu
 <script>
 let currentContentId = null;
 
+// Play video on hover for small preview boxes
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.queue-card .card-preview').forEach(function(preview) {
+        preview.addEventListener('mouseenter', function() {
+            const video = preview.querySelector('video');
+            if (video) {
+                video.muted = true;
+                video.play();
+            }
+        });
+        preview.addEventListener('mouseleave', function() {
+            const video = preview.querySelector('video');
+            if (video) {
+                video.pause();
+                video.currentTime = 0;
+            }
+        });
+    });
+});
+
 function openContentModal(cardElement) {
     const contentId = cardElement.dataset.contentId;
     const title = cardElement.dataset.title;
     const thumbnail = cardElement.dataset.thumbnail;
-    
+    const extraText = cardElement.dataset.extraText;
     currentContentId = contentId;
-    
-    // Update modal title
-    document.querySelector('.modal-title').textContent = 'Von [Username]';
-    
-    // Update preview area
-    const previewArea = document.getElementById('modalPreviewArea');
-    if (thumbnail && thumbnail.trim() !== '') {
-        previewArea.innerHTML = '<img src="' + thumbnail + '" alt="Content Preview" class="modal-preview-img">';
+    const modalTitle = document.getElementById('modalTitle');
+    modalTitle.style.textAlign = 'center';
+    modalTitle.textContent = title ? title : 'Von [Username]';
+    // Set extra text in its own div
+    const extraTextDiv = document.getElementById('modalExtraText');
+    const separator = document.getElementById('modalSeparator');
+    if (extraText && extraText.trim() !== '') {
+        extraTextDiv.textContent = extraText;
+        extraTextDiv.style.display = '';
+        // Show and size separator
+        separator.style.display = 'block';
+        // Wait for DOM update to measure widths
+        setTimeout(() => {
+            const titleWidth = modalTitle.scrollWidth;
+            const textWidth = extraTextDiv.scrollWidth;
+            const sepWidth = Math.max(titleWidth, textWidth);
+            separator.style.width = sepWidth + 'px';
+            separator.style.margin = '18px auto 0 auto';
+        }, 0);
     } else {
-        previewArea.innerHTML = '<span class="preview-placeholder">PREVIEW</span>';
+        extraTextDiv.textContent = '';
+        extraTextDiv.style.display = 'none';
+        separator.style.display = 'none';
     }
-    
+    // Update preview area: only the media
+    const previewArea = document.getElementById('modalPreviewArea');
+    let mediaHtml = '';
+    if (thumbnail && thumbnail.trim() !== '') {
+        const ext = thumbnail.split('.').pop().toLowerCase();
+        if (["mp4","webm","ogg"].includes(ext)) {
+            mediaHtml = '<video src="' + thumbnail + '" controls autoplay muted playsinline></video>';
+        } else if (["jpg","jpeg","png","gif","bmp","webp"].includes(ext)) {
+            mediaHtml = '<img src="' + thumbnail + '" alt="Content Preview" />';
+        } else {
+            mediaHtml = '<span class="preview-placeholder">PREVIEW</span>';
+        }
+    } else {
+        mediaHtml = '<span class="preview-placeholder">PREVIEW</span>';
+    }
+    previewArea.innerHTML = mediaHtml;
     // Show modal
     document.getElementById('contentModal').style.display = 'flex';
     document.body.style.overflow = 'hidden';
