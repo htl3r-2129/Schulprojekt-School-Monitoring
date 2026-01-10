@@ -36,7 +36,7 @@ $queue_items = array_fill(0, 12, ['id' => '1', 'title' => 'Überschrift 1', 'thu
             <div class="user-role">User</div>
             <span class="user-name"><?php echo htmlspecialchars($first_name . ' ' . $last_name); ?></span>
         </div>
-        <a href="logout.php" class="btn logout-btn">Log-out</a>
+        <a href="logout.php" class="btn accent logout">Log-out</a>
     </div>
 </header>
 
@@ -63,7 +63,7 @@ $queue_items = array_fill(0, 12, ['id' => '1', 'title' => 'Überschrift 1', 'thu
                     <label for="mediaUrl">Bild/Video einfügen:</label>
                     <div class="input-with-button">
                         <input id="mediaUrl" type="text" placeholder="Bild-URL oder Dateiname" autocomplete="off" required>
-                        <label for="mediaFile" class="btn file-button">Upload</label>
+                        <label for="mediaFile" class="btn file-selector">Upload</label>
                         <input id="mediaFile" type="file" accept="image/*,video/*" class="sr-only">
                     </div>
                 </div>
@@ -72,8 +72,8 @@ $queue_items = array_fill(0, 12, ['id' => '1', 'title' => 'Überschrift 1', 'thu
                     <textarea id="mediaExtra" rows="4" placeholder="Text"></textarea>
                 </div>
                 <div class="form-actions">
-                    <button type="button" class="btn btn-send" id="sendMedia">Send Content</button>
-                    <button type="button" class="btn btn-clear" id="clearMedia">Clear</button>
+                    <button type="button" class="btn accent send" id="sendMedia">Send Content</button>
+                    <button type="button" class="btn primary clear" id="clearMedia">Clear</button>
                 </div>
             </div>
             <div class="preview-container">
@@ -101,8 +101,8 @@ $queue_items = array_fill(0, 12, ['id' => '1', 'title' => 'Überschrift 1', 'thu
                     <textarea id="textExtra" rows="4" placeholder="Text" required></textarea>
                 </div>
                 <div class="form-actions">
-                    <button type="button" class="btn btn-send" id="sendText">Send Content</button>
-                    <button type="button" class="btn btn-clear" id="clearText">Clear</button>
+                    <button type="button" class="btn accent send" id="sendMedia">Send Content</button>
+                    <button type="button" class="btn primary clear" id="clearMedia">Clear</button>
                 </div>
             </div>
             <div class="preview-container">
@@ -139,13 +139,13 @@ $queue_items = array_fill(0, 12, ['id' => '1', 'title' => 'Überschrift 1', 'thu
 <!-- Content Preview Modal -->
 <div id="contentModal" class="modal-overlay" onclick="closeContentModal(event)">
     <div class="modal-content" onclick="event.stopPropagation()">
-        <button class="modal-close" onclick="closeContentModal()">&times;</button>
+        <button class="primary modal-close" onclick="closeContentModal()">&times;</button>
         <div class="modal-title">Von [Username]</div>
         <div class="modal-preview" id="modalPreviewArea">
             <span class="preview-placeholder">PREVIEW</span>
         </div>
         <div class="modal-text-content">
-            <h3 id="modalContentTitle" class="modal-content-title"></h3>
+            <h3 id="modalContentTitle" class="modal-content"></h3>
             <p id="modalContentExtra" class="modal-content-extra"></p>
         </div>
     </div>

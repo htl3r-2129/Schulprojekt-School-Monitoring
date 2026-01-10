@@ -180,9 +180,9 @@ body {
     border-radius: 6px;
 }
 
-.file-button {
-    background: #e8eef5;
-    color: #303b46;
+.file-selector {
+    background: #ffffff;
+    color: black;
     padding: 8px 12px;
     border-radius: 8px;
     border: 2px solid #3d4752;
@@ -191,23 +191,14 @@ body {
     text-align: center;
 }
 
-.file-button:hover {
-    background: #dce3ed;
-}
-
-.btn-send {
-    background: #303b46;
-    color: white;
+.send {
     padding: 14px 32px;
     border-radius: 12px;
     font-weight: 700;
-    box-shadow: 0 6px 16px rgba(0,0,0,0.18);
     min-width: 180px;
 }
 
-.btn-clear {
-    background: #e23c21;
-    color: white;
+.clear {
     padding: 14px 32px;
     border-radius: 12px;
     font-weight: 700;
@@ -355,32 +346,30 @@ input[type="email"]{
 }
 
 /* Button Normal - Red/Orange */
-.btn,
-.btn.login {
-    background-color: #56667a;
+.primary {
+    background-color: #e23c21;
 }
 
-.btn:hover,
-.btn.login:hover {
-    background-color: #3d4752;
+.primary:hover {
+    background-color: #c13616;
 }
 
 /* Button Secondary - Blue */
-button.secondary {
+.secondary {
     background-color: #668099;
 }
 
-button.secondary:hover {
+.secondary:hover {
     background-color: #56667a;
 }
 
 /* Button Accent - Dark */
-button.accent {
-    background-color: #3d4752;
+.accent {
+    background-color: #303b46;
 }
 
-button.accent:hover {
-    background-color: #2a3039;
+.accent:hover {
+    background-color: #3d4752;
 }
 
 /* Überhriften */
@@ -500,16 +489,11 @@ p {
     font-weight: 600;
 }
 
-.topbar .logout-btn {
+.topbar .logout {
     width: auto;
     padding: 10px 20px;
     font-size: 13px;
-    background-color: #3d4752;
     font-weight: 700;
-}
-
-.topbar .logout-btn:hover {
-    background-color: #2a3039;
 }
 
 .admin-greeting {
@@ -687,20 +671,16 @@ p {
     gap: 8px;
     align-items: flex-end;
 }
-.btn-small {
+.small {
     padding: 4px 8px;
     font-size: 12px;
     border-radius: 10px;
     min-width: 44px;
 }
-.btn-remove { background: #3d4752; color: #fff; }
-.btn-block { background: #e23c21; color: #fff; }
-.btn-unblock { background: #3d4752; color: #fff; }
-.btn-make { background: #3d4752; color: #fff; }
+
 .section-sep { margin:30px auto; width:90%; border:0; border-top:2px solid rgb(#303b46); }
 .manage-actions { text-align:center; margin:18px 0 60px; display:flex; justify-content:center; gap:30px; }
-.btn-manage-large { background:#e23c21; color:#fff; padding:10px 18px; border-radius:8px; }
-.btn-mod-large { background:#668099; color:#fff; padding:10px 18px; border-radius:8px; }
+.large { padding:10px 18px; border-radius:8px; }
 
 .admin-box .time-input-group {
     display: flex;
@@ -708,10 +688,9 @@ p {
     align-items: center;
 }
 
-.admin-box .btn-send {
+.admin-box .send {
     width: auto;
     padding: 6px 12px;
-    background-color: #3d4752;
     font-size: 12px;
 }
 
@@ -725,12 +704,7 @@ p {
 .admin-box .btn-reset {
     width: auto;
     padding: 8px 16px;
-    background-color: #e23c21;
     font-size: 12px;
-}
-
-.admin-box .btn-reset:hover {
-    background-color: #c13616;
 }
 
 .admin-box .btn-save {
@@ -751,27 +725,18 @@ p {
     margin: 40px 0;
 }
 
-.admin-actions .btn-manage {
+.admin-actions .manage {
     width: auto;
     padding: 10px 24px;
-    background-color: #e23c21;
     font-size: 14px;
 }
 
-.admin-actions .btn-manage:hover {
-    background-color: #c13616;
-}
-
-.admin-actions .btn-mod {
+.admin-actions .mod {
     width: auto;
     padding: 10px 24px;
-    background-color: #668099;
     font-size: 14px;
 }
 
-.admin-actions .btn-mod:hover {
-    background-color: #556a7d;
-}
 /* Moderator Page Styles */
 .mod-greeting {
     color: #e23c21;
@@ -788,13 +753,10 @@ p {
 }
 
 .mod-link a {
-    color: #303b46;
-    background: #303b46;
-    color: white;
+    color: #000000;
     padding: 14px 32px;
     border-radius: 12px;
     font-weight: 700;
-    box-shadow: 0 6px 16px rgba(0,0,0,0.18);
     min-width: 180px;
 }
 
@@ -953,16 +915,10 @@ p {
     border-top: 2px solid rgba(0, 0, 0, 0.2);
 }
 
-.btn-approver {
-    background: #668099;
-    color: white;
+.approver {
     padding: 10px 20px;
     border-radius: 8px;
     font-size: 14px;
-}
-
-.btn-approver:hover {
-    background: #556a7d;
 }
 
 /* Content Preview Modal */
@@ -981,7 +937,8 @@ p {
 }
 
 .modal-content {
-    background: transparent;
+    background: #000000;
+    color: #ffffff;
     border-radius: 0;
     width: 92%;
     max-width: 900px;
@@ -998,9 +955,6 @@ p {
     right: 0;
     width: 42px;
     height: 42px;
-    background: #e23c21;
-    color: white;
-    border: none;
     border-radius: 6px;
     font-size: 28px;
     font-weight: 700;
@@ -1010,12 +964,7 @@ p {
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.2s;
     z-index: 1;
-}
-
-.modal-close:hover {
-    background: #c13616;
 }
 
 .modal-title {
@@ -1060,52 +1009,29 @@ p {
     background: transparent;
 }
 
-.btn-approve {
-    background: #e23c21;
-    color: white;
+.approve {
     padding: 10px 20px;
     border-radius: 6px;
     font-size: 14px;
     font-weight: 700;
     border: none;
-    cursor: pointer;
-    transition: all 0.2s;
 }
 
-.btn-approve:hover {
-    background: #c13616;
-}
-
-.btn-delete {
-    background: #668099;
-    color: white;
+.delete {
     padding: 10px 20px;
     border-radius: 6px;
     font-size: 14px;
     font-weight: 700;
     border: none;
-    cursor: pointer;
-    transition: all 0.2s;
 }
 
-.btn-delete:hover {
-    background: #556a7d;
-}
 
-.btn-block {
-    background: #303b46;
-    color: white;
+.block {
     padding: 10px 20px;
     border-radius: 6px;
     font-size: 14px;
     font-weight: 700;
     border: none;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.btn-block:hover {
-    background: #3d4752;
 }
 
 .btn-cancel {

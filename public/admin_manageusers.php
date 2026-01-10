@@ -55,7 +55,7 @@ $blocked = array_fill(0,9, 'Vorname Nachname (0000)');
                             <div class="user-item">
                                 <div class="user-label"><?php echo htmlspecialchars($m); ?></div>
                                 <div class="actions">
-                                    <button class="btn btn-small btn-remove">remove</button>
+                                    <button class="btn small accent">remove</button>
                                 </div>
                             </div>
                         <?php endforeach; ?>
@@ -69,8 +69,8 @@ $blocked = array_fill(0,9, 'Vorname Nachname (0000)');
                             <div class="user-item">
                                 <div class="user-label"><?php echo htmlspecialchars($u); ?></div>
                                 <div class="actions">
-                                    <button class="btn btn-small btn-make">m</button>
-                                    <button class="btn btn-small btn-block">block</button>
+                                    <button class="btn small accent">m</button>
+                                    <button class="btn small primary">block</button>
                                 </div>
                             </div>
                         <?php endforeach; ?>
@@ -84,7 +84,7 @@ $blocked = array_fill(0,9, 'Vorname Nachname (0000)');
                             <div class="user-item">
                                 <div class="user-label"><?php echo htmlspecialchars($b); ?></div>
                                 <div class="actions">
-                                    <button class="btn btn-small btn-unblock">unblock</button>
+                                    <button class="btn small accent">unblock</button>
                                 </div>
                             </div>
                         <?php endforeach; ?>
@@ -94,8 +94,8 @@ $blocked = array_fill(0,9, 'Vorname Nachname (0000)');
 
             <hr class="section-sep">
             <div class="manage-actions">
-                <a href="admin.php" class="btn btn-manage-large">Admin Main</a>
-                <a href="mod.php" class="btn btn-mod-large">Mod view</a>
+                <a href="admin.php" class="btn primary large">Admin Main</a>
+                <a href="mod.php" class="btn secondary large">Mod view</a>
             </div>
         </main>
     </body>

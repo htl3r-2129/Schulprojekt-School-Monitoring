@@ -36,7 +36,7 @@ $queue_items = array_fill(0, 12, ['id' => '1', 'title' => 'Überschrift 1', 'thu
             <div class="user-role">Administrator</div>
             <span class="user-name"><?php echo htmlspecialchars($first_name . ' ' . $last_name); ?></span>
         </div>
-        <a href="logout.php" class="btn logout-btn">Log-out</a>
+        <a href="logout.php" class="btn accent logout">Log-out</a>
     </div>
 </header>
 
@@ -66,15 +66,15 @@ $queue_items = array_fill(0, 12, ['id' => '1', 'title' => 'Überschrift 1', 'thu
 <!-- Content Preview Modal -->
 <div id="contentModal" class="modal-overlay" onclick="closeContentModal(event)">
     <div class="modal-content" onclick="event.stopPropagation()">
-        <button class="modal-close" onclick="closeContentModal()">&times;</button>
+        <button class=" primary modal-close" onclick="closeContentModal()">&times;</button>
         <div class="modal-title">Von [Username]</div>
         <div class="modal-preview" id="modalPreviewArea">
             <span class="preview-placeholder">PREVIEW</span>
         </div>
         <div class="modal-footer">
-            <button class="btn btn-approve" onclick="approveContent()">Approve</button>
-            <button class="btn btn-delete" onclick="deleteContent()">Delete</button>
-            <button class="btn btn-block" onclick="blockUser()">Block User</button>
+            <button class="btn primary approve" onclick="approveContent()">Approve</button>
+            <button class="btn secondary delete" onclick="deleteContent()">Delete</button>
+            <button class="btn accent block" onclick="blockUser()">Block User</button>
         </div>
     </div>
 </div>
