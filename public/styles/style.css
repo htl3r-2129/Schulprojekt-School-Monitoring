@@ -954,6 +954,7 @@ p {
 .modal-close {
     position: absolute;
     top: 50px;
+    transform: translateY(-12px);
     right: 0;
     width: 42px;
     height: 42px;
