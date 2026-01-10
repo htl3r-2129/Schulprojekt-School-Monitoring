@@ -119,6 +119,7 @@
       align-items: center;
       justify-content: center;
       overflow-y: auto;
+      overflow: hidden;
     }
 
     /* Instant message styling */
@@ -215,7 +216,7 @@
       max-height: calc(100vh - 280px);
       width: 100%;
     }
-    }
+    
 
     .video-wrap video,
     .video-wrap img {
