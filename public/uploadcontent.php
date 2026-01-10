@@ -24,6 +24,312 @@ $queue_items = array_fill(0, 12, ['id' => '1', 'title' => 'Überschrift 1', 'thu
     <title>Moderator</title>
     <link rel="stylesheet" href="styles/style.css">
     <meta name="viewport" content="width=device-width,initial-scale=1">
+    <style>
+        /* =========================================================
+   PREVIEW – Schwarzer Rahmen + Text + Media (FINAL)
+   ========================================================= */
+
+        /* Schwarzer Rahmen */
+        .black-preview {
+            border: 3px solid #000;
+            padding: 25px 20px;
+            background: #fff;
+
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ---------- TEXTBLOCK (OBEN) ---------- */
+        .preview-text {
+            display: flex;
+            flex-direction: column;
+            align-items: center;   /* 🔥 jede Zeile einzeln zentriert */
+            gap: 10px;
+
+            margin-bottom: 20px;
+        }
+
+        /* Überschrift */
+        .preview-title {
+            color: #e53935;
+            font-size: 30px;
+            font-weight: 700;
+
+            margin: 0;
+            padding: 0;
+
+            text-align: center;
+            max-width: 100%;
+            word-wrap: break-word;
+        }
+
+        /* Trennlinie */
+        .preview-separator {
+            width: 70%;
+            border: 1px solid #bbb;
+            margin: 0;
+        }
+
+        .preview-separator[hidden] {
+            display: none !important;
+        }
+
+        /* Zusatztext */
+        .preview-extra {
+            font-size: 16px;
+            color: #444;
+
+            margin: 0;
+            padding: 0;
+
+            text-align: center;
+            max-width: 100%;
+            word-wrap: break-word;
+        }
+
+        /* ---------- MEDIA (UNTEN) ---------- */
+        .preview-media-area {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            width: 100%;
+            min-height: 200px;
+        }
+
+        /* Bild & Video */
+        .preview-media-area img,
+        .preview-media-area video {
+            width: 100%;
+            max-height: 450px;
+
+            object-fit: contain;
+            display: block;
+        }
+
+        /* Platzhalter */
+        .preview-placeholder {
+            color: #999;
+            font-size: 18px;
+            letter-spacing: 2px;
+        }
+
+        /* =========================================================
+   TEXT-ONLY PREVIEW – ZENTRIERT
+   ========================================================= */
+
+        .text-preview {
+            display: flex;
+            flex-direction: column;
+            align-items: center;   /* 🔥 jede Zeile einzeln zentriert */
+            gap: 10px;
+
+            padding: 25px 20px;
+        }
+
+        /* Überschrift */
+        .text-preview-title {
+            font-size: 30px;
+            font-weight: 700;
+            color: #e53935;
+
+            margin: 0;
+            text-align: center;
+            max-width: 100%;
+            word-wrap: break-word;
+        }
+
+        /* Trennlinie */
+        .text-preview .preview-separator {
+            width: 70%;
+            border: 1px solid #bbb;
+            margin: 0;
+        }
+
+        /* Zusatztext */
+        .text-preview-extra {
+            font-size: 16px;
+            color: #444;
+
+            margin: 0;
+            text-align: center;
+            max-width: 100%;
+            word-wrap: break-word;
+        }
+
+        /* ---------- MEDIA IM PREVIEW ---------- */
+        .preview-media-area img,
+        .preview-media-area video {
+            width: 75%;          /* 🔽 noch kleiner */
+            max-height: 280px;   /* 🔽 deutlich niedriger */
+            object-fit: contain;
+
+            display: block;
+            margin: 0 auto;
+
+            border: none;        /* ❌ kein schwarzer Rahmen */
+            outline: none;
+            box-shadow: none;
+        }
+
+        .preview-media-area * {
+            border: none !important;
+        }
+
+
+        /* Gilt für Überschrift UND Text */
+        .preview-title,
+        .preview-extra,
+        .text-preview-title,
+        .text-preview-extra {
+            max-width: 100%;
+            text-align: center;
+
+            /* 🔥 Zeilenumbruch erzwingen */
+            white-space: normal;
+            word-break: break-word;
+            overflow-wrap: anywhere;
+        }
+
+
+        /* VORGEFERTIGTES PREVIEW-KÄSTCHEN */
+        .preview-media-area {
+            width: 100%;
+            height: 180px;              /* feste Höhe */
+            overflow: hidden;           /* 🔥 nichts darf raus */
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            background: #f5f7f9;
+            border-radius: 10px;
+        }
+
+        .preview-media-area img,
+        .preview-media-area video {
+            max-width: 100%;
+            max-height: 100%;
+
+            object-fit: cover;          /* 🔥 füllt die Box sauber */
+            display: block;
+
+            border: none;
+            box-shadow: none;
+        }
+
+        .card-preview {
+            width: 100%;
+            height: 160px;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            padding: 0;
+            border: none;
+        }
+
+        .card-preview img,
+        .card-preview video {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+
+
+        /* ==============================
+   CARD PREVIEW – FINAL
+   ============================== */
+
+        .card-preview {
+            width: 100%;
+            height: 160px;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            background: #f3f6f8;
+            border-radius: 10px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .card-preview:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-preview img,
+        .card-preview video {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+
+
+        .preview-media-area {
+            width: 100%;
+            height: 320px;              /* 🔥 feste Höhe für große Preview */
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            background: transparent;
+            padding: 0;
+        }
+
+        .preview-media-area img,
+        .preview-media-area video {
+            max-width: 100%;
+            max-height: 100%;
+
+            width: auto;
+            height: auto;
+
+            object-fit: contain;
+            display: block;
+        }
+
+        .modal-preview {
+            width: 100%;
+            height: 360px;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            overflow: hidden;
+        }
+
+        .modal-preview img,
+        .modal-preview video {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .card-subtitle {
+            color: #e53935;      /* 🔴 gleiche Farbe wie große Überschrift */
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .modal-content-title {
+            color: #e53935;
+        }
+
+        .modal-content-extra {
+            color: #444;
+        }
+
+
+    </style>
 </head>
 <body>
 <header class="topbar">
@@ -77,15 +383,24 @@ $queue_items = array_fill(0, 12, ['id' => '1', 'title' => 'Überschrift 1', 'thu
                 </div>
             </div>
             <div class="preview-container">
-                <h3 id="previewTitle" class="preview-title"></h3>
-                <hr id="previewSeparator" class="preview-separator" hidden>
-                <p id="previewExtra" class="preview-extra"></p>
-                <div class="media-preview">
+                <div class="media-preview black-preview">
+
+                    <!-- TEXT OBEN -->
+                    <div class="preview-text">
+                        <h3 id="previewTitle" class="preview-title"></h3>
+                        <hr id="previewSeparator" class="preview-separator" hidden>
+                        <p id="previewExtra" class="preview-extra"></p>
+                    </div>
+
+                    <!-- MEDIA UNTEN -->
                     <div id="previewMedia" class="preview-media-area">
                         <span class="preview-placeholder">PREVIEW</span>
                     </div>
+
                 </div>
             </div>
+
+
         </div>
     </div>
 
@@ -145,7 +460,12 @@ $queue_items = array_fill(0, 12, ['id' => '1', 'title' => 'Überschrift 1', 'thu
             <span class="preview-placeholder">PREVIEW</span>
         </div>
         <div class="modal-text-content">
+<<<<<<< Updated upstream
             <h3 id="modalContentTitle" class="modal-content"></h3>
+=======
+            <h3 id="modalContentTitle" class="modal-content-title"></h3>
+            <hr id="modalSeparator" class="preview-separator" hidden>
+>>>>>>> Stashed changes
             <p id="modalContentExtra" class="modal-content-extra"></p>
         </div>
     </div>
@@ -179,6 +499,14 @@ function openContentModal(cardElement) {
     document.getElementById('modalContentTitle').textContent = title || '';
     document.getElementById('modalContentExtra').textContent = extraText || '';
     
+    // Show separator only if there is extra text
+    const separator = document.getElementById('modalSeparator');
+    separator.hidden = !extraText || extraText.trim() === '';
+    
+    // Hide extra text paragraph if empty
+    const extraParagraph = document.getElementById('modalContentExtra');
+    extraParagraph.style.display = extraText && extraText.trim() !== '' ? 'block' : 'none';
+    
     // Show modal
     document.getElementById('contentModal').style.display = 'flex';
     document.body.style.overflow = 'hidden';
@@ -203,26 +531,37 @@ const mediaExtraInput = document.getElementById('mediaExtra');
 const clearMediaBtn = document.getElementById('clearMedia');
 
 function renderInto(target, src, isVideo) {
-    const makeVideo = () => {
-        const video = document.createElement('video');
-        video.controls = true;
-        video.src = src;
-        target.innerHTML = '';
-        target.appendChild(video);
-    };
+    target.innerHTML = '';
 
     if (isVideo) {
-        makeVideo();
+        const video = document.createElement('video');
+        video.src = src;
+
+        video.muted = false;
+        video.controls = true;
+        video.playsInline = true;
+        video.preload = 'metadata';
+
+        video.style.maxWidth = '100%';
+        video.style.maxHeight = '100%';
+        video.style.objectFit = 'contain';
+
+        target.appendChild(video);
         return;
     }
 
     const img = document.createElement('img');
-    img.alt = 'Preview';
     img.src = src;
-    img.onerror = makeVideo; // fallback to video if image fails (e.g., CDN video)
-    target.innerHTML = '';
+    img.alt = 'Preview';
+
+    img.style.maxWidth = '100%';
+    img.style.maxHeight = '100%';
+    img.style.objectFit = 'contain';
+
     target.appendChild(img);
 }
+
+
 
 function handleUrlPreview() {
     const url = mediaUrlInput.value.trim();
@@ -374,6 +713,144 @@ if (sendTextBtn) {
     });
 }
 
+/* ================== TESTDATEN (NUR FÜR HISTORY) ================== */
+
+const testTitles = [
+    "Wasser ist feucht und wichtig zu trinken !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!",
+    "Feuer",
+    "Engel",
+    "TextOnly",
+    "#rkkfejijr4ftiokdrthufridjhgrfijehfrneijdm"
+];
+
+const testTexts = [
+    "Feuchtigkeit ist wichtig",
+    "",
+    "Ich mag Erde und dies ist eine Instant Nachricht! text text text text text text text text text text text text",
+    "ajsdkjasdkjaskldjlaskjdlkasjdlkajsdlkajsdlkjasdlkjaslkdjalskdlaksjdlkasjd",
+    "hjffectbhu4rijuhtfrijerhgfijehgrijffffffffffffffffffffffffffffffffffffffffffffffffffffffffijjffffff"
+];
+
+const testMedia = [
+    { type: "video", src: "./media/Videos/WALKWAY0025-0220.mp4" },
+    { type: "image", src: "./media/Images/Houser.jpg" },
+    { instant: true },
+    {},
+    { type: "image", src: "./media/Images/Lando Norris playing with gravel.jpg" }
+];
+
+
+/* ================== HISTORY TESTDATEN IN CARDS EINSETZEN ================== */
+
+document.querySelectorAll('.queue-card').forEach((card, index) => {
+    if (!testTitles[index]) return;
+
+    const title = testTitles[index] || '';
+    const text = testTexts[index] || '';
+    const media = testMedia[index] || {};
+
+    /* ---- data-Attribute für Modal ---- */
+    card.dataset.title = title;
+    card.dataset.extra = text;
+    card.dataset.thumbnail = media.src || '';
+
+    /* ---- Titel unten in der Card ---- */
+    const subtitle = card.querySelector('.card-subtitle');
+    if (subtitle) subtitle.textContent = title;
+
+    /* ---- Preview oben ---- */
+    const preview = card.querySelector('.card-preview');
+    if (!preview) return;
+
+    preview.innerHTML = '';
+
+    if (media.instant) {
+        const span = document.createElement('span');
+        span.className = 'preview-placeholder';
+        span.textContent = 'TEXT';
+        preview.appendChild(span);
+        return;
+    }
+
+    if (media.type === 'image' && media.src) {
+        const img = document.createElement('img');
+        img.src = media.src;
+        img.alt = title;
+        preview.appendChild(img);
+        return;
+    }
+
+    if (media.type === 'video' && media.src) {
+        const video = document.createElement('video');
+        video.src = media.src;
+        video.muted = true;
+        video.autoplay = true;
+        video.loop = true;
+        video.playsInline = true;
+        preview.appendChild(video);
+        return;
+    }
+
+    const placeholder = document.createElement('span');
+    placeholder.className = 'preview-placeholder';
+    placeholder.textContent = 'PREVIEW';
+    preview.appendChild(placeholder);
+});
+
+
+/* =========================================================
+   CARD PREVIEW LOGIK (Bilder & Videos verkleinert anzeigen)
+   ========================================================= */
+
+function fillCardPreview(cardElement, mediaSrc) {
+    const preview = cardElement.querySelector('.card-preview');
+    if (!preview) return;
+
+    preview.innerHTML = '';
+
+    const isVideo = /\.(mp4|webm|ogg|mov|m4v)$/i.test(mediaSrc);
+
+    if (isVideo) {
+        // Zeige echtes Video in der kleinen Preview
+        const video = document.createElement('video');
+        video.src = mediaSrc;
+        video.muted = true;
+        video.autoplay = true;
+        video.loop = true;
+        video.playsInline = true;
+        preview.appendChild(video);
+    } else {
+        const img = document.createElement('img');
+        img.src = mediaSrc;
+        img.alt = 'Image Preview';
+        preview.appendChild(img);
+    }
+    
+    // Make the preview clickable to open the modal
+    preview.style.cursor = 'pointer';
+}
+
+/* =========================================================
+   TESTDATEN IN DIE PREVIEW-KÄSTCHEN LADEN
+   ========================================================= */
+
+const previewMedia = [
+    './media/Images/Houser.jpg',
+    './media/Videos/WALKWAY0025-0220.mp4',
+    './media/Images/Lando Norris playing with gravel.jpg',
+    '',
+    './media/Images/Lando Norris playing with gravel.jpg'
+];
+
+document.querySelectorAll('.queue-card').forEach((card, index) => {
+    if (previewMedia[index]) {
+        // Update data-thumbnail attribute so the modal displays the correct image
+        card.dataset.thumbnail = previewMedia[index];
+        fillCardPreview(card, previewMedia[index]);
+    }
+});
+
+
 // Close modal on Escape key
 document.addEventListener('keydown', function(event) {
     if (event.key === 'Escape') {
@@ -381,6 +858,8 @@ document.addEventListener('keydown', function(event) {
     }
 });
 </script>
+
+
 
 </body>
 </html>
