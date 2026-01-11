@@ -15,6 +15,11 @@ $slides = [
         "media" => "./media/Images/Houser.jpg",
         "text"  => "So ein schönes Bild"
     ],
+       [
+        "title" => "TITLE ONLY",
+        "type"  => "image",
+        "media" => "./media/Images/Houser.jpg",
+    ],
     [
         "title" => "Text Only",
         "type"  => "",

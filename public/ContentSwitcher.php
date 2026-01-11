@@ -56,7 +56,6 @@
     let lastSlidesJson = null;
     let lastTimeJson = null;
 
-
     //++++++++++++++++++++ TIME-CONTROL ++++++++++++++++++++
 
     //default time
@@ -94,7 +93,8 @@
 
 
     function SlideFetch() {
-      fetch('mod.php?export=json', {
+      // fetch('mod.php?export=json', {
+      fetch('slidegentest.php', {
         headers: {
             'Accept': 'application/json'
         }
@@ -163,7 +163,7 @@
         slide.appendChild(h);
 
         //++++++ TEXT CONTROL ++++++
-        if (texts[i] && texts[i].trim() !== "") {
+        if (texts[i] && texts[i].trim() !== "" || (media[i] !== null && media[i] !== undefined && (media[i].type === "video" || media[i].type === "image"))) {
           const isInstant = media[i]?.instant === true;
 
           // Add separator bar before text
@@ -171,13 +171,15 @@
           separator.className = 'text-separator';
           slide.appendChild(separator);
 
-          const d = document.createElement('div');
-          d.className = 'text';
-          if (isInstant) {
-            d.classList.add('instant');
+          if (texts[i] && texts[i].trim() !== "") {
+            const d = document.createElement('div');
+            d.className = 'text';
+            if (isInstant) {
+              d.classList.add('instant');
+            }
+            d.textContent = texts[i];
+            slide.appendChild(d);
           }
-          d.textContent = texts[i];
-          slide.appendChild(d);
         }
 
 
@@ -234,11 +236,13 @@
           const textEl = slide.querySelector('.text');
           const separator = slide.querySelector('.text-separator');
 
-          if (separator && titleEl && textEl) {
-            // Get the actual width of both elements
+          if (separator && titleEl) {
             const titleWidth = titleEl.scrollWidth;
-            const textWidth = textEl.scrollWidth;
-            const maxWidth = Math.max(titleWidth, textWidth);
+            let maxWidth = titleWidth;
+            if (textEl) {
+              const textWidth = textEl.scrollWidth;
+              maxWidth = Math.max(titleWidth, textWidth);
+            }
             separator.style.width = maxWidth + 'px';
           }
         });

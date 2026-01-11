@@ -494,12 +494,12 @@ function openContentModal(cardElement) {
     // Set extra text in its own div
     const extraTextDiv = document.getElementById('modalExtraText');
     const separator = document.getElementById('modalSeparator');
+    // Always show separator for media previews
+    separator.style.display = 'block';
     if (extraText && extraText.trim() !== '') {
         extraTextDiv.textContent = extraText;
         extraTextDiv.style.display = 'flex';
-        // Show and size separator
-        separator.style.display = 'block';
-        // Wait for DOM update to measure widths
+        // Size separator based on title and text
         setTimeout(() => {
             const titleWidth = modalTitle.scrollWidth;
             const textWidth = extraTextDiv.scrollWidth;
@@ -510,7 +510,12 @@ function openContentModal(cardElement) {
     } else {
         extraTextDiv.textContent = '';
         extraTextDiv.style.display = 'none';
-        separator.style.display = 'none';
+        // Size separator based on title only
+        setTimeout(() => {
+            const titleWidth = modalTitle.scrollWidth;
+            separator.style.width = titleWidth + 'px';
+            separator.style.margin = '12px auto';
+        }, 0);
     }
     // Update preview area: only the media
     const previewArea = document.getElementById('modalPreviewArea');
