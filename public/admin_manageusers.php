@@ -16,14 +16,9 @@ if (isset($_SESSION['user'])) {
     header(header: 'Location: error/401.php');
 }
 
-# $username = $_SESSION['username'] ?? 'Admin';
-# $first_name = 'Vorname';
-# $last_name = 'NACHNAME';
-
-// Sample lists (replace with DB fetch)
-$moderators = array_fill(0,9, 'Vorname Nachname (0000)');
-$users = array_fill(0,9, 'Vorname Nachname (0000)');
-$blocked = array_fill(0,9, 'Vorname Nachname (0000)');
+$moderators = $auth->getAllMods();
+$users = $auth->getAllUsers();
+$blocked = $auth->getAllLocked();
 ?>
 <!DOCTYPE html>
 <html lang="de">
@@ -46,7 +41,7 @@ $blocked = array_fill(0,9, 'Vorname Nachname (0000)');
         <div class="user-profile">
             <div class="user-info">
                 <div class="user-role">Administrator</div>
-                <span class="user-name"><?php echo htmlspecialchars($first_name . ' ' . $last_name); ?></span>
+                <span class="user-name"><<?= htmlspecialchars($_SESSION['name']); ?></span>
             </div>
             <a href="logout.php" class="btn primary">Log-out</a>
         </div>
@@ -60,7 +55,9 @@ $blocked = array_fill(0,9, 'Vorname Nachname (0000)');
                     <div class="user-list">
                         <?php foreach($moderators as $m): ?>
                             <div class="user-item">
-                                <div class="user-label"><?php echo htmlspecialchars($m); ?></div>
+                                <div class="user-label"><?php echo htmlspecialchars($m['username']); ?></div>
+                                <div><?php echo htmlspecialchars($m['email']); ?></div>
+                                <div><?php echo htmlspecialchars($m['PK_User_ID']); ?></div>
                                 <div class="actions">
                                     <button class="btn small accent">remove</button>
                                 </div>
@@ -74,7 +71,9 @@ $blocked = array_fill(0,9, 'Vorname Nachname (0000)');
                     <div class="user-list">
                         <?php foreach($users as $u): ?>
                             <div class="user-item">
-                                <div class="user-label"><?php echo htmlspecialchars($u); ?></div>
+                                <div class="user-label"><?php echo htmlspecialchars($u['username']); ?></div>
+                                <div><?php echo htmlspecialchars($u['email']); ?></div>
+                                <div><?php echo htmlspecialchars($u['PK_User_ID']); ?></div>
                                 <div class="actions">
                                     <button class="btn small accent">m</button>
                                     <button class="btn small primary">block</button>
@@ -89,7 +88,9 @@ $blocked = array_fill(0,9, 'Vorname Nachname (0000)');
                     <div class="user-list">
                         <?php foreach($blocked as $b): ?>
                             <div class="user-item">
-                                <div class="user-label"><?php echo htmlspecialchars($b); ?></div>
+                                <div class="user-label"><?php echo htmlspecialchars($b['username']); ?></div>
+                                <div><?php echo htmlspecialchars($b['email']); ?></div>
+                                <div><?php echo htmlspecialchars($b['PK_User_ID']); ?></div>
                                 <div class="actions">
                                     <button class="btn small accent">unblock</button>
                                 </div>

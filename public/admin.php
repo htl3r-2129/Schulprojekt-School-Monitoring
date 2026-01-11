@@ -98,7 +98,7 @@ $last_name = 'NACHNAME';   // Would come from DB
         <div class="user-profile">
             <div class="user-info">
                 <div class="user-role">Administrator</div>
-                <span class="user-name"><?php echo htmlspecialchars($first_name . ' ' . $last_name); ?></span>
+                <span class="user-name"><?= htmlspecialchars($_SESSION['name']); ?></span>
             </div>
             <a href="logout.php" class="btn primary">Log-out</a>
         </div>

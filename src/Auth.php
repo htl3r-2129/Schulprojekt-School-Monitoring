@@ -54,9 +54,42 @@ class Auth {
         $stmt->bind_param("s", $uuid);
         $stmt->execute();
         $stmt->bind_result($result);
-        $stmt ->fetch();
+        $stmt->fetch();
 
         return $result;
+    }
+
+    public function getAllMods()
+    {
+        $stmt = $this->db->getConn()->prepare("SELECT username, email, PK_User_ID FROM user WHERE role = 1");
+        $stmt->execute();
+
+        $result = $stmt->get_result();
+        $mods = $result->fetch_all(MYSQLI_ASSOC);
+
+        return $mods;
+    }
+
+    public function getAllUsers()
+    {
+        $stmt = $this->db->getConn()->prepare("SELECT username, email, PK_User_ID FROM user WHERE role = 0");
+        $stmt->execute();
+
+        $result = $stmt->get_result();
+        $users = $result->fetch_all(MYSQLI_ASSOC);
+
+        return $users;
+    }
+
+    public function getAllLocked()
+    {
+        $stmt = $this->db->getConn()->prepare("SELECT username, email, PK_User_ID FROM user WHERE isLocked = true");
+        $stmt->execute();
+
+        $result = $stmt->get_result();
+        $locked = $result->fetch_all(MYSQLI_ASSOC);
+
+        return $locked;
     }
 
     public function isModerator($uuid)
