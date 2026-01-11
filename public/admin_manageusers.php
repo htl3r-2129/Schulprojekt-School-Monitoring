@@ -16,6 +16,40 @@ if (isset($_SESSION['user'])) {
     header(header: 'Location: error/401.php');
 }
 
+$error = '';
+$success = '';
+
+if($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['remove_mod'])) {
+        if ($auth->makeUser($_POST['remove_mod'])){
+            $success = 'Successfully removed Moderator.';
+        } else {
+            $error = 'Error: Failed to remove Moderator.';
+        }
+    }
+    if (isset($_POST['make_mod'])) {
+        if ($auth->makeModerator($_POST['make_mod'])) {
+            $success = 'Successfully added Moderator.';
+        } else {
+            $error = 'Error: Failed to add Moderator';
+        }
+    }
+    if (isset($_POST['block'])) {
+        if ($auth->lockUser($_POST['block'])){
+            $success = 'Successfully blocked User.';
+        } else {
+            $error = 'Error: Failed to block User.';
+        }
+    }
+    if (isset($_POST['unblock'])) {
+        if ($auth->unlockUser($_POST['unblock'])){
+            $success = "Successfully unblocked User.";
+        } else {
+            $error = 'Error: Failed to unblock User.';
+        }
+    }
+}
+
 $moderators = $auth->getAllMods();
 $users = $auth->getAllUsers();
 $blocked = $auth->getAllLocked();
@@ -48,7 +82,8 @@ $blocked = $auth->getAllLocked();
     </header>
         <main class="center-wrap">
             <h1 class="page-title">Manage Users</h1>
-
+            <?php if (!empty($error)) echo "<p class='error-message'>" . htmlspecialchars($error, ENT_QUOTES) . "</p>"; ?>
+            <?php if (!empty($success)) echo "<p class='success-message'>" . htmlspecialchars($success, ENT_QUOTES) . "</p>"; ?>
             <div class="manage-container">
                 <div class="user-column">
                     <h3>Moderators</h3>
@@ -59,7 +94,10 @@ $blocked = $auth->getAllLocked();
                                 <div><?php echo htmlspecialchars($m['email']); ?></div>
                                 <div><?php echo htmlspecialchars($m['PK_User_ID']); ?></div>
                                 <div class="actions">
-                                    <button class="btn small accent">remove</button>
+                                    <form method="post">
+                                        <button class="btn small accent" type="submit" name="remove_mod"
+                                                value="<?php echo htmlspecialchars($m['PK_User_ID']);?>">Remove</button>
+                                    </form>
                                 </div>
                             </div>
                         <?php endforeach; ?>
@@ -75,8 +113,12 @@ $blocked = $auth->getAllLocked();
                                 <div><?php echo htmlspecialchars($u['email']); ?></div>
                                 <div><?php echo htmlspecialchars($u['PK_User_ID']); ?></div>
                                 <div class="actions">
-                                    <button class="btn small accent">m</button>
-                                    <button class="btn small primary">block</button>
+                                    <form method="post">
+                                        <button class="btn small accent" type="submit" name="make_mod"
+                                        value="<?php echo htmlspecialchars($u['PK_User_ID']); ?>">Mod</button>
+                                        <button class="btn small primary" type="submit" name="block"
+                                        value="<?php echo htmlspecialchars($u['PK_User_ID']); ?>">Block</button>
+                                    </form>
                                 </div>
                             </div>
                         <?php endforeach; ?>
@@ -92,7 +134,10 @@ $blocked = $auth->getAllLocked();
                                 <div><?php echo htmlspecialchars($b['email']); ?></div>
                                 <div><?php echo htmlspecialchars($b['PK_User_ID']); ?></div>
                                 <div class="actions">
-                                    <button class="btn small accent">unblock</button>
+                                    <form method="post">
+                                        <button class="btn small accent" type="submit" name="unblock"
+                                        value="<?php echo htmlspecialchars($b['PK_User_ID']); ?>">Unblock</button>
+                                    </form>
                                 </div>
                             </div>
                         <?php endforeach; ?>

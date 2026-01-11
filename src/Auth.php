@@ -72,7 +72,7 @@ class Auth {
 
     public function getAllUsers()
     {
-        $stmt = $this->db->getConn()->prepare("SELECT username, email, PK_User_ID FROM user WHERE role = 0");
+        $stmt = $this->db->getConn()->prepare("SELECT username, email, PK_User_ID FROM user WHERE role = 0 AND isLocked = false");
         $stmt->execute();
 
         $result = $stmt->get_result();
@@ -126,9 +126,8 @@ class Auth {
     {
         $stmt = $this->db->getConn()->prepare("update user set role = 0 where PK_User_ID like ?;");
         $stmt->bind_param("s", $uuid);
-        $stmt->execute();
 
-        if ($stmt->fetch()){
+        if ($stmt->execute()){
             return true;
         }
         return false;
@@ -138,9 +137,8 @@ class Auth {
     {
         $stmt = $this->db->getConn()->prepare("update user set role = 1 where PK_User_ID like ?;");
         $stmt->bind_param("s", $uuid);
-        $stmt->execute();
 
-        if ($stmt->fetch()){
+        if ($stmt->execute()){
             return true;
         }
         return false;
@@ -150,9 +148,8 @@ class Auth {
     {
         $stmt = $this->db->getConn()->prepare("update user set role = 2 where PK_User_ID like ?;");
         $stmt->bind_param("s", $uuid);
-        $stmt->execute();
 
-        if ($stmt->fetch()){
+        if ($stmt->execute()){
             return true;
         }
         return false;
@@ -162,9 +159,8 @@ class Auth {
     {
         $stmt = $this->db->getConn()->prepare("update user set isLocked = true where PK_User_ID like ?;");
         $stmt->bind_param("s", $uuid);
-        $stmt->execute();
 
-        if ($stmt->fetch()){
+        if ($stmt->execute()){
             return true;
         }
         return false;
@@ -174,9 +170,8 @@ class Auth {
     {
         $stmt = $this->db->getConn()->prepare("update user set isLocked = false where PK_User_ID like ?;");
         $stmt->bind_param("s", $uuid);
-        $stmt->execute();
 
-        if ($stmt->fetch()){
+        if ($stmt->execute()){
             return true;
         }
         return false;
@@ -200,9 +195,8 @@ class Auth {
     {
         $stmt = $this->db->getConn()->prepare("update user set 2faSuccess = true where PK_User_ID like ?;");
         $stmt->bind_param("s", $uuid);
-        $stmt->execute();
 
-        if ($stmt->fetch()){
+        if ($stmt->execute()){
             return true;
         }
         return false;
@@ -212,9 +206,8 @@ class Auth {
     {
         $stmt = $this->db->getConn()->prepare("delete from user where PK_User_ID like ?;");
         $stmt->bind_param("s", $uuid);
-        $stmt->execute();
 
-        if ($stmt->fetch()){
+        if ($stmt->execute()){
             return true;
         }
         return false;
