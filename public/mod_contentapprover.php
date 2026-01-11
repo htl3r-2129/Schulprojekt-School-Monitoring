@@ -39,6 +39,52 @@ $queue_items = [
     <title>Moderator</title>
     <link rel="stylesheet" href="styles/style.css">
     <meta name="viewport" content="width=device-width,initial-scale=1">
+    <style>
+        .content-grid-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+            justify-content: flex-start;
+            align-items: flex-start;
+        }
+        .queue-card {
+            width: 340px;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+            padding: 12px 0 18px 0;
+            transition: box-shadow 0.2s;
+            cursor: move;
+        }
+        .queue-card:hover {
+            box-shadow: 0 4px 18px rgba(0,0,0,0.13);
+        }
+        .queue-card.dragging {
+            opacity: 0.5;
+            transform: scale(0.95);
+        }
+        .queue-card.drag-over {
+            border: 2px dashed var(--primary-blue, #668099);
+            transform: scale(1.02);
+        }
+        .card-subtitle {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 320px;
+            margin: 0 auto;
+            font-size: 1.15rem;
+            font-weight: 500;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
 </head>
 <body>
 <header class="topbar">
@@ -131,6 +177,7 @@ $queue_items = [
 
 <script>
 let currentContentId = null;
+let draggedCard = null;
 
 function openContentModal(cardElement) {
     const contentId = cardElement.dataset.contentId;
@@ -202,7 +249,75 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+    
+    // Initialize drag and drop
+    initDragAndDrop();
 });
+
+function initDragAndDrop() {
+    const cards = document.querySelectorAll('.queue-card');
+    
+    cards.forEach(card => {
+        card.draggable = true;
+        
+        card.addEventListener('dragstart', function(e) {
+            draggedCard = this;
+            this.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/html', this.innerHTML);
+        });
+        
+        card.addEventListener('dragend', function(e) {
+            this.classList.remove('dragging');
+            cards.forEach(c => c.classList.remove('drag-over'));
+            draggedCard = null;
+        });
+        
+        card.addEventListener('dragover', function(e) {
+            if (e.preventDefault) {
+                e.preventDefault();
+            }
+            e.dataTransfer.dropEffect = 'move';
+            
+            if (this !== draggedCard) {
+                this.classList.add('drag-over');
+            }
+            return false;
+        });
+        
+        card.addEventListener('dragleave', function(e) {
+            this.classList.remove('drag-over');
+        });
+        
+        card.addEventListener('drop', function(e) {
+            if (e.stopPropagation) {
+                e.stopPropagation();
+            }
+            
+            if (this !== draggedCard && draggedCard) {
+                const container = document.querySelector('.content-grid-container');
+                const allCards = Array.from(container.querySelectorAll('.queue-card'));
+                const draggedIndex = allCards.indexOf(draggedCard);
+                const targetIndex = allCards.indexOf(this);
+                
+                if (draggedIndex < targetIndex) {
+                    this.parentNode.insertBefore(draggedCard, this.nextSibling);
+                } else {
+                    this.parentNode.insertBefore(draggedCard, this);
+                }
+                
+                // Log new order
+                const newOrder = Array.from(container.querySelectorAll('.queue-card')).map(c => c.dataset.contentId);
+                console.log('New content order after drag and drop:', newOrder);
+                
+                // TODO: Send the new order to the server via AJAX
+            }
+            
+            this.classList.remove('drag-over');
+            return false;
+        });
+    });
+}
 
 function closeContentModal(event) {
     if (event && event.target !== event.currentTarget) return;
@@ -225,11 +340,48 @@ function blockUser() {
 }
 function deleteContent() {
     if (!currentContentId) return;
-    // TODO: Add actual delete logic (AJAX call to server)
-    console.log('Deleting content with ID:', currentContentId);
-    closeContentModal();
-    // TODO: Remove the card from DOM or refresh the page
-    alert('Delete functionality to be implemented');
+    
+    if (!confirm('Are you sure you want to delete this content?')) {
+        return;
+    }
+    
+    // Find and remove the card from DOM
+    const card = document.querySelector(`.queue-card[data-content-id="${currentContentId}"]`);
+    
+    if (card) {
+        // TODO: Implement AJAX call to delete from database
+        // Example implementation:
+        /*
+        fetch('api/delete-content.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                content_id: currentContentId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                card.remove();
+                closeContentModal();
+                console.log('Content deleted successfully');
+            } else {
+                alert('Error deleting content: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error deleting content');
+        });
+        */
+        
+        // For now, just remove from DOM (comment out when implementing DB)
+        card.remove();
+        closeContentModal();
+        console.log('Deleting content with ID:', currentContentId);
+    }
 }
 // Close modal on Escape key
 document.addEventListener('keydown', function(event) {

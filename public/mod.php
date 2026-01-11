@@ -227,6 +227,17 @@ $queue_items = [
         align-items: center;
         justify-content: center;
     }
+    .queue-card {
+        cursor: move;
+    }
+    .queue-card.dragging {
+        opacity: 0.5;
+        transform: scale(0.95);
+    }
+    .queue-card.drag-over {
+        border: 2px dashed var(--primary-blue, #668099);
+        transform: scale(1.02);
+    }
     </style>
     <meta name="viewport" content="width=device-width,initial-scale=1">
 </head>
@@ -335,7 +346,77 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+    
+    // Initialize drag and drop
+    initDragAndDrop();
 });
+
+let draggedCard = null;
+
+function initDragAndDrop() {
+    const cards = document.querySelectorAll('.queue-card');
+    
+    cards.forEach(card => {
+        card.draggable = true;
+        
+        card.addEventListener('dragstart', function(e) {
+            draggedCard = this;
+            this.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/html', this.innerHTML);
+        });
+        
+        card.addEventListener('dragend', function(e) {
+            this.classList.remove('dragging');
+            cards.forEach(c => c.classList.remove('drag-over'));
+            draggedCard = null;
+        });
+        
+        card.addEventListener('dragover', function(e) {
+            if (e.preventDefault) {
+                e.preventDefault();
+            }
+            e.dataTransfer.dropEffect = 'move';
+            
+            if (this !== draggedCard) {
+                this.classList.add('drag-over');
+            }
+            return false;
+        });
+        
+        card.addEventListener('dragleave', function(e) {
+            this.classList.remove('drag-over');
+        });
+        
+        card.addEventListener('drop', function(e) {
+            if (e.stopPropagation) {
+                e.stopPropagation();
+            }
+            
+            if (this !== draggedCard && draggedCard) {
+                const container = document.querySelector('.content-queue-container');
+                const allCards = Array.from(container.querySelectorAll('.queue-card'));
+                const draggedIndex = allCards.indexOf(draggedCard);
+                const targetIndex = allCards.indexOf(this);
+                
+                if (draggedIndex < targetIndex) {
+                    this.parentNode.insertBefore(draggedCard, this.nextSibling);
+                } else {
+                    this.parentNode.insertBefore(draggedCard, this);
+                }
+                
+                // Log new order
+                const newOrder = Array.from(container.querySelectorAll('.queue-card')).map(c => c.dataset.contentId);
+                console.log('New content order after drag and drop:', newOrder);
+                
+                // TODO: Send the new order to the server via AJAX
+            }
+            
+            this.classList.remove('drag-over');
+            return false;
+        });
+    });
+}
 
 function openContentModal(cardElement) {
     const contentId = cardElement.dataset.contentId;
@@ -383,6 +464,7 @@ function openContentModal(cardElement) {
         mediaHtml = '<span class="preview-placeholder">PREVIEW</span>';
     }
     previewArea.innerHTML = mediaHtml;
+    
     // Show modal
     document.getElementById('contentModal').style.display = 'flex';
     document.body.style.overflow = 'hidden';
@@ -399,14 +481,47 @@ function closeContentModal(event) {
 function deleteContent() {
     if (!currentContentId) return;
     
-    // TODO: Add actual delete logic (AJAX call to server)
-    console.log('Deleting content with ID:', currentContentId);
+    if (!confirm('Are you sure you want to delete this content?')) {
+        return;
+    }
     
-    // Close modal after deletion
-    closeContentModal();
+    // Find and remove the card from DOM
+    const card = document.querySelector(`.queue-card[data-content-id="${currentContentId}"]`);
     
-    // TODO: Remove the card from DOM or refresh the page
-    alert('Delete functionality to be implemented');
+    if (card) {
+        // TODO: Implement AJAX call to delete from database
+        // Example implementation:
+        /*
+        fetch('api/delete-content.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                content_id: currentContentId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                card.remove();
+                closeContentModal();
+                console.log('Content deleted successfully');
+            } else {
+                alert('Error deleting content: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error deleting content');
+        });
+        */
+        
+        // For now, just remove from DOM (comment out when implementing DB)
+        card.remove();
+        closeContentModal();
+        console.log('Deleting content with ID:', currentContentId);
+    }
 }
 
 // Close modal on Escape key
