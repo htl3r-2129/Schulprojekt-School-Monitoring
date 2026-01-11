@@ -32,13 +32,9 @@ if (!isset($_SESSION['user'])) {
     <br>
     <a href="register.php">Register</a>
     <br>
-    <a href="mod.php">Register</a>
+    <a href="mod.php">Moderator</a>
     <br>
-    <a href="admin.php">Register</a>
-    <form method="post" action="logout.php">
-        <button type="submit" class="secondary">Logout</button>
-    </form>
-    
+    <a href="admin.php">Admin</a>
 </main>
 </body>
 </html>

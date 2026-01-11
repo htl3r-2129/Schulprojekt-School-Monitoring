@@ -88,4 +88,102 @@ class Auth {
 
         return false;
     }
+
+    public function makeUser($uuid)
+    {
+        $stmt = $this->db->getConn()->prepare("update user set role = 0 where PK_User_ID like ?;");
+        $stmt->bind_param("s", $uuid);
+        $stmt->execute();
+
+        if ($stmt->fetch()){
+            return true;
+        }
+        return false;
+    }
+
+    public function makeModerator($uuid)
+    {
+        $stmt = $this->db->getConn()->prepare("update user set role = 1 where PK_User_ID like ?;");
+        $stmt->bind_param("s", $uuid);
+        $stmt->execute();
+
+        if ($stmt->fetch()){
+            return true;
+        }
+        return false;
+    }
+
+    public function makeAdmin($uuid)
+    {
+        $stmt = $this->db->getConn()->prepare("update user set role = 2 where PK_User_ID like ?;");
+        $stmt->bind_param("s", $uuid);
+        $stmt->execute();
+
+        if ($stmt->fetch()){
+            return true;
+        }
+        return false;
+    }
+
+    public function lockUser($uuid)
+    {
+        $stmt = $this->db->getConn()->prepare("update user set isLocked = true where PK_User_ID like ?;");
+        $stmt->bind_param("s", $uuid);
+        $stmt->execute();
+
+        if ($stmt->fetch()){
+            return true;
+        }
+        return false;
+    }
+
+    public function unlockUser($uuid)
+    {
+        $stmt = $this->db->getConn()->prepare("update user set isLocked = false where PK_User_ID like ?;");
+        $stmt->bind_param("s", $uuid);
+        $stmt->execute();
+
+        if ($stmt->fetch()){
+            return true;
+        }
+        return false;
+    }
+
+    public function sendTwoFaEmail($uuid)
+    {
+//        TODO: smtp-Server is required to send emails
+//        $msg = "This is a test email for 2-Factor-Authentication for the School Monitor Project.";
+//        $msg = wordwrap($msg, 70);
+//
+//        mail($this->email, "2 Factor Code", $msg);
+    }
+
+    public function sendResetPasswordEmail($uuid)
+    {
+
+    }
+
+    public function approve2Fa($uuid)
+    {
+        $stmt = $this->db->getConn()->prepare("update user set 2faSuccess = true where PK_User_ID like ?;");
+        $stmt->bind_param("s", $uuid);
+        $stmt->execute();
+
+        if ($stmt->fetch()){
+            return true;
+        }
+        return false;
+    }
+
+    public function deleteUser($uuid)
+    {
+        $stmt = $this->db->getConn()->prepare("delete from user where PK_User_ID like ?;");
+        $stmt->bind_param("s", $uuid);
+        $stmt->execute();
+
+        if ($stmt->fetch()){
+            return true;
+        }
+        return false;
+    }
 }
