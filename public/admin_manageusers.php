@@ -4,7 +4,7 @@ session_start();
 // Composer Autoload
 require __DIR__ . '/../vendor/autoload.php';
 
-use App\classes\Auth;
+use Insi\Ssm\Auth;
 
 
 //TODO : Check if user is admin, else redirect

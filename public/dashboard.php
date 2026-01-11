@@ -3,7 +3,7 @@
 
 // Composer Autoload
 require __DIR__ . '/../vendor/autoload.php';
-
+// TODO: wird nicht mehr benötigt. Überprüfen ob gelöscht werden kann.
 // Prüfen, ob der Benutzer eingeloggt ist
 if (!isset($_COOKIE['user'])) {
     // Wenn nicht angemeldet: HTML für die Fehlermeldung ausgeben und Skript beenden
