@@ -28,55 +28,56 @@ $queue_items = [
         'thumbnail_url' => 'media/Images/Houser.jpg',
     ],
     [
-        'id' => '3',
+        'id' => '2',
         'title' => 'Erde',
         'thumbnail_url' => 'media/Images/AWWWWWWWWWWWW.jpg',
     ],
     [
-        'id' => '4',
-        'title' => 'Lando Norris',
-        'thumbnail_url' => 'media/Images/Lando Norris playing with gravel.jpg',
-    ],
-    [
-        'id' => '5',
+        'id' => '2',
         'title' => 'Erde',
         'thumbnail_url' => 'media/Images/AWWWWWWWWWWWW.jpg',
     ],
     [
-        'id' => '6',
+        'id' => '2',
+        'title' => 'Erde',
+        'thumbnail_url' => 'media/Images/AWWWWWWWWWWWW.jpg',
+    ],
+    [
+        'id' => '2',
         'title' => 'Erde',
         'thumbnail_url' => 'media/Images/AWWWWWWWWWWWW.jpg',
     ]
 ];
 
-// Load saved queue order if it exists
-$storageDir = __DIR__ . '/../storage';
-$queueFile = $storageDir . '/queue-order.json';
-if (file_exists($queueFile)) {
-    $savedData = json_decode(file_get_contents($queueFile), true);
-    if (is_array($savedData) && !empty($savedData)) {
-        // Convert saved format (title, text, type, media) back to internal format
-        $queue_items = [];
-        $idCounter = 1;
-        foreach ($savedData as $item) {
-            $queue_items[] = [
-                'id' => (string)$idCounter++,
-                'title' => $item['title'] ?? '',
-                'text' => $item['text'] ?? '',
-                'thumbnail_url' => $item['media'] ?? ''
-            ];
-        }
-    }
-}
-
 // If requested, output the queue as JSON (same order as $queue_items)
 if (isset($_GET['export']) && $_GET['export'] === 'json') {
     $out = [];
-    foreach ($queue_items as $item) {
+    foreach ($queue_items as $index => $item) {
+        $extra_text = '';
+        if ($index === 0) {
+            $extra_text = 'Feuchtigkeit ist wichtig';
+        } elseif ($index === 1) {
+            $extra_text = 'Das ist ein Beispielbild.';
+        }
+        
+        // Bestimme type basierend auf Dateiendung
+        $media_url = $item['thumbnail_url'] ?? '';
+        $type = '';
+        if (!empty($media_url)) {
+            $ext = strtolower(pathinfo($media_url, PATHINFO_EXTENSION));
+            if (in_array($ext, ['mp4', 'webm', 'ogg', 'avi', 'mkv'])) {
+                $type = 'video';
+            } elseif (in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'])) {
+                $type = 'image';
+            }
+        }
+        
         $out[] = [
+            'id' => $item['id'] ?? '',
             'title' => $item['title'] ?? '',
-            'text'  => $item['text'] ?? '',
-            'media' => $item['thumbnail_url'] ?? $item['id'] ?? ''
+            'text'  => $extra_text,
+            'media' => $media_url,
+            'type'  => $type
         ];
     }
     header('Content-Type: application/json; charset=utf-8');
@@ -94,18 +95,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['save_client_json'])) {
         exit;
     }
 
-    // Save the JSON to a file so it persists across reloads
-    $storageDir = __DIR__ . '/../storage';
-    if (!is_dir($storageDir)) {
-        mkdir($storageDir, 0755, true);
-    }
-    $queueFile = $storageDir . '/queue-order.json';
-    file_put_contents($queueFile, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
-
     // Return the received payload and the current server-side queue for reference
     echo json_encode([
         'success' => true,
-        'message' => 'Received and saved client queue JSON',
+        'message' => 'Received client queue JSON',
         'received' => $data,
         'server_queue' => $queue_items
     ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
@@ -695,29 +688,8 @@ function reassignOrderIds() {
 }
 
 function applyChanges() {
-    // Ensure the client-side JSON is up-to-date
-    if (typeof reassignOrderIds === 'function') reassignOrderIds();
-    const data = currentQueueJson || [];
-    console.log('Applying changes - sending current queue JSON:', data);
-    
-    // Send current client-side JSON to server
-    fetch(window.location.pathname + '?save_client_json=1', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-    })
-    .then(res => {
-        if (!res.ok) throw new Error('Netzwerkantwort war nicht OK');
-        return res.json();
-    })
-    .then(json => {
-        console.log('Server response:', json);
-        alert('Änderungen erfolgreich gespeichert!');
-    })
-    .catch(err => {
-        console.error('Error sending JSON:', err);
-        alert('Fehler beim Speichern. Siehe Konsole.');
-    });
+    // TODO: Implement apply changes functionality
+    alert('Apply Changes functionality to be implemented');
 }
 
 // Enable horizontal scrolling with mouse wheel for content queue
