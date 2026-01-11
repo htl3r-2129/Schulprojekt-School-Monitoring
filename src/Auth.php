@@ -25,10 +25,6 @@ class Auth {
         return false;
     }
 
-    public function logout() {
-        setcookie("user", "", time() - 3600);
-    }
-    
     public function register(string $username, string $email, string $password) {
         $stmt = $this->db->getConn()->prepare("SELECT * FROM user WHERE email = ?");
         $stmt->bind_param("s", $email);
@@ -48,6 +44,17 @@ class Auth {
         $stmt->execute();
         $stmt->bind_result($result);
         $stmt->fetch();
+
+        return $result;
+    }
+
+    public function getUsername(string $uuid)
+    {
+        $stmt = $this->db->getConn()->prepare("SELECT username FROM user WHERE PK_User_ID = ?");
+        $stmt->bind_param("s", $uuid);
+        $stmt->execute();
+        $stmt->bind_result($result);
+        $stmt ->fetch();
 
         return $result;
     }
