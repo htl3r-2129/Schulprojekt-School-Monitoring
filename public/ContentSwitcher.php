@@ -67,7 +67,7 @@
     //++++++++++++++++++++ FETCH-CONTROL ++++++++++++++++++++   
 
 
-    function TimeFetch() {
+    /*function TimeFetch() {
       fetch('./admin.php', {
           headers: {
             'Accept': 'application/json'
@@ -94,11 +94,15 @@
         })
         .catch(err => console.error("Fehler beim Laden der Time-Daten:", err));
     }
-
+*/
 
 
     function SlideFetch() {
-      fetch("./mod.php")
+      fetch('mod.php?export=json', {
+        headers: {
+            'Accept': 'application/json'
+        }
+    })
         .then(res => res.json())
         .then(data => {
           const newSlidesJson = JSON.stringify(data);
@@ -138,10 +142,10 @@
         .catch(err => console.error("Fehler beim Slides-Fetch:", err));
     }
   
-    TimeFetch();
+    //TimeFetch();
     SlideFetch();
 
-    setInterval(TimeFetch, 20000)
+    //setInterval(TimeFetch, 20000)
     setInterval(SlideFetch, 10000);
 
 
