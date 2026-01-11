@@ -192,10 +192,12 @@ $queue_items = [
             border-radius: 14px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.06);
             padding: 12px 0 18px 0;
-            transition: box-shadow 0.2s;
+            transition: all 0.25s ease;
+            cursor: pointer;
         }
         .queue-card:hover {
-            box-shadow: 0 4px 18px rgba(0,0,0,0.13);
+            transform: translateY(-6px);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
         }
     .card-preview {
         width: 320px;
@@ -283,7 +285,7 @@ $queue_items = [
         <div class="section-header">
             <h3 class="queue-title">Active Content Queue:</h3>
         </div>
-        <button class="btn secondary apply-changes-btn" onclick="applyChanges()">Apply Changes</button>
+        <button class="btn primary apply-changes-btn" onclick="applyChanges()">Apply Changes</button>
         
         <div class="content-queue-container">
             <?php

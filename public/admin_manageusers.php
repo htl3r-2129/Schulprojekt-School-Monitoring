@@ -9,14 +9,15 @@ use App\classes\Auth;
 
 //TODO : Check if user is admin, else redirect
 
-# $username = $_SESSION['username'] ?? 'Admin';
-# $first_name = 'Vorname';
-# $last_name = 'NACHNAME';
+$username = $_SESSION['username'] ?? 'Administrator';
+$first_name = 'Vorname';
+$last_name = 'NACHNAME';
 
 // Sample lists (replace with DB fetch)
 $moderators = array_fill(0,9, 'Vorname Nachname (0000)');
 $users = array_fill(0,9, 'Vorname Nachname (0000)');
 $blocked = array_fill(0,9, 'Vorname Nachname (0000)');
+
 ?>
 <!DOCTYPE html>
 <html lang="de">
@@ -38,12 +39,14 @@ $blocked = array_fill(0,9, 'Vorname Nachname (0000)');
         <div class="brand">Schulmonitor</div>
         <div class="user-profile">
             <div class="user-info">
-                <div class="user-role">Administrator</div>
+            <div class="user-role">Administrator</div>
+            <div class="user-name-row">
                 <span class="user-name"><?php echo htmlspecialchars($first_name . ' ' . $last_name); ?></span>
+                <a href="logout.php" class="btn accent logout">Log-out</a>
             </div>
-            <a href="logout.php" class="btn primary">Log-out</a>
         </div>
-    </header>
+    </div>
+</header>
         <main class="center-wrap">
             <h1 class="page-title">Manage Users</h1>
 
