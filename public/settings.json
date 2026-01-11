@@ -1,8 +1,8 @@
 {
-  "betriebszeit_start": "08:00",
-  "betriebszeit_end": "17:45",
-  "bilderzeit": "10s",
-  "max_storage": "500GB",
-  "instant_message": "",
-  "instant_message_time": ""
+    "betriebszeit_start": "08:00",
+    "betriebszeit_end": "17:45",
+    "bilderzeit": "10s",
+    "max_storage": "500GB",
+    "instant_message": "",
+    "instant_message_time": ""
 }

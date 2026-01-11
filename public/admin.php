@@ -16,7 +16,7 @@ $success = '';
    SETTINGS FILE
 ====================================================== */
 
-$settingsFile = __DIR__ . 'settings.json';
+$settingsFile = __DIR__ . DIRECTORY_SEPARATOR . 'settings.json';
 
 function loadSettings(string $file): array {
     if (!file_exists($file)) {

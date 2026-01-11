@@ -67,12 +67,8 @@
     //++++++++++++++++++++ FETCH-CONTROL ++++++++++++++++++++   
 
 
-    /*function TimeFetch() {
-      fetch('./admin.php', {
-          headers: {
-            'Accept': 'application/json'
-          }
-        })
+    function TimeFetch() {
+      fetch('settings.json')
         .then(res => res.json())
         .then(settings => {
           const newTimeJson = JSON.stringify(settings);
@@ -84,17 +80,17 @@
             location.reload();
             return;
           }
-
+           console.log("Msg Zeit beträgt: " + slideDurationSeconds + "s");
           lastTimeJson = newTimeJson;
-
+          const fetchedTime = Number(settings.bilderzeit?.replace(/\D/g, ''));
           if (slideDurationSeconds === 1) {
-            slideDurationSeconds = Number(settings.bilderzeit ?? 3);
+            slideDurationSeconds = Number(fetchedTime ?? 3);
             console.log("Msg Zeit beträgt: " + slideDurationSeconds + "s");
           }
         })
         .catch(err => console.error("Fehler beim Laden der Time-Daten:", err));
     }
-*/
+
 
 
     function SlideFetch() {
@@ -142,10 +138,10 @@
         .catch(err => console.error("Fehler beim Slides-Fetch:", err));
     }
   
-    //TimeFetch();
+    TimeFetch();
     SlideFetch();
 
-    //setInterval(TimeFetch, 20000)
+    setInterval(TimeFetch, 1000)
     setInterval(SlideFetch, 10000);
 
 
