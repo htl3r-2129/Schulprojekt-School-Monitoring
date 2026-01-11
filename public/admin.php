@@ -74,6 +74,50 @@ $settings = [
 $username = $_SESSION['username'] ?? 'Admin';
 $first_name = 'Vorname';  // Would come from DB
 $last_name = 'NACHNAME';   // Would come from DB
+
+// Betriebszeiten formatieren (z.B. 18:00-19:00 → 1800-1900)
+$betriebszeiten = str_replace(':', '', $betriebszeit_start) . '-' . str_replace(':', '', $betriebszeit_end);
+
+// MsgTime ohne Einheit (z.B. "10s" → "10")
+$msgTime = preg_replace('/\D/', '', $bilderzeit);
+
+// Speicher ohne Einheit (z.B. "500GB" → "500")
+$speicher = preg_replace('/\D/', '', $max_storage);
+
+// JSON-Objekt (KEIN Array!)
+$jsonOutput = [
+    "Betriebszeiten" => $betriebszeiten,
+    "MsgTime"        => $msgTime,
+    "Speicher"       => $speicher
+];
+
+$instMsgTime = preg_replace('/\D/', '', $instant_message_time);
+
+$jsonInstOutput = [
+        "Message" => $instant_message,
+        "Time" => $instMsgTime,
+        "Active" => !empty($instant_message)
+];
+
+$wantsJson =
+    isset($_SERVER['HTTP_ACCEPT']) &&
+    str_contains($_SERVER['HTTP_ACCEPT'],'application/json');
+
+$api = $_GET['api'] ?? null;
+
+if ($wantsJson) {
+    if ($api === 'instant-message') {
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode($jsonInstOutput);
+        exit;
+    }
+    else {
+
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode($jsonOutput);
+        exit;
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="de">
