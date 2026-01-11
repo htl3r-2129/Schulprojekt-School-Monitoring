@@ -48,6 +48,62 @@ $queue_items = [
         'thumbnail_url' => 'media/Images/AWWWWWWWWWWWW.jpg',
     ]
 ];
+
+// If requested, output the queue as JSON (same order as $queue_items)
+if (isset($_GET['export']) && $_GET['export'] === 'json') {
+    $out = [];
+    foreach ($queue_items as $index => $item) {
+        $extra_text = '';
+        if ($index === 0) {
+            $extra_text = 'Feuchtigkeit ist wichtig';
+        } elseif ($index === 1) {
+            $extra_text = 'Das ist ein Beispielbild.';
+        }
+        
+        // Bestimme type basierend auf Dateiendung
+        $media_url = $item['thumbnail_url'] ?? '';
+        $type = '';
+        if (!empty($media_url)) {
+            $ext = strtolower(pathinfo($media_url, PATHINFO_EXTENSION));
+            if (in_array($ext, ['mp4', 'webm', 'ogg', 'avi', 'mkv'])) {
+                $type = 'video';
+            } elseif (in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'])) {
+                $type = 'image';
+            }
+        }
+        
+        $out[] = [
+            'id' => $item['id'] ?? '',
+            'title' => $item['title'] ?? '',
+            'text'  => $extra_text,
+            'media' => $media_url,
+            'type'  => $type
+        ];
+    }
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode($out, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    exit;
+}
+
+// Receive client-side JSON (current order) via POST so it can be inspected in DevTools
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['save_client_json'])) {
+    $input = file_get_contents('php://input');
+    $data = json_decode($input, true);
+    header('Content-Type: application/json; charset=utf-8');
+    if ($data === null && json_last_error() !== JSON_ERROR_NONE) {
+        echo json_encode(['success' => false, 'message' => 'Invalid JSON', 'error' => json_last_error_msg()]);
+        exit;
+    }
+
+    // Return the received payload and the current server-side queue for reference
+    echo json_encode([
+        'success' => true,
+        'message' => 'Received client queue JSON',
+        'received' => $data,
+        'server_queue' => $queue_items
+    ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    exit;
+}
 ?>
 <!DOCTYPE html>
 <html lang="de">
@@ -192,12 +248,11 @@ $queue_items = [
             border-radius: 14px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.06);
             padding: 12px 0 18px 0;
-            transition: all 0.25s ease;
-            cursor: pointer;
+            transition: box-shadow 0.2s;
+            position: relative;
         }
         .queue-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 18px rgba(0,0,0,0.13);
         }
     .card-preview {
         width: 320px;
@@ -257,6 +312,31 @@ $queue_items = [
         border: 2px dashed var(--primary-blue, #668099);
         transform: scale(1.02);
     }
+    .card-order-badge {
+        position: absolute;
+        top: 8px;
+        left: 8px;
+        background: var(--primary-blue, #668099);
+        color: #fff;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        font-weight: 700;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        z-index: 5;
+        opacity: 0;
+        transform: translateY(-4px) scale(0.98);
+        transition: opacity 0.18s ease, transform 0.18s ease;
+        pointer-events: none;
+    }
+    .queue-card:hover .card-order-badge {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        pointer-events: auto;
+    }
     </style>
     <meta name="viewport" content="width=device-width,initial-scale=1">
 </head>
@@ -285,7 +365,7 @@ $queue_items = [
         <div class="section-header">
             <h3 class="queue-title">Active Content Queue:</h3>
         </div>
-        <button class="btn primary apply-changes-btn" onclick="applyChanges()">Apply Changes</button>
+        <button class="btn secondary apply-changes-btn" onclick="applyChanges()">Apply Changes</button>
         
         <div class="content-queue-container">
             <?php
@@ -315,10 +395,11 @@ $queue_items = [
                 $short_title = mb_strlen($title) > $max_len ? mb_substr($title, 0, $max_len) . ' ...' : $title;
                 if ($show_card) {
             ?>
-            <div class="queue-card" data-content-id="<?php echo $item['id']; ?>" data-title="<?php echo htmlspecialchars($title); ?>" data-thumbnail="<?php echo htmlspecialchars($media_url); ?>" data-extra-text="<?php echo htmlspecialchars($extra_text); ?>" onclick="openContentModal(this)">
+            <div class="queue-card" data-content-id="<?php echo $item['id']; ?>" data-original-id="<?php echo $item['id']; ?>" data-order-id="<?php echo ($index + 1); ?>" data-title="<?php echo htmlspecialchars($title); ?>" data-thumbnail="<?php echo htmlspecialchars($media_url); ?>" data-extra-text="<?php echo htmlspecialchars($extra_text); ?>" onclick="openContentModal(this)">
                 <div class="card-preview">
                     <?php echo $media_html; ?>
                 </div>
+                <div class="card-order-badge"><?php echo ($index + 1); ?></div>
                 <div class="card-subtitle"><?php echo htmlspecialchars($short_title); ?></div>
             </div>
             <?php }} ?>
@@ -351,6 +432,8 @@ $queue_items = [
 
 <script>
 let currentContentId = null;
+// currentQueueJson mirrors the current DOM order; updated after any reorder
+let currentQueueJson = [];
 
 // Play video on hover for small preview boxes
 document.addEventListener('DOMContentLoaded', function() {
@@ -373,6 +456,10 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize drag and drop
     initDragAndDrop();
+    // Ensure initial order IDs are assigned and visible
+    if (typeof reassignOrderIds === 'function') reassignOrderIds();
+
+    // Client-side JSON is now auto-managed; no manual export button needed
 });
 
 let draggedCard = null;
@@ -429,11 +516,10 @@ function initDragAndDrop() {
                     this.parentNode.insertBefore(draggedCard, this);
                 }
                 
-                // Log new order
-                const newOrder = Array.from(container.querySelectorAll('.queue-card')).map(c => c.dataset.contentId);
-                console.log('New content order after drag and drop:', newOrder);
-                
-                // TODO: Send the new order to the server via AJAX
+                // Reassign positional IDs and log new mapping (original_id -> order_id)
+                if (typeof reassignOrderIds === 'function') reassignOrderIds();
+                const newOrder = Array.from(container.querySelectorAll('.queue-card')).map(c => ({ original_id: c.dataset.originalId || c.dataset.contentId, order_id: Number(c.dataset.orderId) }));
+                console.log('New content order after drag and drop (original_id -> order_id):', newOrder);
             }
             
             this.classList.remove('drag-over');
@@ -554,6 +640,52 @@ document.addEventListener('keydown', function(event) {
         closeContentModal();
     }
 });
+
+// Reassign sequential order IDs (1..N) to cards and update visible badge
+function reassignOrderIds() {
+    const container = document.querySelector('.content-queue-container');
+    if (!container) return;
+    const cards = Array.from(container.querySelectorAll('.queue-card'));
+    const seen = new Set();
+    const mapping = [];
+    cards.forEach((c, idx) => {
+        const newId = idx + 1;
+        const original = c.dataset.originalId || c.dataset.contentId || null;
+        c.dataset.orderId = String(newId);
+        // update badge if exists
+        const badge = c.querySelector('.card-order-badge');
+        if (badge) badge.textContent = String(newId);
+        mapping.push({ original_id: original, order_id: newId });
+        if (seen.has(newId)) {
+            console.error('Duplicate order id detected:', newId, 'mapping:', mapping);
+        }
+        seen.add(newId);
+    });
+    // Build client-side JSON representation using current DOM order
+    currentQueueJson = cards.map(c => {
+        const media = c.dataset.thumbnail || c.dataset.contentId || '';
+        // Determine type based on file extension
+        let type = 'image'; // default
+        if (media) {
+            const ext = media.split('.').pop().toLowerCase();
+            if (['mp4', 'webm', 'ogg', 'avi', 'mkv'].includes(ext)) {
+                type = 'video';
+            } else if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(ext)) {
+                type = 'image';
+            }
+        }
+        return {
+            title: c.dataset.title || '',
+            text: c.dataset.extraText || '',
+            type: type,
+            media: media
+        };
+    });
+    console.log('Order reassigned:', mapping);
+    console.log('Current client-side queue JSON updated:', currentQueueJson);
+    console.log('Complete JSON (formatted):');
+    console.log(JSON.stringify(currentQueueJson, null, 2));
+}
 
 function applyChanges() {
     // TODO: Implement apply changes functionality
