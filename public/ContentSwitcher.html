@@ -93,14 +93,14 @@
       h.textContent = titles[i];
       slide.appendChild(h);
 
+      // Add separator bar after title
+      const separator = document.createElement('hr');
+      separator.className = 'text-separator';
+      slide.appendChild(separator);
+
       //++++++ TEXT CONTROL ++++++
       if (texts[i] && texts[i].trim() !== "") {
         const isInstant = media[i]?.instant === true;
-
-        // Add separator bar before text
-        const separator = document.createElement('hr');
-        separator.className = 'text-separator';
-        slide.appendChild(separator);
 
         const d = document.createElement('div');
         d.className = 'text';
@@ -163,11 +163,16 @@
         const textEl = slide.querySelector('.text');
         const separator = slide.querySelector('.text-separator');
 
-        if (separator && titleEl && textEl) {
-          // Get the actual width of both elements
+        if (separator && titleEl) {
           const titleWidth = titleEl.scrollWidth;
-          const textWidth = textEl.scrollWidth;
-          const maxWidth = Math.max(titleWidth, textWidth);
+          let maxWidth = titleWidth;
+          if (textEl) {
+            const textWidth = textEl.scrollWidth;
+            maxWidth = Math.max(titleWidth, textWidth);
+          } else {
+            // Larger fixed length when only title text
+            maxWidth = Math.max(titleWidth, 400); // Minimum 400px
+          }
           separator.style.width = maxWidth + 'px';
         }
       });

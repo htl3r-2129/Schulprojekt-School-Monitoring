@@ -31,6 +31,21 @@ $queue_items = [
         'id' => '2',
         'title' => 'Erde',
         'thumbnail_url' => 'media/Images/AWWWWWWWWWWWW.jpg',
+    ],
+    [
+        'id' => '2',
+        'title' => 'Erde',
+        'thumbnail_url' => 'media/Images/AWWWWWWWWWWWW.jpg',
+    ],
+    [
+        'id' => '2',
+        'title' => 'Erde',
+        'thumbnail_url' => 'media/Images/AWWWWWWWWWWWW.jpg',
+    ],
+    [
+        'id' => '2',
+        'title' => 'Erde',
+        'thumbnail_url' => 'media/Images/AWWWWWWWWWWWW.jpg',
     ]
 ];
 ?>
@@ -40,10 +55,12 @@ $queue_items = [
     <style>
                 .content-queue-container {
                     display: flex;
-                    flex-wrap: wrap;
+                    flex-wrap: nowrap;
                     gap: 18px;
                     justify-content: flex-start;
                     align-items: flex-start;
+                    overflow-x: auto;
+                    padding-bottom: 10px; /* For scrollbar space */
                 }
                 .btn.accent.delete {
                     background: var(--primary-red, #e23c21);
@@ -250,9 +267,11 @@ $queue_items = [
     <div class="user-profile">
         <div class="user-info">
             <div class="user-role">Administrator</div>
-            <span class="user-name"><?php echo htmlspecialchars($first_name . ' ' . $last_name); ?></span>
+            <div class="user-name-row">
+                <span class="user-name"><?php echo htmlspecialchars($first_name . ' ' . $last_name); ?></span>
+                <a href="logout.php" class="btn accent logout">Log-out</a>
+            </div>
         </div>
-        <a href="logout.php" class="btn accent logout">Log-out</a>
     </div>
 </header>
 
@@ -261,7 +280,10 @@ $queue_items = [
     <p class="mod-link"><a href="admin.php">Return to Admin</a></p>
 
     <div class="mod-section">
-        <h3 class="queue-title">Active Content Queue:</h3>
+        <div class="section-header">
+            <h3 class="queue-title">Active Content Queue:</h3>
+        </div>
+        <button class="btn secondary apply-changes-btn" onclick="applyChanges()">Apply Changes</button>
         
         <div class="content-queue-container">
             <?php
@@ -529,6 +551,17 @@ document.addEventListener('keydown', function(event) {
     if (event.key === 'Escape') {
         closeContentModal();
     }
+});
+
+function applyChanges() {
+    // TODO: Implement apply changes functionality
+    alert('Apply Changes functionality to be implemented');
+}
+
+// Enable horizontal scrolling with mouse wheel for content queue
+document.querySelector('.content-queue-container').addEventListener('wheel', function(e) {
+    e.preventDefault();
+    this.scrollLeft += e.deltaY * 2; // Faster scrolling
 });
 </script>
 
