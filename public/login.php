@@ -17,7 +17,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'] ?? '';
 
     if ($auth->login($email, $password)) {
-        setcookie("user", "$email", time() + (86400 * 30), "/");
+        $uuid = $auth->getUUID($email);
+        setcookie("user", "$uuid", time() + (86400 * 30), "/");
         header(header: 'Location: dashboard.php');
         exit;
     } else {

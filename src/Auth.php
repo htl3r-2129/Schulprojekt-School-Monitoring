@@ -5,16 +5,10 @@ use Insi\Ssm\User;
 use Insi\Ssm\DB;
 
 class Auth {
-    private $users;
     private $db;
     
     public function __construct() {
         $this->db = new DB();
-//        $this->users = [
-//            // Beispiel-Benutzer TODO: user aus db auslesen
-//            // should contain array with user data as string, not user classes (maybe)
-//            new User("Max Musterman", "musterman@htl.rennweg.at", "password", $this->db)
-//        ];
     }
     
     public function login(string $email, string $password) {
@@ -44,6 +38,47 @@ class Auth {
             return true;
         }
         // TODO: show the error in a more pleasant way
+        return false;
+    }
+
+    public function getUUID(string $email)
+    {
+        $stmt = $this->db->getConn()->prepare("SELECT PK_User_ID FROM user WHERE email = ?");
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $stmt->bind_result($result);
+        $stmt->fetch();
+
+        return $result;
+    }
+
+    public function isModerator($uuid)
+    {
+        $stmt = $this->db->getConn()->prepare("SELECT role FROM user WHERE PK_User_ID = ?");
+        $stmt->bind_param("s", $uuid);
+        $stmt->execute();
+        $stmt->bind_result($result);
+        $stmt->fetch();
+
+        if ($result === 1) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public function isAdmin($uuid)
+    {
+        $stmt = $this->db->getConn()->prepare("SELECT role FROM user WHERE PK_User_ID = ?");
+        $stmt->bind_param("s", $uuid);
+        $stmt->execute();
+        $stmt->bind_result($result);
+        $stmt->fetch();
+
+        if ($result === 2) {
+            return true;
+        }
+
         return false;
     }
 }

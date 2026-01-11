@@ -6,9 +6,15 @@ require __DIR__ . '/../vendor/autoload.php';
 
 use Insi\Ssm\Auth;
 
-$auth = new Auth();
+$auth = new Auth(); // TODO: have one global Auth()
 
-//TODO : Check if user is admin, else redirect
+if (isset($_COOKIE['user'])) {
+    if (!$auth->isAdmin($_COOKIE['user'])) {
+        header(header: 'Location: error/401.php');
+    }
+} else {
+    header(header: 'Location: error/401.php');
+}
 
 $error = '';
 $success = '';
