@@ -180,9 +180,9 @@ body {
     border-radius: 6px;
 }
 
-.file-button {
-    background: #e8eef5;
-    color: #303b46;
+.file-selector {
+    background: #ffffff;
+    color: black;
     padding: 8px 12px;
     border-radius: 8px;
     border: 2px solid #3d4752;
@@ -191,23 +191,14 @@ body {
     text-align: center;
 }
 
-.file-button:hover {
-    background: #dce3ed;
-}
-
-.btn-send {
-    background: #303b46;
-    color: white;
+.send {
     padding: 14px 32px;
     border-radius: 12px;
     font-weight: 700;
-    box-shadow: 0 6px 16px rgba(0,0,0,0.18);
     min-width: 180px;
 }
 
-.btn-clear {
-    background: #e23c21;
-    color: white;
+.clear {
     padding: 14px 32px;
     border-radius: 12px;
     font-weight: 700;
@@ -346,7 +337,6 @@ input[type="email"]{
     font-family: 'Trebuchet MS', Helvetica, Arial, sans-serif;
     font-weight: 700;
     font-size: 13px;
-    color: white;
     cursor: pointer;
     transition: 0.12s ease;
     text-align: center;
@@ -355,32 +345,33 @@ input[type="email"]{
 }
 
 /* Button Normal - Red/Orange */
-.btn,
-.btn.login {
-    background-color: #56667a;
+.primary {
+    background-color: #e23c21;
+    color: white;
 }
 
-.btn:hover,
-.btn.login:hover {
-    background-color: #3d4752;
+.primary:hover {
+    background-color: #c13616;
 }
 
 /* Button Secondary - Blue */
-button.secondary {
+.secondary {
     background-color: #668099;
+    color: white;
 }
 
-button.secondary:hover {
+.secondary:hover {
     background-color: #56667a;
 }
 
 /* Button Accent - Dark */
-button.accent {
-    background-color: #3d4752;
+.accent {
+    background-color: #303b46;
+    color: white;
 }
 
-button.accent:hover {
-    background-color: #2a3039;
+.accent:hover {
+    background-color: #3d4752;
 }
 
 /* Überhriften */
@@ -433,7 +424,7 @@ p {
     gap: 6px;
     margin-top: 12px;
     align-items: center;
-    
+
 }
 
 .links a {
@@ -449,7 +440,7 @@ p {
     margin: 0 auto 18px;
     text-align: center;
     font-size: 14px;
-    color: #222; 
+    color: #222;
 }
 
 .code-input {
@@ -500,16 +491,11 @@ p {
     font-weight: 600;
 }
 
-.topbar .logout-btn {
+.topbar .logout {
     width: auto;
     padding: 10px 20px;
     font-size: 13px;
-    background-color: #3d4752;
     font-weight: 700;
-}
-
-.topbar .logout-btn:hover {
-    background-color: #2a3039;
 }
 
 .admin-greeting {
@@ -687,20 +673,16 @@ p {
     gap: 8px;
     align-items: flex-end;
 }
-.btn-small {
+.small {
     padding: 4px 8px;
     font-size: 12px;
     border-radius: 10px;
     min-width: 44px;
 }
-.btn-remove { background: #3d4752; color: #fff; }
-.btn-block { background: #e23c21; color: #fff; }
-.btn-unblock { background: #3d4752; color: #fff; }
-.btn-make { background: #3d4752; color: #fff; }
+
 .section-sep { margin:30px auto; width:90%; border:0; border-top:2px solid rgb(#303b46); }
 .manage-actions { text-align:center; margin:18px 0 60px; display:flex; justify-content:center; gap:30px; }
-.btn-manage-large { background:#e23c21; color:#fff; padding:10px 18px; border-radius:8px; }
-.btn-mod-large { background:#668099; color:#fff; padding:10px 18px; border-radius:8px; }
+.large { padding:10px 18px; border-radius:8px; }
 
 .admin-box .time-input-group {
     display: flex;
@@ -708,10 +690,9 @@ p {
     align-items: center;
 }
 
-.admin-box .btn-send {
+.admin-box .send {
     width: auto;
     padding: 6px 12px;
-    background-color: #3d4752;
     font-size: 12px;
 }
 
@@ -725,12 +706,7 @@ p {
 .admin-box .btn-reset {
     width: auto;
     padding: 8px 16px;
-    background-color: #e23c21;
     font-size: 12px;
-}
-
-.admin-box .btn-reset:hover {
-    background-color: #c13616;
 }
 
 .admin-box .btn-save {
@@ -751,27 +727,18 @@ p {
     margin: 40px 0;
 }
 
-.admin-actions .btn-manage {
+.admin-actions .manage {
     width: auto;
     padding: 10px 24px;
-    background-color: #e23c21;
     font-size: 14px;
 }
 
-.admin-actions .btn-manage:hover {
-    background-color: #c13616;
-}
-
-.admin-actions .btn-mod {
+.admin-actions .mod {
     width: auto;
     padding: 10px 24px;
-    background-color: #668099;
     font-size: 14px;
 }
 
-.admin-actions .btn-mod:hover {
-    background-color: #556a7d;
-}
 /* Moderator Page Styles */
 .mod-greeting {
     color: #e23c21;
@@ -788,13 +755,10 @@ p {
 }
 
 .mod-link a {
-    color: #303b46;
-    background: #303b46;
-    color: white;
+    color: #000000;
     padding: 14px 32px;
     border-radius: 12px;
     font-weight: 700;
-    box-shadow: 0 6px 16px rgba(0,0,0,0.18);
     min-width: 180px;
 }
 
@@ -953,16 +917,10 @@ p {
     border-top: 2px solid rgba(0, 0, 0, 0.2);
 }
 
-.btn-approver {
-    background: #668099;
-    color: white;
+.approver {
     padding: 10px 20px;
     border-radius: 8px;
     font-size: 14px;
-}
-
-.btn-approver:hover {
-    background: #556a7d;
 }
 
 /* Content Preview Modal */
@@ -981,28 +939,24 @@ p {
 }
 
 .modal-content {
-    background: linear-gradient(135deg, #ffffff 0%, #f5f7fa 100%);
+    background: transparent;
+    color: #ffffff;
     border-radius: 0;
     width: 92%;
     max-width: 900px;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 0px;
     position: relative;
-    padding: 40px;
-    align-items: center;
-    justify-content: flex-start;
+    padding: 50px 0 0;
 }
 
 .modal-close {
     position: absolute;
-    top: 20px;
-    right: 20px;
+    top: 50px;
+    right: 0;
     width: 42px;
     height: 42px;
-    background: #e23c21;
-    color: white;
-    border: none;
     border-radius: 6px;
     font-size: 28px;
     font-weight: 700;
@@ -1012,42 +966,24 @@ p {
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.2s;
     z-index: 1;
-}
-
-.modal-close:hover {
-    background: #c13616;
 }
 
 .modal-title {
     font-family: Helvetica, Arial, sans-serif;
-    font-size: clamp(20px, 3.5vw, 40px);
+    font-size: 22px;
     font-weight: 700;
-    color: #e23c21;
-    margin: 0;
-    text-align: right;
-    align-self: flex-end;
-    padding-top: 0;
-    width: 100%;
-}
-
-.modal-title-separator {
-    border: none;
-    border-top: 2px solid #668099;
-    padding: 0;
-    margin: 12px auto;
-    align-self: center;
-    width: auto;
+    color: white;
+    margin: 0 0 16px 0;
+    text-align: left;
 }
 
 .modal-preview {
     width: 100%;
-    max-width: 100%;
     aspect-ratio: 16 / 9;
-    background: transparent;
+    background: white;
     border: 0;
-    border-radius: 10px;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1055,7 +991,6 @@ p {
     font-weight: 700;
     letter-spacing: 4px;
     color: #303b46;
-    overflow: hidden;
 }
 
 .modal-preview-img {
@@ -1063,19 +998,7 @@ p {
     height: 100%;
     object-fit: contain;
     display: block;
-    border-radius: 10px;
-}
-
-.modal-extra-text {
-    font-size: clamp(16px, 2.5vw, 24px);
-    color: #303b46;
-    text-align: center;
-    padding: 16px 0;
-    line-height: 1.6;
-    max-width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    border-radius: 8px;
 }
 
 .modal-footer {
@@ -1086,55 +1009,31 @@ p {
     padding: 20px 0 0;
     border-top: 0;
     background: transparent;
-    width: 100%;
 }
 
-.btn-approve {
-    background: #e23c21;
-    color: white;
+.approve {
     padding: 10px 20px;
     border-radius: 6px;
     font-size: 14px;
     font-weight: 700;
     border: none;
-    cursor: pointer;
-    transition: all 0.2s;
 }
 
-.btn-approve:hover {
-    background: #c13616;
-}
-
-.btn-delete {
-    background: #668099;
-    color: white;
+.delete {
     padding: 10px 20px;
     border-radius: 6px;
     font-size: 14px;
     font-weight: 700;
     border: none;
-    cursor: pointer;
-    transition: all 0.2s;
 }
 
-.btn-delete:hover {
-    background: #556a7d;
-}
 
-.btn-block {
-    background: #303b46;
-    color: white;
+.block {
     padding: 10px 20px;
     border-radius: 6px;
     font-size: 14px;
     font-weight: 700;
     border: none;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.btn-block:hover {
-    background: #3d4752;
 }
 
 .btn-cancel {
@@ -1165,23 +1064,4 @@ p {
 
 .queue-card:active {
     transform: translateY(-3px);
-}
-
-
-.card-preview-media {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.instant-preview-text {
-    padding: 15px;
-    font-size: 14px;
-    text-align: center;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    word-break: break-word;
 }

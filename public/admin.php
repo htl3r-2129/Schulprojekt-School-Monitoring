@@ -94,7 +94,7 @@ $last_name = 'NACHNAME';   // Would come from DB
                 <div class="user-role">Administrator</div>
                 <span class="user-name"><?php echo htmlspecialchars($first_name . ' ' . $last_name); ?></span>
             </div>
-            <a href="logout.php" class="btn primary">Log-out</a>
+            <a href="logout.php" class="btn accent">Log-out</a>
         </div>
     </header>
         <main class="center-wrap">
