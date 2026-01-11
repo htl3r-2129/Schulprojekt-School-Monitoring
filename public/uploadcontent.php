@@ -13,9 +13,6 @@ $auth = new Auth();
 $username = $_SESSION['username'] ?? 'Moderator';
 $first_name = 'Vorname';
 $last_name = 'NACHNAME';
-
-// Sample content queue (replace with DB fetch)
-$queue_items = array_fill(0, 12, ['id' => '1', 'title' => 'Überschrift 1', 'thumbnail_url' => null, 'extra_text' => 'Dies ist ein Beispieltext für zusätzliche Informationen.']);
 ?>
 <!DOCTYPE html>
 <html lang="de">
@@ -258,11 +255,6 @@ $queue_items = array_fill(0, 12, ['id' => '1', 'title' => 'Überschrift 1', 'thu
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
 
-        .card-preview:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-
         .card-preview img,
         .card-preview video {
             max-width: 100%;
@@ -296,37 +288,124 @@ $queue_items = array_fill(0, 12, ['id' => '1', 'title' => 'Überschrift 1', 'thu
             display: block;
         }
 
-        .modal-preview {
-            width: 100%;
-            height: 360px;
-
-            display: flex;
-            justify-content: center;
-            align-items: center;
-
-            overflow: hidden;
-        }
-
-        .modal-preview img,
-        .modal-preview video {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-        }
-
         .card-subtitle {
-            color: #e53935;      /* 🔴 gleiche Farbe wie große Überschrift */
+            color: #ffffff;      /* White text for card subtitles */
             font-weight: 600;
             text-align: center;
         }
 
-        .modal-content-title {
-            color: #e53935;
-        }
+/* Content Preview Modal */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.75);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(3px);
+}
 
-        .modal-content-extra {
-            color: #444;
-        }
+.modal-content {
+    background: linear-gradient(135deg, #ffffff 0%, #f5f7fa 100%);
+    border-radius: 0;
+    width: 92%;
+    max-width: 900px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    position: relative;
+    padding: 40px;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.modal-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 42px;
+    height: 42px;
+    background: #e23c21;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 28px;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+    z-index: 1;
+}
+
+.modal-close:hover {
+    background: #c13616;
+}
+
+.modal-title {
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: clamp(20px, 3.5vw, 40px);
+    font-weight: 700;
+    color: #e23c21;
+    margin: 0;
+    text-align: center;
+    align-self: flex-end;
+    padding-top: 0;
+    width: 100%;
+}
+
+.modal-title-separator {
+    border: none;
+    border-top: 2px solid #668099;
+    padding: 0;
+    margin: 12px auto;
+    align-self: center;
+    width: auto;
+}
+
+.modal-preview {
+    width: 100%;
+    max-width: 100%;
+    aspect-ratio: 16 / 9;
+    background: transparent;
+    border: 0;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 42px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    color: #303b46;
+    overflow: hidden;
+}
+
+.modal-preview-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    border-radius: 10px;
+}
+
+.modal-extra-text {
+    font-size: clamp(16px, 2.5vw, 24px);
+    color: #303b46;
+    text-align: center;
+    padding: 16px 0;
+    line-height: 1.6;
+    max-width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
 
     </style>
@@ -435,18 +514,66 @@ $queue_items = array_fill(0, 12, ['id' => '1', 'title' => 'Überschrift 1', 'thu
     <h3 class="section-subtitle">Your Content History</h3>
 
     <div class="content-history-grid">
-        <?php foreach($queue_items as $index => $item): ?>
-        <div class="queue-card" data-content-id="<?php echo $item['id']; ?>" data-title="<?php echo htmlspecialchars($item['title']); ?>" data-thumbnail="<?php echo htmlspecialchars($item['thumbnail_url'] ?? ''); ?>" data-extra="<?php echo htmlspecialchars($item['extra_text'] ?? ''); ?>" onclick="openContentModal(this)">
-            <div class="card-preview">
-                <?php if(!empty($item['thumbnail_url']) && file_exists($item['thumbnail_url'])): ?>
-                    <img src="<?php echo htmlspecialchars($item['thumbnail_url']); ?>" alt="Thumbnail" class="preview-img">
-                <?php else: ?>
-                    <span class="preview-placeholder">PREVIEW</span>
-                <?php endif; ?>
+        <?php
+        // Sample content for demonstration - replace with actual DB data
+        $history_items = [
+            [
+                'id' => '1',
+                'title' => 'Wasser ist feucht und wichtig zu trinken !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!',
+                'thumbnail_url' => 'media/Videos/WALKWAY0025-0220.mp4',
+                'extra_text' => 'Feuchtigkeit ist wichtig'
+            ],
+            [
+                'id' => '2',
+                'title' => 'Feuer',
+                'thumbnail_url' => 'media/Images/Houser.jpg',
+                'extra_text' => 'Das ist ein Beispielbild.'
+            ],
+            [
+                'id' => '3',
+                'title' => 'Erde',
+                'thumbnail_url' => 'media/Images/AWWWWWWWWWWWW.jpg',
+                'extra_text' => ''
+            ]
+        ];
+
+        // Only show cards with valid media (image or video)
+        foreach($history_items as $index => $item) {
+            $media_url = $item['thumbnail_url'] ?? '';
+            $title = $item['title'] ?? '';
+            $extra_text = $item['extra_text'] ?? '';
+            $media_html = '';
+            $show_card = false;
+            if (!empty($media_url) && file_exists($media_url)) {
+                $ext = strtolower(pathinfo($media_url, PATHINFO_EXTENSION));
+                if (in_array($ext, ['mp4', 'webm', 'ogg'])) {
+                    $media_html = '<video src="' . htmlspecialchars($media_url) . '" class="preview-video" muted playsinline></video>';
+                    $show_card = true;
+                } elseif (in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'])) {
+                    $media_html = '<img src="' . htmlspecialchars($media_url) . '" alt="Preview" class="preview-img" />';
+                    $show_card = true;
+                }
+            }
+            $max_len = 30;
+            $short_title = mb_strlen($title) > $max_len ? mb_substr($title, 0, $max_len) . ' ...' : $title;
+            if ($show_card) {
+        ?>
+        <div class="queue-card" data-content-id="<?php echo $item['id']; ?>" data-title="<?php echo htmlspecialchars($title); ?>" data-thumbnail="<?php echo htmlspecialchars($media_url); ?>" data-extra-text="<?php echo htmlspecialchars($extra_text); ?>" onclick="openContentModal(this)">
+            <div class="card-preview" style="width:250px;height:200px;background:#f3f3f3;overflow:hidden;border-radius:12px;position:relative;margin:0 auto 10px auto;box-shadow:0 2px 8px rgba(0,0,0,0.07);padding:0;display:block;">
+                <?php
+                if (!empty($media_url) && file_exists($media_url)) {
+                    $ext = strtolower(pathinfo($media_url, PATHINFO_EXTENSION));
+                    if (in_array($ext, ['mp4', 'webm', 'ogg'])) {
+                        echo '<video src="' . htmlspecialchars($media_url) . '" class="preview-video" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;display:block;border-radius:12px;background:#e0e0e0;box-shadow:0 1px 4px rgba(0,0,0,0.04);margin:0;padding:0;" muted playsinline></video>';
+                    } elseif (in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'])) {
+                        echo '<img src="' . htmlspecialchars($media_url) . '" alt="Preview" class="preview-img" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;display:block;border-radius:12px;background:#e0e0e0;box-shadow:0 1px 4px rgba(0,0,0,0.04);margin:0;padding:0;" />';
+                    }
+                }
+                ?>
             </div>
-            <div class="card-subtitle"><?php echo htmlspecialchars($item['title']); ?></div>
+            <div class="card-subtitle"><?php echo htmlspecialchars($short_title); ?></div>
         </div>
-        <?php endforeach; ?>
+        <?php }} ?>
     </div>
 
 </main>
@@ -454,19 +581,12 @@ $queue_items = array_fill(0, 12, ['id' => '1', 'title' => 'Überschrift 1', 'thu
 <!-- Content Preview Modal -->
 <div id="contentModal" class="modal-overlay" onclick="closeContentModal(event)">
     <div class="modal-content" onclick="event.stopPropagation()">
-        <button class="primary modal-close" onclick="closeContentModal()">&times;</button>
-        <div class="modal-title">Von [Username]</div>
+        <button class="btn primary modal-close" onclick="closeContentModal()">&times;</button>
+        <div class="modal-title" id="modalTitle">Von [Username]</div>
+        <hr class="modal-title-separator" id="modalSeparator" style="display:none;" />
+        <div class="modal-extra-text" id="modalExtraText"></div>
         <div class="modal-preview" id="modalPreviewArea">
             <span class="preview-placeholder">PREVIEW</span>
-        </div>
-        <div class="modal-text-content">
-<<<<<<< Updated upstream
-            <h3 id="modalContentTitle" class="modal-content"></h3>
-=======
-            <h3 id="modalContentTitle" class="modal-content-title"></h3>
-            <hr id="modalSeparator" class="preview-separator" hidden>
->>>>>>> Stashed changes
-            <p id="modalContentExtra" class="modal-content-extra"></p>
         </div>
     </div>
 </div>
@@ -478,35 +598,48 @@ function openContentModal(cardElement) {
     const contentId = cardElement.dataset.contentId;
     const title = cardElement.dataset.title;
     const thumbnail = cardElement.dataset.thumbnail;
-    const extraText = cardElement.dataset.extra;
-    
+    const extraText = cardElement.dataset.extraText;
     currentContentId = contentId;
-    
-    // Update modal title
-    document.querySelector('.modal-title').textContent = 'Von [Username]';
-    
-    // Update preview area with image/video support
-    const previewArea = document.getElementById('modalPreviewArea');
-    if (thumbnail && thumbnail.trim() !== '') {
-        const videoExt = /(\.mp4|\.webm|\.ogg|\.mov|\.m4v)$/i;
-        const isVideo = videoExt.test(thumbnail);
-        renderInto(previewArea, thumbnail, isVideo);
-    } else {
-        previewArea.innerHTML = '<span class="preview-placeholder">PREVIEW</span>';
-    }
-    
-    // Update content title and extra text
-    document.getElementById('modalContentTitle').textContent = title || '';
-    document.getElementById('modalContentExtra').textContent = extraText || '';
-    
-    // Show separator only if there is extra text
+    const modalTitle = document.getElementById('modalTitle');
+    modalTitle.style.textAlign = 'center';
+    modalTitle.textContent = title ? title : 'Von [Username]';
+    // Set extra text in its own div
+    const extraTextDiv = document.getElementById('modalExtraText');
     const separator = document.getElementById('modalSeparator');
-    separator.hidden = !extraText || extraText.trim() === '';
-    
-    // Hide extra text paragraph if empty
-    const extraParagraph = document.getElementById('modalContentExtra');
-    extraParagraph.style.display = extraText && extraText.trim() !== '' ? 'block' : 'none';
-    
+    if (extraText && extraText.trim() !== '') {
+        extraTextDiv.textContent = extraText;
+        extraTextDiv.style.display = 'flex';
+        // Show and size separator
+        separator.style.display = 'block';
+        // Wait for DOM update to measure widths
+        setTimeout(() => {
+            const titleWidth = modalTitle.scrollWidth;
+            const textWidth = extraTextDiv.scrollWidth;
+            const sepWidth = Math.max(titleWidth, textWidth);
+            separator.style.width = sepWidth + 'px';
+            separator.style.margin = '12px auto';
+        }, 0);
+    } else {
+        extraTextDiv.textContent = '';
+        extraTextDiv.style.display = 'none';
+        separator.style.display = 'none';
+    }
+    // Update preview area: only the media
+    const previewArea = document.getElementById('modalPreviewArea');
+    let mediaHtml = '';
+    if (thumbnail && thumbnail.trim() !== '') {
+        const ext = thumbnail.split('.').pop().toLowerCase();
+        if (["mp4","webm","ogg"].includes(ext)) {
+            mediaHtml = '<video src="' + thumbnail + '" controls autoplay muted playsinline class="modal-preview-img" ></video>';
+        } else if (["jpg","jpeg","png","gif","bmp","webp"].includes(ext)) {
+            mediaHtml = '<img src="' + thumbnail + '" alt="Content Preview" class="modal-preview-img" />';
+        } else {
+            mediaHtml = '<span class="preview-placeholder">PREVIEW</span>';
+        }
+    } else {
+        mediaHtml = '<span class="preview-placeholder">PREVIEW</span>';
+    }
+    previewArea.innerHTML = mediaHtml;
     // Show modal
     document.getElementById('contentModal').style.display = 'flex';
     document.body.style.overflow = 'hidden';
@@ -514,7 +647,6 @@ function openContentModal(cardElement) {
 
 function closeContentModal(event) {
     if (event && event.target !== event.currentTarget) return;
-    
     document.getElementById('contentModal').style.display = 'none';
     document.body.style.overflow = 'auto';
     currentContentId = null;
@@ -713,143 +845,27 @@ if (sendTextBtn) {
     });
 }
 
-/* ================== TESTDATEN (NUR FÜR HISTORY) ================== */
+// Play video on hover for small preview boxes
+// No image sizing JS, rely on CSS only
 
-const testTitles = [
-    "Wasser ist feucht und wichtig zu trinken !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!",
-    "Feuer",
-    "Engel",
-    "TextOnly",
-    "#rkkfejijr4ftiokdrthufridjhgrfijehfrneijdm"
-];
-
-const testTexts = [
-    "Feuchtigkeit ist wichtig",
-    "",
-    "Ich mag Erde und dies ist eine Instant Nachricht! text text text text text text text text text text text text",
-    "ajsdkjasdkjaskldjlaskjdlkasjdlkajsdlkajsdlkjasdlkjaslkdjalskdlaksjdlkasjd",
-    "hjffectbhu4rijuhtfrijerhgfijehgrijffffffffffffffffffffffffffffffffffffffffffffffffffffffffijjffffff"
-];
-
-const testMedia = [
-    { type: "video", src: "./media/Videos/WALKWAY0025-0220.mp4" },
-    { type: "image", src: "./media/Images/Houser.jpg" },
-    { instant: true },
-    {},
-    { type: "image", src: "./media/Images/Lando Norris playing with gravel.jpg" }
-];
-
-
-/* ================== HISTORY TESTDATEN IN CARDS EINSETZEN ================== */
-
-document.querySelectorAll('.queue-card').forEach((card, index) => {
-    if (!testTitles[index]) return;
-
-    const title = testTitles[index] || '';
-    const text = testTexts[index] || '';
-    const media = testMedia[index] || {};
-
-    /* ---- data-Attribute für Modal ---- */
-    card.dataset.title = title;
-    card.dataset.extra = text;
-    card.dataset.thumbnail = media.src || '';
-
-    /* ---- Titel unten in der Card ---- */
-    const subtitle = card.querySelector('.card-subtitle');
-    if (subtitle) subtitle.textContent = title;
-
-    /* ---- Preview oben ---- */
-    const preview = card.querySelector('.card-preview');
-    if (!preview) return;
-
-    preview.innerHTML = '';
-
-    if (media.instant) {
-        const span = document.createElement('span');
-        span.className = 'preview-placeholder';
-        span.textContent = 'TEXT';
-        preview.appendChild(span);
-        return;
-    }
-
-    if (media.type === 'image' && media.src) {
-        const img = document.createElement('img');
-        img.src = media.src;
-        img.alt = title;
-        preview.appendChild(img);
-        return;
-    }
-
-    if (media.type === 'video' && media.src) {
-        const video = document.createElement('video');
-        video.src = media.src;
-        video.muted = true;
-        video.autoplay = true;
-        video.loop = true;
-        video.playsInline = true;
-        preview.appendChild(video);
-        return;
-    }
-
-    const placeholder = document.createElement('span');
-    placeholder.className = 'preview-placeholder';
-    placeholder.textContent = 'PREVIEW';
-    preview.appendChild(placeholder);
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.queue-card .card-preview').forEach(function(preview) {
+        preview.addEventListener('mouseenter', function() {
+            const video = preview.querySelector('video');
+            if (video) {
+                video.muted = true;
+                video.play();
+            }
+        });
+        preview.addEventListener('mouseleave', function() {
+            const video = preview.querySelector('video');
+            if (video) {
+                video.pause();
+                video.currentTime = 0;
+            }
+        });
+    });
 });
-
-
-/* =========================================================
-   CARD PREVIEW LOGIK (Bilder & Videos verkleinert anzeigen)
-   ========================================================= */
-
-function fillCardPreview(cardElement, mediaSrc) {
-    const preview = cardElement.querySelector('.card-preview');
-    if (!preview) return;
-
-    preview.innerHTML = '';
-
-    const isVideo = /\.(mp4|webm|ogg|mov|m4v)$/i.test(mediaSrc);
-
-    if (isVideo) {
-        // Zeige echtes Video in der kleinen Preview
-        const video = document.createElement('video');
-        video.src = mediaSrc;
-        video.muted = true;
-        video.autoplay = true;
-        video.loop = true;
-        video.playsInline = true;
-        preview.appendChild(video);
-    } else {
-        const img = document.createElement('img');
-        img.src = mediaSrc;
-        img.alt = 'Image Preview';
-        preview.appendChild(img);
-    }
-    
-    // Make the preview clickable to open the modal
-    preview.style.cursor = 'pointer';
-}
-
-/* =========================================================
-   TESTDATEN IN DIE PREVIEW-KÄSTCHEN LADEN
-   ========================================================= */
-
-const previewMedia = [
-    './media/Images/Houser.jpg',
-    './media/Videos/WALKWAY0025-0220.mp4',
-    './media/Images/Lando Norris playing with gravel.jpg',
-    '',
-    './media/Images/Lando Norris playing with gravel.jpg'
-];
-
-document.querySelectorAll('.queue-card').forEach((card, index) => {
-    if (previewMedia[index]) {
-        // Update data-thumbnail attribute so the modal displays the correct image
-        card.dataset.thumbnail = previewMedia[index];
-        fillCardPreview(card, previewMedia[index]);
-    }
-});
-
 
 // Close modal on Escape key
 document.addEventListener('keydown', function(event) {

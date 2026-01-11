@@ -77,10 +77,10 @@ $queue_items = [
                 if (!empty($media_url) && file_exists($media_url)) {
                     $ext = strtolower(pathinfo($media_url, PATHINFO_EXTENSION));
                     if (in_array($ext, ['mp4', 'webm', 'ogg'])) {
-                        $media_html = '<video src="' . htmlspecialchars($media_url) . '" muted playsinline></video>';
+                        $media_html = '<video src="' . htmlspecialchars($media_url) . '" class="preview-video" muted playsinline></video>';
                         $show_card = true;
                     } elseif (in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'])) {
-                        $media_html = '<img src="' . htmlspecialchars($media_url) . '" alt="Preview" />';
+                        $media_html = '<img src="' . htmlspecialchars($media_url) . '" alt="Preview" class="preview-img" />';
                         $show_card = true;
                     }
                 }
@@ -89,14 +89,14 @@ $queue_items = [
                 if ($show_card) {
             ?>
             <div class="queue-card" data-content-id="<?php echo $item['id']; ?>" data-title="<?php echo htmlspecialchars($title); ?>" data-thumbnail="<?php echo htmlspecialchars($media_url); ?>" data-extra-text="<?php echo htmlspecialchars($extra_text); ?>" onclick="openContentModal(this)">
-                <div class="card-preview" style="width:320px;height:200px;background:#f3f3f3;overflow:hidden;border-radius:12px;position:relative;margin:0 auto 10px auto;box-shadow:0 2px 8px rgba(0,0,0,0.07);padding:0;display:flex;align-items:center;justify-content:center;">
+                <div class="card-preview" style="width:250px;height:200px;background:#f3f3f3;overflow:hidden;border-radius:12px;position:relative;margin:0 auto 10px auto;box-shadow:0 2px 8px rgba(0,0,0,0.07);padding:0;display:block;">
                     <?php
                     if (!empty($media_url) && file_exists($media_url)) {
                         $ext = strtolower(pathinfo($media_url, PATHINFO_EXTENSION));
                         if (in_array($ext, ['mp4', 'webm', 'ogg'])) {
-                            echo '<video src="' . htmlspecialchars($media_url) . '" style="max-width:100%;max-height:100%;object-fit:contain;display:block;border-radius:12px;background:#e0e0e0;box-shadow:0 1px 4px rgba(0,0,0,0.04);padding:0;" muted playsinline></video>';
+                            echo '<video src="' . htmlspecialchars($media_url) . '" class="preview-video" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;display:block;border-radius:12px;background:#e0e0e0;box-shadow:0 1px 4px rgba(0,0,0,0.04);margin:0;padding:0;" muted playsinline></video>';
                         } elseif (in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'])) {
-                            echo '<img src="' . htmlspecialchars($media_url) . '" alt="Preview" style="max-width:100%;max-height:100%;object-fit:contain;display:block;border-radius:12px;background:#e0e0e0;box-shadow:0 1px 4px rgba(0,0,0,0.04);padding:0;" />';
+                            echo '<img src="' . htmlspecialchars($media_url) . '" alt="Preview" class="preview-img" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;display:block;border-radius:12px;background:#e0e0e0;box-shadow:0 1px 4px rgba(0,0,0,0.04);margin:0;padding:0;" />';
                         }
                     }
                     ?>
@@ -120,9 +120,9 @@ $queue_items = [
             <span class="preview-placeholder">PREVIEW</span>
         </div>
         <div class="modal-footer">
-            <button class="btn accent approve" onclick="approveContent()">Approve</button>
-            <button class="btn accent delete" onclick="deleteContent()">Delete</button>
-            <button class="btn accent block" onclick="blockUser()">Block</button>
+            <button class="btn accent" style="background:#668099;color:#fff;border:none;border-radius:8px;padding:10px 28px;font-size:1.1rem;font-family:'Segoe UI',Roboto,Arial,sans-serif;font-weight:700;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.07);transition:background 0.2s,box-shadow 0.2s;margin-left:0;margin-top:10px;display:inline-block;" onclick="approveContent()">Approve</button>
+            <button class="btn accent delete" style="background:#e23c21;color:#fff;border:none;border-radius:8px;padding:10px 28px;font-size:1.1rem;font-family:'Segoe UI',Roboto,Arial,sans-serif;font-weight:700;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.07);transition:background 0.2s,box-shadow 0.2s;margin-left:0;margin-top:10px;display:inline-block;" onclick="deleteContent()">Delete</button>
+            <button class="btn accent" style="background:#3d4752;color:#fff;border:none;border-radius:8px;padding:10px 28px;font-size:1.1rem;font-family:'Segoe UI',Roboto,Arial,sans-serif;font-weight:700;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.07);transition:background 0.2s,box-shadow 0.2s;margin-left:0;margin-top:10px;display:inline-block;" onclick="blockUser()">Block</button>
             <!-- TODO: add username DB fetch implementation -->
             <span class="modal-uploader" style="margin-left:18px;font-size:1.08rem;font-family:'Segoe UI',Roboto,Arial,sans-serif;color:#374151;font-weight:400;vertical-align:middle;">Von [Vorname] [Nachname]</span>
         </div>
