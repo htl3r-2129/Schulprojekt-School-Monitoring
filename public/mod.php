@@ -1,106 +1,62 @@
 <?php
 session_start();
 
+// --- Simple POST save queue ---
+if($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['queue_data'])){
+    $data = json_decode($_POST['queue_data'], true);
+    $file = __DIR__ . '/queue.json';
+    if(file_put_contents($file, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES))){
+        $message = "Queue saved successfully!";
+    } else {
+        $message = "Failed to write queue.json";
+    }
+}
+
 // Composer Autoload
 require __DIR__ . '/../vendor/autoload.php';
-
 use App\classes\Auth;
 
 $auth = new Auth();
 
-//TODO : Check if user is moderator, else redirect
-
+// TODO: Check if user is moderator, else redirect
 $username = $_SESSION['username'] ?? 'Moderator';
 $first_name = 'Vorname';
 $last_name = 'NACHNAME';
 
-// Sample content queue
-//TODO: (replace with DB fetch)
+// Sample queue items (duplicates preserved)
 $queue_items = [
-    [
-        'id' => '1',
-        'title' => 'Wasser ist feucht und wichtig zu trinken !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!',
-        'thumbnail_url' => 'media/Videos/WALKWAY0025-0220.mp4',
-    ],
-    [
-        'id' => '2',
-        'title' => 'Feuer',
-        'thumbnail_url' => 'media/Images/Houser.jpg',
-    ],
-    [
-        'id' => '2',
-        'title' => 'Erde',
-        'thumbnail_url' => 'media/Images/AWWWWWWWWWWWW.jpg',
-    ],
-    [
-        'id' => '2',
-        'title' => 'Erde',
-        'thumbnail_url' => 'media/Images/AWWWWWWWWWWWW.jpg',
-    ],
-    [
-        'id' => '2',
-        'title' => 'Erde',
-        'thumbnail_url' => 'media/Images/AWWWWWWWWWWWW.jpg',
-    ],
-    [
-        'id' => '2',
-        'title' => 'Erde',
-        'thumbnail_url' => 'media/Images/AWWWWWWWWWWWW.jpg',
-    ]
+    ['id'=>'1','title'=>'Wasser ist feucht und wichtig zu trinken !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!','thumbnail_url'=>'media/Videos/WALKWAY0025-0220.mp4'],
+    ['id'=>'2','title'=>'Feuer','thumbnail_url'=>'media/Images/Houser.jpg'],
+    ['id'=>'3','title'=>'Erde','thumbnail_url'=>'media/Images/AWWWWWWWWWWWW.jpg'],
+    ['id'=>'4','title'=>'Erde','thumbnail_url'=>'media/Images/AWWWWWWWWWWWW.jpg'],
+    ['id'=>'5','title'=>'Erde','thumbnail_url'=>'media/Images/AWWWWWWWWWWWW.jpg'],
+    ['id'=>'6','title'=>'Erde','thumbnail_url'=>'media/Images/AWWWWWWWWWWWW.jpg']
 ];
 
-// If requested, output the queue as JSON (same order as $queue_items)
-if (isset($_GET['export']) && $_GET['export'] === 'json') {
-    $out = [];
-    foreach ($queue_items as $index => $item) {
-        $extra_text = '';
-        if ($index === 0) {
-            $extra_text = 'Feuchtigkeit ist wichtig';
-        } elseif ($index === 1) {
-            $extra_text = 'Das ist ein Beispielbild.';
-        }
-        
-        $out[] = [
-            'id' => $item['id'] ?? '',
-            'title' => $item['title'] ?? '',
-            'text'  => $extra_text,
-            'media' => $item['thumbnail_url'] ?? $item['media'] ?? '',
-            'type'  => $item['type'] ?? ''
-        ];
+// Load saved queue.json if exists
+$queueFile = __DIR__ . '/queue.json';
+if(file_exists($queueFile)){
+    $loaded = json_decode(file_get_contents($queueFile), true);
+    if(is_array($loaded) && count($loaded)>0){
+        $queue_items = $loaded;
     }
-    header('Content-Type: application/json; charset=utf-8');
-    echo json_encode($out, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-    exit;
 }
 
-// Receive client-side JSON (current order) via POST so it can be inspected in DevTools
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['save_client_json'])) {
-    $input = file_get_contents('php://input');
-    $data = json_decode($input, true);
+// Export JSON
+if(isset($_GET['export']) && $_GET['export']==='json'){
     header('Content-Type: application/json; charset=utf-8');
-    if ($data === null && json_last_error() !== JSON_ERROR_NONE) {
-        echo json_encode(['success' => false, 'message' => 'Invalid JSON', 'error' => json_last_error_msg()]);
-        exit;
-    }
-
-    // Return the received payload and the current server-side queue for reference
-    echo json_encode([
-        'success' => true,
-        'message' => 'Received client queue JSON',
-        'received' => $data,
-        'server_queue' => $queue_items
-    ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    echo json_encode($queue_items, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     exit;
 }
 ?>
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <title>Moderator</title>
-    <link rel="stylesheet" href="styles/style.css">
-    <link rel="stylesheet" href="styles/style_mod.css">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="UTF-8">
+<title>Moderator</title>
+<link rel="stylesheet" href="styles/style.css">
+<link rel="stylesheet" href="styles/style_mod.css">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 </head>
 <body>
 <header class="topbar">
@@ -112,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['save_client_json'])) {
         <div class="user-info">
             <div class="user-role">Administrator</div>
             <div class="user-name-row">
-                <span class="user-name"><?php echo htmlspecialchars($first_name . ' ' . $last_name); ?></span>
+                <span class="user-name"><?php echo htmlspecialchars($first_name.' '.$last_name); ?></span>
                 <a href="logout.php" class="btn accent logout">Log-out</a>
             </div>
         </div>
@@ -120,346 +76,181 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['save_client_json'])) {
 </header>
 
 <main class="center-wrap">
-    <h2 class="mod-greeting">Hello Moderator!</h2>
-    <p class="mod-link"><a href="admin.php">Return to Admin</a></p>
+<h2 class="mod-greeting">Hello Moderator!</h2>
+<p class="mod-link"><a href="admin.php">Return to Admin</a></p>
 
-    <div class="mod-section">
-        <div class="section-header">
-            <h3 class="queue-title">Active Content Queue:</h3>
-        </div>
-        <button class="btn secondary apply-changes-btn" onclick="applyChanges()">Apply Changes</button>
-        
-        <div class="content-queue-container">
-            <?php
-            // Only show cards with valid media (image or video)
-            foreach($queue_items as $index => $item) {
-                $media_url = $item['thumbnail_url'] ?? '';
-                $title = $item['title'] ?? '';
-                $extra_text = '';
-                if ($index === 0) {
-                    $extra_text = 'Feuchtigkeit ist wichtig';
-                } elseif ($index === 1) {
-                    $extra_text = 'Das ist ein Beispielbild.';
-                }
-                $media_html = '';
-                $show_card = false;
-                if (!empty($media_url) && file_exists($media_url)) {
-                    $ext = strtolower(pathinfo($media_url, PATHINFO_EXTENSION));
-                    if (in_array($ext, ['mp4', 'webm', 'ogg'])) {
-                        $media_html = '<video src="' . htmlspecialchars($media_url) . '" class="preview-video" muted playsinline></video>';
-                        $show_card = true;
-                    } elseif (in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'])) {
-                        $media_html = '<img src="' . htmlspecialchars($media_url) . '" alt="Preview" class="preview-img" />';
-                        $show_card = true;
-                    }
-                }
-                $max_len = 30;
-                $short_title = mb_strlen($title) > $max_len ? mb_substr($title, 0, $max_len) . ' ...' : $title;
-                if ($show_card) {
-            ?>
-            <div class="queue-card" data-content-id="<?php echo $item['id']; ?>" data-original-id="<?php echo $item['id']; ?>" data-order-id="<?php echo ($index + 1); ?>" data-title="<?php echo htmlspecialchars($title); ?>" data-thumbnail="<?php echo htmlspecialchars($media_url); ?>" data-extra-text="<?php echo htmlspecialchars($extra_text); ?>" onclick="openContentModal(this)">
-                <div class="card-preview">
-                    <?php echo $media_html; ?>
-                </div>
-                <div class="card-order-badge"><?php echo ($index + 1); ?></div>
-                <div class="card-subtitle"><?php echo htmlspecialchars($short_title); ?></div>
-            </div>
-            <?php }} ?>
-        </div>
+<?php if(isset($message)): ?>
+    <p style="color:green;font-weight:bold;"><?php echo htmlspecialchars($message); ?></p>
+<?php endif; ?>
+
+<div class="mod-section">
+    <div class="section-header">
+        <h3 class="queue-title">Active Content Queue:</h3>
     </div>
 
-    <div class="mod-actions">
-        <a href="mod_contentapprover.php" class="btn secondary approver">Content Approver</a>
-    </div>
+    <!-- APPLY CHANGES FORM -->
+    <form method="POST">
+        <input type="hidden" name="queue_data" id="queue_data">
+        <button type="submit" class="btn secondary apply-changes-btn" onclick="prepareQueueData()">Apply Changes</button>
+    </form>
 
+    <div class="content-queue-container">
+        <?php foreach($queue_items as $index=>$item):
+            $media_url = $item['media'] ?? $item['thumbnail_url'] ?? '';
+            $title = $item['title'] ?? '';
+            $extra_text = $item['text'] ?? '';
+            $media_html = '';
+            $show_card = false;
+            if(!empty($media_url) && file_exists($media_url)){
+                $ext = strtolower(pathinfo($media_url, PATHINFO_EXTENSION));
+                if(in_array($ext,['mp4','webm','ogg'])){
+                    $media_html = '<video src="'.htmlspecialchars($media_url).'" class="preview-video" muted playsinline></video>';
+                    $show_card=true;
+                } elseif(in_array($ext,['jpg','jpeg','png','gif','bmp','webp'])){
+                    $media_html = '<img src="'.htmlspecialchars($media_url).'" alt="Preview" class="preview-img" />';
+                    $show_card=true;
+                }
+            }
+            if($show_card):
+                $short_title = mb_strlen($title)>30 ? mb_substr($title,0,30).' ...' : $title;
+        ?>
+        <div class="queue-card"
+             data-content-id="<?php echo $item['original_id'] ?? $item['id'] ?? $index+1; ?>"
+             data-original-id="<?php echo $item['original_id'] ?? $item['id'] ?? $index+1; ?>"
+             data-order-id="<?php echo $index+1; ?>"
+             data-title="<?php echo htmlspecialchars($title); ?>"
+             data-thumbnail="<?php echo htmlspecialchars($media_url); ?>"
+             data-extra-text="<?php echo htmlspecialchars($extra_text); ?>"
+             onclick="openContentModal(this)">
+            <div class="card-preview"><?php echo $media_html; ?></div>
+            <div class="card-order-badge"><?php echo $index+1; ?></div>
+            <div class="card-subtitle"><?php echo htmlspecialchars($short_title); ?></div>
+        </div>
+        <?php endif; endforeach; ?>
+    </div>
+</div>
+
+<div class="mod-actions">
+    <a href="mod_contentapprover.php" class="btn secondary approver">Content Approver</a>
+</div>
 </main>
 
-<!-- Content Preview Modal -->
+<!-- Content Modal -->
 <div id="contentModal" class="modal-overlay" onclick="closeContentModal(event)">
     <div class="modal-content" onclick="event.stopPropagation()">
         <button class="btn primary modal-close" onclick="closeContentModal()">&times;</button>
         <div class="modal-title" id="modalTitle">Von [Username]</div>
         <hr class="modal-separator" id="modalSeparator" style="display:none;" />
         <div class="modal-extra-text" id="modalExtraText"></div>
-        <div class="modal-preview" id="modalPreviewArea">
-            <span class="preview-placeholder">PREVIEW</span>
-        </div>
+        <div class="modal-preview" id="modalPreviewArea"><span class="preview-placeholder">PREVIEW</span></div>
         <div class="modal-footer">
             <button class="btn accent delete" onclick="deleteContent()">Delete</button>
-            <!-- TODO: add username DB fetch implementation -->
-            <span class="modal-uploader" style="margin-left:18px;font-size:1.08rem;font-family:'Segoe UI',Roboto,Arial,sans-serif;color:#374151;font-weight:400;vertical-align:middle;">Von [Vorname] [Nachname]</span>
+            <span class="modal-uploader" style="margin-left:18px;font-size:1.08rem;color:#374151;">Von [Vorname] [Nachname]</span>
         </div>
     </div>
 </div>
 
 <script>
+// GLOBAL
 let currentContentId = null;
-// currentQueueJson mirrors the current DOM order; updated after any reorder
-let currentQueueJson = [];
 
-// Play video on hover for small preview boxes
-document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('.queue-card .card-preview').forEach(function(preview) {
-        preview.addEventListener('mouseenter', function() {
-            const video = preview.querySelector('video');
-            if (video) {
-                video.muted = true;
-                video.play();
-            }
-        });
-        preview.addEventListener('mouseleave', function() {
-            const video = preview.querySelector('video');
-            if (video) {
-                video.pause();
-                video.currentTime = 0;
-            }
-        });
-    });
-    
-    // Initialize drag and drop
-    initDragAndDrop();
-    // Ensure initial order IDs are assigned and visible
-    if (typeof reassignOrderIds === 'function') reassignOrderIds();
-
-    // Client-side JSON is now auto-managed; no manual export button needed
-});
-
-let draggedCard = null;
-
-function initDragAndDrop() {
+// Prepare queue JSON before submitting
+function prepareQueueData(){
     const cards = document.querySelectorAll('.queue-card');
-    
-    cards.forEach(card => {
-        card.draggable = true;
-        
-        card.addEventListener('dragstart', function(e) {
-            draggedCard = this;
-            this.classList.add('dragging');
-            e.dataTransfer.effectAllowed = 'move';
-            e.dataTransfer.setData('text/html', this.innerHTML);
-        });
-        
-        card.addEventListener('dragend', function(e) {
-            this.classList.remove('dragging');
-            cards.forEach(c => c.classList.remove('drag-over'));
-            draggedCard = null;
-        });
-        
-        card.addEventListener('dragover', function(e) {
-            if (e.preventDefault) {
-                e.preventDefault();
-            }
-            e.dataTransfer.dropEffect = 'move';
-            
-            if (this !== draggedCard) {
-                this.classList.add('drag-over');
-            }
-            return false;
-        });
-        
-        card.addEventListener('dragleave', function(e) {
-            this.classList.remove('drag-over');
-        });
-        
-        card.addEventListener('drop', function(e) {
-            if (e.stopPropagation) {
-                e.stopPropagation();
-            }
-            
-            if (this !== draggedCard && draggedCard) {
-                const container = document.querySelector('.content-queue-container');
-                const allCards = Array.from(container.querySelectorAll('.queue-card'));
-                const draggedIndex = allCards.indexOf(draggedCard);
-                const targetIndex = allCards.indexOf(this);
-                
-                if (draggedIndex < targetIndex) {
-                    this.parentNode.insertBefore(draggedCard, this.nextSibling);
-                } else {
-                    this.parentNode.insertBefore(draggedCard, this);
-                }
-                
-                // Reassign positional IDs and log new mapping (original_id -> order_id)
-                if (typeof reassignOrderIds === 'function') reassignOrderIds();
-                const newOrder = Array.from(container.querySelectorAll('.queue-card')).map(c => ({ original_id: c.dataset.originalId || c.dataset.contentId, order_id: Number(c.dataset.orderId) }));
-                console.log('New content order after drag and drop (original_id -> order_id):', newOrder);
-            }
-            
-            this.classList.remove('drag-over');
-            return false;
-        });
+    const data = Array.from(cards).map((c, idx)=>({
+    original_id: c.dataset.originalId,
+    order_id: idx+1,
+    title: c.dataset.title,
+    media: c.dataset.thumbnail,
+    text: c.dataset.extraText || ''
+}));
+
+    document.getElementById('queue_data').value = JSON.stringify(data);
+}
+
+// Drag-drop, modal, hover previews, delete, scroll — same as before
+let draggedCard=null;
+
+document.addEventListener('DOMContentLoaded',()=>{
+    document.querySelectorAll('.queue-card .card-preview').forEach(preview=>{
+        preview.addEventListener('mouseenter',()=>{ const v=preview.querySelector('video'); if(v){v.muted=true; v.play();} });
+        preview.addEventListener('mouseleave',()=>{ const v=preview.querySelector('video'); if(v){v.pause(); v.currentTime=0;} });
     });
-}
-
-function openContentModal(cardElement) {
-    const contentId = cardElement.dataset.contentId;
-    const title = cardElement.dataset.title;
-    const thumbnail = cardElement.dataset.thumbnail;
-    const extraText = cardElement.dataset.extraText;
-    currentContentId = contentId;
-    const modalTitle = document.getElementById('modalTitle');
-    modalTitle.style.textAlign = 'center';
-    modalTitle.textContent = title ? title : 'Von [Username]';
-    // Set extra text in its own div
-    const extraTextDiv = document.getElementById('modalExtraText');
-    const separator = document.getElementById('modalSeparator');
-    if (extraText && extraText.trim() !== '') {
-        extraTextDiv.textContent = extraText;
-        extraTextDiv.style.display = '';
-        // Show and size separator
-        separator.style.display = 'block';
-        // Wait for DOM update to measure widths
-        setTimeout(() => {
-            const titleWidth = modalTitle.scrollWidth;
-            const textWidth = extraTextDiv.scrollWidth;
-            const sepWidth = Math.max(titleWidth, textWidth);
-            separator.style.width = sepWidth + 'px';
-            separator.style.margin = '18px auto 0 auto';
-        }, 0);
-    } else {
-        extraTextDiv.textContent = '';
-        extraTextDiv.style.display = 'none';
-        separator.style.display = 'none';
-    }
-    // Update preview area: only the media
-    const previewArea = document.getElementById('modalPreviewArea');
-    let mediaHtml = '';
-    if (thumbnail && thumbnail.trim() !== '') {
-        const ext = thumbnail.split('.').pop().toLowerCase();
-        if (["mp4","webm","ogg"].includes(ext)) {
-            mediaHtml = '<video src="' + thumbnail + '" controls autoplay muted playsinline></video>';
-        } else if (["jpg","jpeg","png","gif","bmp","webp"].includes(ext)) {
-            mediaHtml = '<img src="' + thumbnail + '" alt="Content Preview" />';
-        } else {
-            mediaHtml = '<span class="preview-placeholder">PREVIEW</span>';
-        }
-    } else {
-        mediaHtml = '<span class="preview-placeholder">PREVIEW</span>';
-    }
-    previewArea.innerHTML = mediaHtml;
-    
-    // Show modal
-    document.getElementById('contentModal').style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-}
-
-function closeContentModal(event) {
-    if (event && event.target !== event.currentTarget) return;
-    
-    document.getElementById('contentModal').style.display = 'none';
-    document.body.style.overflow = 'auto';
-    currentContentId = null;
-}
-
-function deleteContent() {
-    if (!currentContentId) return;
-    
-    if (!confirm('Are you sure you want to delete this content?')) {
-        return;
-    }
-    
-    // Find and remove the card from DOM
-    const card = document.querySelector(`.queue-card[data-content-id="${currentContentId}"]`);
-    
-    if (card) {
-        // TODO: Implement AJAX call to delete from database
-        // Example implementation:
-        /*
-        fetch('api/delete-content.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                content_id: currentContentId
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                card.remove();
-                closeContentModal();
-                console.log('Content deleted successfully');
-            } else {
-                alert('Error deleting content: ' + data.message);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Error deleting content');
-        });
-        */
-        
-        // For now, just remove from DOM (comment out when implementing DB)
-        card.remove();
-        closeContentModal();
-        console.log('Deleting content with ID:', currentContentId);
-    }
-}
-
-// Close modal on Escape key
-document.addEventListener('keydown', function(event) {
-    if (event.key === 'Escape') {
-        closeContentModal();
-    }
+    initDragAndDrop();
+    reassignOrderIds();
 });
 
-// Reassign sequential order IDs (1..N) to cards and update visible badge
-function reassignOrderIds() {
-    const container = document.querySelector('.content-queue-container');
-    if (!container) return;
-    const cards = Array.from(container.querySelectorAll('.queue-card'));
-    const seen = new Set();
-    const mapping = [];
-    cards.forEach((c, idx) => {
-        const newId = idx + 1;
-        const original = c.dataset.originalId || c.dataset.contentId || null;
-        c.dataset.orderId = String(newId);
-        // update badge if exists
-        const badge = c.querySelector('.card-order-badge');
-        if (badge) badge.textContent = String(newId);
-        mapping.push({ original_id: original, order_id: newId });
-        if (seen.has(newId)) {
-            console.error('Duplicate order id detected:', newId, 'mapping:', mapping);
-        }
-        seen.add(newId);
-    });
-    // Build client-side JSON representation using current DOM order
-    currentQueueJson = cards.map(c => {
-        const media = c.dataset.thumbnail || c.dataset.contentId || '';
-        // Determine type based on file extension
-        let type = 'image'; // default
-        if (media) {
-            const ext = media.split('.').pop().toLowerCase();
-            if (['mp4', 'webm', 'ogg', 'avi', 'mkv'].includes(ext)) {
-                type = 'video';
-            } else if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(ext)) {
-                type = 'image';
+function initDragAndDrop(){
+    const cards=document.querySelectorAll('.queue-card');
+    cards.forEach(card=>{
+        card.draggable=true;
+        card.addEventListener('dragstart',e=>{ draggedCard=card; card.classList.add('dragging'); e.dataTransfer.effectAllowed='move'; });
+        card.addEventListener('dragend',()=>{ card.classList.remove('dragging'); draggedCard=null; });
+        card.addEventListener('dragover',e=>{ e.preventDefault(); card.classList.add('drag-over'); });
+        card.addEventListener('dragleave',()=>{ card.classList.remove('drag-over'); });
+        card.addEventListener('drop',e=>{
+            e.preventDefault();
+            if(draggedCard && draggedCard!==card){
+                const container=document.querySelector('.content-queue-container');
+                const all=Array.from(container.querySelectorAll('.queue-card'));
+                const di=all.indexOf(draggedCard);
+                const ti=all.indexOf(card);
+                if(di<ti) container.insertBefore(draggedCard, card.nextSibling);
+                else container.insertBefore(draggedCard, card);
+                reassignOrderIds();
             }
-        }
-        return {
-            title: c.dataset.title || '',
-            text: c.dataset.extraText || '',
-            type: type,
-            media: media
-        };
+            card.classList.remove('drag-over');
+        });
     });
-    console.log('Order reassigned:', mapping);
-    console.log('Current client-side queue JSON updated:', currentQueueJson);
-    console.log('Complete JSON (formatted):');
-    console.log(JSON.stringify(currentQueueJson, null, 2));
 }
 
-function applyChanges() {
-    // TODO: Implement apply changes functionality
-    alert('Apply Changes functionality to be implemented');
+function reassignOrderIds(){
+    const container=document.querySelector('.content-queue-container');
+    const cards=Array.from(container.querySelectorAll('.queue-card'));
+    cards.forEach((c,idx)=>{
+        c.dataset.orderId=idx+1;
+        const badge=c.querySelector('.card-order-badge'); if(badge) badge.textContent=idx+1;
+    });
 }
 
-// Enable horizontal scrolling with mouse wheel for content queue
-document.querySelector('.content-queue-container').addEventListener('wheel', function(e) {
-    e.preventDefault();
-    this.scrollLeft += e.deltaY * 2; // Faster scrolling
-});
+// MODAL
+function openContentModal(card){
+    currentContentId=card.dataset.contentId;
+    const t=card.dataset.title||'Von [Username]';
+    const thumb=card.dataset.thumbnail;
+    const extra=card.dataset.extraText;
+    const modalTitle=document.getElementById('modalTitle');
+    const modalExtra=document.getElementById('modalExtraText');
+    const sep=document.getElementById('modalSeparator');
+    modalTitle.textContent=t;
+    if(extra && extra.trim()!==''){ modalExtra.textContent=extra; modalExtra.style.display=''; sep.style.display='block'; }
+    else { modalExtra.style.display='none'; sep.style.display='none'; }
+    const preview=document.getElementById('modalPreviewArea');
+    if(thumb){ const ext=thumb.split('.').pop().toLowerCase();
+        if(['mp4','webm','ogg'].includes(ext)) preview.innerHTML='<video src="'+thumb+'" controls autoplay muted playsinline></video>';
+        else preview.innerHTML='<img src="'+thumb+'" alt="Preview"/>';
+    } else preview.innerHTML='<span class="preview-placeholder">PREVIEW</span>';
+    document.getElementById('contentModal').style.display='flex';
+    document.body.style.overflow='hidden';
+}
+
+function closeContentModal(event){
+    if(event && event.target!==event.currentTarget) return;
+    document.getElementById('contentModal').style.display='none';
+    document.body.style.overflow='auto';
+    currentContentId=null;
+}
+
+function deleteContent(){
+    if(!currentContentId) return;
+    if(!confirm('Are you sure you want to delete this content?')) return;
+    const card=document.querySelector(`.queue-card[data-content-id="${currentContentId}"]`);
+    if(card){ card.remove(); closeContentModal(); reassignOrderIds(); }
+}
+
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeContentModal(); });
+document.querySelector('.content-queue-container').addEventListener('wheel',e=>{ e.preventDefault(); e.currentTarget.scrollLeft+=e.deltaY*2; });
+
 </script>
-
 </body>
 </html>

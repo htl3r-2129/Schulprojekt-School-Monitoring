@@ -61,7 +61,7 @@
     //default time
     let slideDurationSeconds = 1;
     //instant time
-    let instantDurationSeconds = 10;
+    let instantDurationSeconds = 5;
 
     //++++++++++++++++++++ FETCH-CONTROL ++++++++++++++++++++   
 
@@ -73,15 +73,17 @@
           const newTimeJson = JSON.stringify(settings);
 
     
-          // Prüfen auf Änderungen
+          console.log(newTimeJson);
           if (lastTimeJson && lastTimeJson !== newTimeJson) {
             console.log("Time Update erkannt! Seite reloadet...");
             location.reload();
             return;
           }
-           console.log("Msg Zeit beträgt: " + slideDurationSeconds + "s");
+
+          console.log("Msg Zeit beträgt: " + slideDurationSeconds + "s");
           lastTimeJson = newTimeJson;
           const fetchedTime = Number(settings.bilderzeit?.replace(/\D/g, ''));
+          console.log("Msg Zeit beträgt: " + settings.bilderzeit);
           if (slideDurationSeconds === 1) {
             slideDurationSeconds = Number(fetchedTime ?? 3);
             console.log("Msg Zeit beträgt: " + slideDurationSeconds + "s");
@@ -93,12 +95,7 @@
 
 
     function SlideFetch() {
-      // fetch('mod.php?export=json', {
-      fetch('slidegentest.php', {
-        headers: {
-            'Accept': 'application/json'
-        }
-    })
+      fetch('queue.json')
         .then(res => res.json())
         .then(data => {
           const newSlidesJson = JSON.stringify(data);
@@ -128,7 +125,6 @@
             }
           });
 
-          // Slides initialisieren **nur einmal**
           if (init === true) {
             initSlides();
             console.log("INIT erkannt! Seite reloadet...");
