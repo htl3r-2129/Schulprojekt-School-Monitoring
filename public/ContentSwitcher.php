@@ -66,10 +66,6 @@
 
     //++++++++++++++++++++ FETCH-CONTROL ++++++++++++++++++++   
 
-    function IntervalFetch() {
-
-    }
-
 
     function TimeFetch() {
       fetch('./admin.php', {
@@ -78,10 +74,10 @@
           }
         })
         .then(res => res.json())
-        .then(timeData => {
-          const newTimeJson = JSON.stringify(timeData);
+        .then(settings => {
+          const newTimeJson = JSON.stringify(settings);
 
-
+    
           // Prüfen auf Änderungen
           if (lastTimeJson && lastTimeJson !== newTimeJson) {
             console.log("Time Update erkannt! Seite reloadet...");
@@ -90,8 +86,9 @@
           }
 
           lastTimeJson = newTimeJson;
+
           if (slideDurationSeconds === 1) {
-            slideDurationSeconds = Number(timeData.MsgTime ?? 3);
+            slideDurationSeconds = Number(settings.bilderzeit ?? 3);
             console.log("Msg Zeit beträgt: " + slideDurationSeconds + "s");
           }
         })
@@ -101,7 +98,7 @@
 
 
     function SlideFetch() {
-      fetch("./SlideGenTest.php")
+      fetch("./mod.php")
         .then(res => res.json())
         .then(data => {
           const newSlidesJson = JSON.stringify(data);
@@ -140,7 +137,7 @@
         })
         .catch(err => console.error("Fehler beim Slides-Fetch:", err));
     }
-    IntervalFetch();
+  
     TimeFetch();
     SlideFetch();
 
