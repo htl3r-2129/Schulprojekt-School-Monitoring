@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Vertikales Slide-Display mit Video & optionalem Text</title>
+<style>
+  :root {
+    --gap: 18px;
+  }
+  html,body {
+    height:100%;
+    margin:0;
+    font-family: "Segoe UI", Roboto, Arial, sans-serif;
+    background:#fff;
+    color:#000;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+  }
+
+  /* Gesamtes Viewport-Layout */
+  .slides {
+    height:100vh;
+    width:100%;
+    overflow:hidden;
+    position:relative;
+  }
+
+  /* Innerer Container, den wir vertikal verschieben */
+  .slides-inner {
+    height:100%;
+    transition: transform 0.75s cubic-bezier(.22,.9,.3,1);
+    will-change: transform;
+  }
+
+  /* Einzelne Slide - nimmt ganze Höhe */
+  .slide {
+    height:100vh;
+    box-sizing:border-box;
+    display:flex;
+    flex-direction:column;
+    padding: 28px;
+    gap: 8px;
+  }
+
+  /* Titel */
+  .slide h1 {
+    margin:0;
+    font-weight:400;
+    padding-bottom:12px;
+    border-bottom:2px solid #000;
+    font-size: clamp(28px, 4.6vw, 64px);
+  }
+
+  /* Optionaler Text - wird nicht gerendert wenn leer (wir erstellen ihn nur bei Inhalt) */
+  .slide .text {
+    margin:6px 0 0 0;
+    font-size: clamp(18px, 2.8vw, 36px);
+    padding-bottom:10px;
+    border-bottom:2px solid #000;
+  }
+
+  /* Video-Container */
+  .video-wrap {
+    margin-top: 12px;
+    flex:1 1 auto;
+    border:4px solid #000;
+    box-sizing:border-box;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+  }
+
+  .video-wrap video {
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    display:block;
+    pointer-events:none; /* Keine Klicks auf Video */
+  }
+
+  /* Platzhalter wenn kein Video vorhanden */
+  .video-placeholder {
+    font-size: clamp(20px, 3vw, 48px);
+  }
+
+  /* Optional: keine Interaktionen auf der ganzen Seite */
+  body { -webkit-user-select: none; user-select: none; }
+  .slides, .slide { pointer-events: none; }
+
+  @media (max-width:600px){
+    .slide { padding: 16px; }
+    .slide h1 { font-size: clamp(20px, 8vw, 40px); }
+  }
+</style>
+</head>
+<body>
+
+<div class="slides" id="slides">
+  <div class="slides-inner" id="slidesInner">
+    <!-- Slides werden dynamisch per JavaScript erzeugt -->
+  </div>
+</div>
+
+<script>
+/* ============================
+   Hier die Daten konfigurieren
+   ============================ */
+
+/* Beispiel-Daten (deine Arrays) */
+const titles = ["Wasser","Feuer","Erde"];
+const texts  = ["Feuchtigkeit ist wichtig","", "Ich mag Erde"];
+const videos = ["./media/Videos/WALKWAY0025-0220.mp4","./media/Videos/323661713077374979.mp4","./media/Videos/WALKWAY0025-0220.mp4"];
+
+/* Slide-Dauer: entweder eine Zahl (Sekunden) für alle Slides
+   oder ein Array mit Sekunden pro Slide. Wenn beide gesetzt,
+   hat das Array Vorrang (falls Länge übereinstimmt/ausreichend). */
+const slideDurationSeconds = 3; // global fallback: 10s
+// Beispiel pro-slide-dauern (optional)
+// const durations = [8, 12, 6];
+const durations = null;
+
+/* ============================
+   Kein weiteres Editieren nötig
+   ============================ */
+
+const slidesInner = document.getElementById('slidesInner');
+
+// Bestimme Anzahl Slides (nimmt längstes Array)
+const n = Math.max(titles.length, texts.length, videos.length);
+
+// Einfachheit: falls arrays kürzer sind, benutzen wir '' als Fallback
+function at(arr, i){ return (arr && i < arr.length) ? arr[i] : ""; }
+
+// Erzeuge jede Slide
+const slideData = [];
+for(let i=0;i<n;i++){
+  const t = at(titles,i);
+  const txt = at(texts,i);
+  const vid = at(videos,i);
+
+  const slide = document.createElement('section');
+  slide.className = 'slide';
+  slide.dataset.index = i;
+
+  // Titel
+  const h = document.createElement('h1');
+  h.textContent = t || ""; // falls leer, bleibt Titel leer
+  slide.appendChild(h);
+
+  // Optionaler Text (nur wenn nicht-leer nach trim)
+  if(txt && txt.toString().trim() !== ""){
+    const d = document.createElement('div');
+    d.className = 'text';
+    d.textContent = txt;
+    slide.appendChild(d);
+  }
+
+  // Video-Container
+  const vwrap = document.createElement('div');
+  vwrap.className = 'video-wrap';
+
+  if(vid && vid.toString().trim() !== ""){
+    const video = document.createElement('video');
+    // wir verwenden kein autoplay-attr, spielen programmatisch, aber setzen muted für Autoplay-Erlaubnis
+    video.src = vid;
+    video.preload = 'auto';
+    video.muted = true;
+    video.playsInline = true;
+    video.loop = true;
+    // pointer events deaktiviert via CSS
+    vwrap.appendChild(video);
+    slideData.push({slide, video});
+  } else {
+    // Platzhalter
+    const ph = document.createElement('div');
+    ph.className = 'video-placeholder';
+    ph.textContent = 'Kein Video verfügbar';
+    vwrap.appendChild(ph);
+    slideData.push({slide, video: null});
+  }
+
+  slide.appendChild(vwrap);
+  slidesInner.appendChild(slide);
+}
+
+/* Helper: Dauer für slide i in ms */
+function getDurationMs(i){
+  if(Array.isArray(durations) && i < durations.length && !isNaN(durations[i])){
+    return Math.max(0, Number(durations[i])) * 1000;
+  }
+  // fallback to global
+  return Math.max(0, Number(slideDurationSeconds || 10)) * 1000;
+}
+
+/* Slide-Steuerung */
+let currentIndex = 0;
+let autoTimer = null;
+
+function goTo(index){
+  if(index < 0) index = slideData.length - 1;
+  if(index >= slideData.length) index = 0;
+
+  currentIndex = index;
+  const y = - index * window.innerHeight;
+  slidesInner.style.transform = `translateY(${y}px)`;
+
+  // Pause alte Videos und Play neues
+  slideData.forEach((sd, idx) => {
+    if(sd.video){
+      try {
+        if(idx === index){
+          sd.video.currentTime = 0;
+          const playPromise = sd.video.play();
+          // play() returns a Promise in many browsers; ignore rejections silently
+          if(playPromise && typeof playPromise.then === 'function'){
+            playPromise.catch(()=>{/* Autoplay blocked? video is muted so unlikely */});
+          }
+        } else {
+          sd.video.pause();
+        }
+      } catch(e){
+        // ignore
+        console.warn('Video play/pause Fehler', e);
+      }
+    }
+  });
+
+  // (Re)Starte Timer für nächsten Slide
+  scheduleNext();
+}
+
+/* Timer-Management */
+function scheduleNext(){
+  clearTimeout(autoTimer);
+  const ms = getDurationMs(currentIndex);
+  autoTimer = setTimeout(()=> goTo(currentIndex + 1), ms);
+}
+
+/* Bei Größenänderung neu-positionieren (z.B. Fenster-Resize) */
+window.addEventListener('resize', ()=> {
+  // setze transform neu (weil 100vh könnte sich ändern)
+  const y = - currentIndex * window.innerHeight;
+  slidesInner.style.transform = `translateY(${y}px)`;
+});
+
+/* Sichtbarkeit der Seite beachten (Tab hidden): pausieren/resumieren
+   Optional - reduziert Ressourcennutzung, spielt Videos beim Zurückkommen neu */
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    clearTimeout(autoTimer);
+    // pausieren alle videos
+    slideData.forEach(sd => sd.video && sd.video.pause());
+  } else {
+    // wieder starten: play current video und schedule next
+    const sd = slideData[currentIndex];
+    if(sd && sd.video){
+      sd.video.play().catch(()=>{});
+    }
+    scheduleNext();
+  }
+});
+
+/* initial */
+goTo(0);
+
+/* Optional: Exporte / Debug - Du kannst diese Funktionen in der Konsole benutzen:
+   - window.goToSlide(i)
+   - window.getSlideCount()
+*/
+window.goToSlide = (i) => goTo(i);
+window.getSlideCount = () => slideData.length;
+
+</script>
+</body>
+</html>
