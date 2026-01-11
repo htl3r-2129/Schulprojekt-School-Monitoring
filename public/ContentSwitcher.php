@@ -51,45 +51,86 @@
     let titles = []; // <<< ÄNDERUNG
     let texts = []; // <<< ÄNDERUNG
     let media = []; // <<< ÄNDERUNG
+    let init = true;
+    
+    let lastSlidesJson = null;
+    let lastTimeJson   = null;
 
 
-
-fetch("./slidesGenTest.php")
-  .then(res => res.json())
-  .then(data => {
-    data.forEach(item => {
-      titles.push(item.title);
-      // Text (falls leer)
-      texts.push(item.text ?? "");
-      // Media
-      if (!item.media || item.media.trim() === "") {
-        media.push({
-          instant: false
-        });
-      } else {
-        media.push({
-          type: item.type?.toLowerCase() === "video" ? "video" : "image",
-          src: item.media,
-          instant: false
-        });
-      }
-    });
-
-    // Jetzt die Slides bauen
-    initSlides();
-  })
-  .catch(err => {
-    console.error("Fehler beim Laden der Slides:", err);
-  });
-
-    //++++++++++++++++++++ TIME-CONTROL ++++++++++++++++++++
+        //++++++++++++++++++++ TIME-CONTROL ++++++++++++++++++++
 
     //default time
-    const slideDurationSeconds = 3;
+    let slideDurationSeconds = 6;
     //instant time
-    const instantDurationSeconds = 10;
+    let instantDurationSeconds = 10;
 
-    initSlides();
+
+ function TimeFetch() {
+    fetch("./slidesTime.php")
+      .then(res => res.json())
+      .then(timeData => {
+        const newTimeJson = JSON.stringify(timeData);
+
+        // Prüfen auf Änderungen
+        if(lastTimeJson && lastTimeJson !== newTimeJson){
+          console.log("Time Update erkannt! Seite reloadet...");
+          location.reload();
+          return;
+        }
+
+        lastTimeJson = newTimeJson;
+
+        slideDurationSeconds = Number(timeData.MsgTime ?? 3);
+      })
+      .catch(err => console.error("Fehler beim Laden der Time-Daten:", err));
+  }
+
+
+function SlideFetch() {
+  fetch("./slidesGenTest.php")
+    .then(res => res.json())
+    .then(data => {
+      const newSlidesJson = JSON.stringify(data);
+
+      // Prüfen auf Änderungen
+      if (lastSlidesJson && lastSlidesJson !== newSlidesJson) {
+        console.log("Update erkannt! Seite reloadet...");
+        location.reload();
+        return;
+      }
+
+      lastSlidesJson = newSlidesJson;
+
+      data.forEach(item => {
+        titles.push(item.title);
+        texts.push(item.text ?? "");
+        if (!item.media || item.media.trim() === "") {
+          media.push({ instant: false });
+        } else {
+          media.push({
+            type: item.type?.toLowerCase() === "video" ? "video" : "image",
+            src: item.media,
+            instant: false
+          });
+        }
+      });
+
+      // Slides initialisieren **nur einmal**
+      if (init === true) {
+        initSlides();
+        console.log("INIT erkannt! Seite reloadet...");
+        init = false;
+      }
+    })
+    .catch(err => console.error("Fehler beim Slides-Fetch:", err));
+}
+
+TimeFetch();
+SlideFetch();
+
+setInterval(TimeFetch, 10000)
+setInterval(SlideFetch, 10000);
+
 
     //++++++++++++++++++++ Slide Creation ++++++++++++++++++++
     function initSlides() { // <<< ÄNDERUNG
