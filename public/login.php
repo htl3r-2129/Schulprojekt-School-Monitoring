@@ -8,7 +8,7 @@ use Insi\Ssm\Auth;
 
 $auth = new Auth();
 
-if (isset($_COOKIE['user'])) {
+if (isset($_SESSION['user'])) {
     header(header: 'Location: dashboard.php');
 }
 
@@ -17,7 +17,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'] ?? '';
 
     if ($auth->login($email, $password)) {
-        setcookie("user", "$email", time() + (86400 * 30), "/");
+        $uuid = $auth->getUUID($email);
+        $_SESSION['user'] = $uuid;
+        $_SESSION['name'] = $auth->getUsername($uuid);
         header(header: 'Location: dashboard.php');
         exit;
     } else {

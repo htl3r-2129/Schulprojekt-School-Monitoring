@@ -6,9 +6,15 @@ require __DIR__ . '/../vendor/autoload.php';
 
 use Insi\Ssm\Auth;
 
-$auth = new Auth();
+$auth = new Auth(); // TODO: have one global Auth()
 
-//TODO : Check if user is admin, else redirect
+if (isset($_SESSION['user'])) {
+    if (!$auth->isAdmin($_SESSION['user'])) {
+        header(header: 'Location: error/401.php');
+    }
+} else {
+    header(header: 'Location: error/401.php');
+}
 
 $error = '';
 $success = '';
@@ -92,7 +98,7 @@ $last_name = 'NACHNAME';   // Would come from DB
         <div class="user-profile">
             <div class="user-info">
                 <div class="user-role">Administrator</div>
-                <span class="user-name"><?php echo htmlspecialchars($first_name . ' ' . $last_name); ?></span>
+                <span class="user-name"><?= htmlspecialchars($_SESSION['name']); ?></span>
             </div>
             <a href="logout.php" class="btn primary">Log-out</a>
         </div>
