@@ -52,92 +52,100 @@
     let texts = []; // <<< ÄNDERUNG
     let media = []; // <<< ÄNDERUNG
     let init = true;
-    
+
     let lastSlidesJson = null;
-    let lastTimeJson   = null;
+    let lastTimeJson = null;
 
 
-        //++++++++++++++++++++ TIME-CONTROL ++++++++++++++++++++
+    //++++++++++++++++++++ TIME-CONTROL ++++++++++++++++++++
 
     //default time
     let slideDurationSeconds = 1;
     //instant time
     let instantDurationSeconds = 10;
 
+    //++++++++++++++++++++ FETCH-CONTROL ++++++++++++++++++++   
 
- function TimeFetch() {
-    fetch('./admin.php', {
-        headers: {
+    function IntervalFetch() {
+
+    }
+
+
+    function TimeFetch() {
+      fetch('./admin.php', {
+          headers: {
             'Accept': 'application/json'
-        }
-    })
-      .then(res => res.json())
-      .then(timeData => {
-        const newTimeJson = JSON.stringify(timeData);
-        
-
-        // Prüfen auf Änderungen
-        if(lastTimeJson && lastTimeJson !== newTimeJson){
-          console.log("Time Update erkannt! Seite reloadet...");
-          location.reload();
-          return;
-        }
-
-        lastTimeJson = newTimeJson;
-        if (slideDurationSeconds === 1){
-        slideDurationSeconds = Number(timeData.MsgTime ?? 3);
-        console.log("Msg Zeit beträgt: " + slideDurationSeconds);
-        }
-      })
-      .catch(err => console.error("Fehler beim Laden der Time-Daten:", err));
-  } 
-      
+          }
+        })
+        .then(res => res.json())
+        .then(timeData => {
+          const newTimeJson = JSON.stringify(timeData);
 
 
-function SlideFetch() {
-  fetch("./SlideGenTest.php")
-    .then(res => res.json())
-    .then(data => {
-      const newSlidesJson = JSON.stringify(data);
+          // Prüfen auf Änderungen
+          if (lastTimeJson && lastTimeJson !== newTimeJson) {
+            console.log("Time Update erkannt! Seite reloadet...");
+            location.reload();
+            return;
+          }
 
-      // Prüfen auf Änderungen
-      if (lastSlidesJson && lastSlidesJson !== newSlidesJson) {
-        console.log("Update erkannt! Seite reloadet...");
-        location.reload();
-        return;
-      }
+          lastTimeJson = newTimeJson;
+          if (slideDurationSeconds === 1) {
+            slideDurationSeconds = Number(timeData.MsgTime ?? 3);
+            console.log("Msg Zeit beträgt: " + slideDurationSeconds + "s");
+          }
+        })
+        .catch(err => console.error("Fehler beim Laden der Time-Daten:", err));
+    }
 
-      lastSlidesJson = newSlidesJson;
 
-      data.forEach(item => {
-        titles.push(item.title);
-        texts.push(item.text ?? "");
-        if (!item.media || item.media.trim() === "") {
-          media.push({ instant: false });
-        } else {
-          media.push({
-            type: item.type?.toLowerCase() === "video" ? "video" : "image",
-            src: item.media,
-            instant: false
+
+    function SlideFetch() {
+      fetch("./SlideGenTest.php")
+        .then(res => res.json())
+        .then(data => {
+          const newSlidesJson = JSON.stringify(data);
+
+          // Prüfen auf Änderungen
+          if (lastSlidesJson && lastSlidesJson !== newSlidesJson) {
+            console.log("Update erkannt! Seite reloadet...");
+            location.reload();
+            return;
+          }
+
+          lastSlidesJson = newSlidesJson;
+
+          data.forEach(item => {
+            titles.push(item.title);
+            texts.push(item.text ?? "");
+            if (!item.media || item.media.trim() === "") {
+              media.push({
+                instant: false
+              });
+            } else {
+              media.push({
+                type: item.type?.toLowerCase() === "video" ? "video" : "image",
+                src: item.media,
+                instant: false
+              });
+            }
           });
-        }
-      });
 
-      // Slides initialisieren **nur einmal**
-      if (init === true) {
-        initSlides();
-        console.log("INIT erkannt! Seite reloadet...");
-        init = false;
-      }
-    })
-    .catch(err => console.error("Fehler beim Slides-Fetch:", err));
-}
+          // Slides initialisieren **nur einmal**
+          if (init === true) {
+            initSlides();
+            console.log("INIT erkannt! Seite reloadet...");
+            init = false;
+          }
+        })
+        .catch(err => console.error("Fehler beim Slides-Fetch:", err));
+    }
+    IntervalFetch();
+    TimeFetch();
+    SlideFetch();
 
-TimeFetch();
-SlideFetch();
-
-setInterval(TimeFetch, 10000)
-setInterval(SlideFetch, 10000);
+    setInterval(TimeFetch, 20000)
+    setInterval(SlideFetch, 10000);
 
 
     //++++++++++++++++++++ Slide Creation ++++++++++++++++++++
