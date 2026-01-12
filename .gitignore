@@ -1,4 +1,5 @@
 .idea
 vendor/
 School Monitor.iml
+*.json
 composer.lock

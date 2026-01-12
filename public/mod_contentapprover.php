@@ -57,11 +57,12 @@ $queue_items = [
             border-radius: 14px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.06);
             padding: 12px 0 18px 0;
-            transition: box-shadow 0.2s;
-            cursor: move;
+            transition: all 0.25s ease;
+            cursor: pointer;
         }
         .queue-card:hover {
-            box-shadow: 0 4px 18px rgba(0,0,0,0.13);
+            transform: translateY(-6px);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
         }
         .queue-card.dragging {
             opacity: 0.5;
@@ -95,9 +96,11 @@ $queue_items = [
     <div class="user-profile">
         <div class="user-info">
             <div class="user-role">Administrator</div>
-            <span class="user-name"><?php echo htmlspecialchars($first_name . ' ' . $last_name); ?></span>
+            <div class="user-name-row">
+                <span class="user-name"><?php echo htmlspecialchars($first_name . ' ' . $last_name); ?></span>
+                <a href="logout.php" class="btn accent logout">Log-out</a>
+            </div>
         </div>
-        <a href="logout.php" class="btn logout-btn">Log-out</a>
     </div>
 </header>
 

@@ -18,7 +18,7 @@ $last_name = 'NACHNAME';
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <title>Moderator</title>
+    <title>Upload Content</title>
     <link rel="stylesheet" href="styles/style.css">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <style>
@@ -293,122 +293,8 @@ $last_name = 'NACHNAME';
             font-weight: 600;
             text-align: center;
         }
+</style>
 
-/* Content Preview Modal */
-.modal-overlay {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.75);
-    z-index: 9999;
-    align-items: center;
-    justify-content: center;
-    backdrop-filter: blur(3px);
-}
-
-.modal-content {
-    background: linear-gradient(135deg, #ffffff 0%, #f5f7fa 100%);
-    border-radius: 0;
-    width: 92%;
-    max-width: 900px;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    position: relative;
-    padding: 40px;
-    align-items: center;
-    justify-content: flex-start;
-}
-
-.modal-close {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    width: 42px;
-    height: 42px;
-    background: #e23c21;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-size: 28px;
-    font-weight: 700;
-    cursor: pointer;
-    padding: 0;
-    line-height: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.2s;
-    z-index: 1;
-}
-
-.modal-close:hover {
-    background: #c13616;
-}
-
-.modal-title {
-    font-family: Helvetica, Arial, sans-serif;
-    font-size: clamp(20px, 3.5vw, 40px);
-    font-weight: 700;
-    color: #e23c21;
-    margin: 0;
-    text-align: center;
-    align-self: flex-end;
-    padding-top: 0;
-    width: 100%;
-}
-
-.modal-title-separator {
-    border: none;
-    border-top: 2px solid #668099;
-    padding: 0;
-    margin: 12px auto;
-    align-self: center;
-    width: auto;
-}
-
-.modal-preview {
-    width: 100%;
-    max-width: 100%;
-    aspect-ratio: 16 / 9;
-    background: transparent;
-    border: 0;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 42px;
-    font-weight: 700;
-    letter-spacing: 4px;
-    color: #303b46;
-    overflow: hidden;
-}
-
-.modal-preview-img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    display: block;
-    border-radius: 10px;
-}
-
-.modal-extra-text {
-    font-size: clamp(16px, 2.5vw, 24px);
-    color: #303b46;
-    text-align: center;
-    padding: 16px 0;
-    line-height: 1.6;
-    max-width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-
-    </style>
 </head>
 <body>
 <header class="topbar">
@@ -419,9 +305,11 @@ $last_name = 'NACHNAME';
     <div class="user-profile">
         <div class="user-info">
             <div class="user-role">User</div>
-            <span class="user-name"><?php echo htmlspecialchars($first_name . ' ' . $last_name); ?></span>
+            <div class="user-name-row">
+                <span class="user-name"><?php echo htmlspecialchars($first_name . ' ' . $last_name); ?></span>
+                <a href="logout.php" class="btn accent logout">Log-out</a>
+            </div>
         </div>
-        <a href="logout.php" class="btn accent logout">Log-out</a>
     </div>
 </header>
 
@@ -606,12 +494,12 @@ function openContentModal(cardElement) {
     // Set extra text in its own div
     const extraTextDiv = document.getElementById('modalExtraText');
     const separator = document.getElementById('modalSeparator');
+    // Always show separator for media previews
+    separator.style.display = 'block';
     if (extraText && extraText.trim() !== '') {
         extraTextDiv.textContent = extraText;
         extraTextDiv.style.display = 'flex';
-        // Show and size separator
-        separator.style.display = 'block';
-        // Wait for DOM update to measure widths
+        // Size separator based on title and text
         setTimeout(() => {
             const titleWidth = modalTitle.scrollWidth;
             const textWidth = extraTextDiv.scrollWidth;
@@ -622,7 +510,12 @@ function openContentModal(cardElement) {
     } else {
         extraTextDiv.textContent = '';
         extraTextDiv.style.display = 'none';
-        separator.style.display = 'none';
+        // Size separator based on title only
+        setTimeout(() => {
+            const titleWidth = modalTitle.scrollWidth;
+            separator.style.width = titleWidth + 'px';
+            separator.style.margin = '12px auto';
+        }, 0);
     }
     // Update preview area: only the media
     const previewArea = document.getElementById('modalPreviewArea');
