@@ -99,7 +99,7 @@
         .then(data => {
           const newSlidesJson = JSON.stringify(data);
 
-          console.log(newSlidesJson)
+          //console.log(newSlidesJson) --> Debug
           if (lastSlidesJson && lastSlidesJson !== newSlidesJson) {
             console.log("Update erkannt! Seite reloadet...");
             location.reload();
@@ -133,6 +133,7 @@
         .catch(err => console.error("Fehler beim Slides-Fetch:", err));
     }
   
+
     TimeFetch();
     SlideFetch();
 

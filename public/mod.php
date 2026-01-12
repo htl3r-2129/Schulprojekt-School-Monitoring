@@ -1,44 +1,97 @@
-<?php 
+<?php
 session_start();
 
-// --- Simple POST save queue ---
-if($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['queue_data'])){
-    $data = json_decode($_POST['queue_data'], true);
-    $file = __DIR__ . '/queue.json';
-    if(file_put_contents($file, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES))){
-        $message = "Queue saved successfully!";
-    } else {
-        $message = "Failed to write queue.json";
+// --- Disable caching ---
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
+header("Expires: 0");
+
+// --- File paths ---
+$queueFile = __DIR__ . '/queue.json';
+$contentSourceFile = __DIR__ . '/content_source.json';
+$queue_items = [];
+$content_source = [];
+
+// --- DELETE Content via AJAX ---
+if($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['delete_id'])){
+    $delete_id = $_POST['delete_id'];
+
+    // Load content_source.json
+    $content_source = file_exists($contentSourceFile) ? json_decode(file_get_contents($contentSourceFile), true) : [];
+
+    // Remove content
+    $content_source = array_filter($content_source, fn($item) => $item['original_id'] != $delete_id);
+    $content_source = array_values($content_source);
+
+    // Save content_source.json
+    file_put_contents($contentSourceFile, json_encode($content_source, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+
+    // Load queue.json
+    $queue_items = file_exists($queueFile) ? json_decode(file_get_contents($queueFile), true) : [];
+
+    // Remove deleted item from queue
+    $queue_items = array_filter($queue_items, fn($item) => $item['original_id'] != $delete_id);
+    $queue_items = array_values($queue_items);
+
+    // Reorder order_id
+    foreach($queue_items as $idx => &$item) $item['order_id'] = $idx+1;
+    unset($item);
+
+    // Save updated queue.json
+    file_put_contents($queueFile, json_encode($queue_items, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+
+    echo json_encode(['success'=>true]);
+    exit;
+}
+
+// --- Load content_source.json ---
+if(file_exists($contentSourceFile)){
+    $content_source = json_decode(file_get_contents($contentSourceFile), true) ?? [];
+}
+
+// --- Load queue.json as main source ---
+if(file_exists($queueFile)){
+    $queue_items = json_decode(file_get_contents($queueFile), true) ?? [];
+}
+
+// --- Sync: queue.json only shows content_source.json items, update titles/media/text/type ---
+$source_map = [];
+foreach($content_source as $item) $source_map[$item['original_id']] = $item;
+
+$new_queue = [];
+foreach($queue_items as $q_item){
+    if(isset($source_map[$q_item['original_id']])){
+        $src = $source_map[$q_item['original_id']];
+        $q_item['title'] = $src['title'] ?? $q_item['title'];
+        $q_item['media'] = $src['media'] ?? $q_item['media'];
+        $q_item['text'] = $src['text'] ?? $q_item['text'];
+        $q_item['type'] = $src['type'] ?? $q_item['type'];
+        $new_queue[] = $q_item;
+        unset($source_map[$q_item['original_id']]);
     }
 }
 
-// Composer Autoload
-require __DIR__ . '/../vendor/autoload.php';
-use App\classes\Auth;
+// Append any new items from content_source that are not in queue yet
+$order_counter = count($new_queue)+1;
+foreach($source_map as $item){
+    $item['order_id'] = $order_counter++;
+    $new_queue[] = $item;
+}
 
-$auth = new Auth();
+$queue_items = $new_queue;
 
-// TODO: Check if user is moderator, else redirect
-$username = $_SESSION['username'] ?? 'Moderator';
-$first_name = 'Vorname';
-$last_name = 'NACHNAME';
+// Save updated queue.json
+file_put_contents($queueFile, json_encode($queue_items, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
 
-// Sample queue items (duplicates preserved)
-$queue_items = [
-    ['id'=>'1','title'=>'Wasser ist feucht und wichtig zu trinken !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!','thumbnail_url'=>'media/Videos/WALKWAY0025-0220.mp4'],
-    ['id'=>'2','title'=>'Feuer','thumbnail_url'=>'media/Images/Houser.jpg'],
-    ['id'=>'3','title'=>'Erde','thumbnail_url'=>'media/Images/AWWWWWWWWWWWW.jpg'],
-    ['id'=>'4','title'=>'Erde','thumbnail_url'=>'media/Images/AWWWWWWWWWWWW.jpg'],
-    ['id'=>'5','title'=>'Erde','thumbnail_url'=>'media/Images/AWWWWWWWWWWWW.jpg'],
-    ['id'=>'6','title'=>'Erde','thumbnail_url'=>'media/Images/AWWWWWWWWWWWW.jpg']
-];
-
-// Load saved queue.json if exists
-$queueFile = __DIR__ . '/queue.json';
-if(file_exists($queueFile)){
-    $loaded = json_decode(file_get_contents($queueFile), true);
-    if(is_array($loaded) && count($loaded)>0){
-        $queue_items = $loaded;
+// --- POST Save Queue (Drag&Drop changes) ---
+if($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['queue_data'])){
+    $data = json_decode($_POST['queue_data'], true);
+    if(file_put_contents($queueFile, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES))){
+        $message = "Queue saved successfully!";
+        $queue_items = $data;
+    } else {
+        $message = "Failed to write queue.json";
     }
 }
 
@@ -48,6 +101,16 @@ if(isset($_GET['export']) && $_GET['export']==='json'){
     echo json_encode($queue_items, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     exit;
 }
+
+// Composer Autoload
+require __DIR__ . '/../vendor/autoload.php';
+use App\classes\Auth;
+$auth = new Auth();
+
+// User info
+$username = $_SESSION['username'] ?? 'Moderator';
+$first_name = 'Vorname';
+$last_name = 'NACHNAME';
 ?>
 <!DOCTYPE html>
 <html lang="de">
@@ -81,7 +144,7 @@ if(isset($_GET['export']) && $_GET['export']==='json'){
 <p class="mod-link"><a href="admin.php">Return to Admin</a></p>
 
 <?php if(isset($message)): ?>
-    <p style="color:green;font-weight:bold;"><?php echo htmlspecialchars($message); ?></p>
+<p style="color:green;font-weight:bold;"><?php echo htmlspecialchars($message); ?></p>
 <?php endif; ?>
 
 <div class="mod-section">
@@ -97,8 +160,7 @@ if(isset($_GET['export']) && $_GET['export']==='json'){
 
     <div class="content-queue-container">
         <?php foreach($queue_items as $index=>$item):
-
-            $media_url  = $item['media'] ?? $item['thumbnail_url'] ?? '';
+            $media_url  = $item['media'] ?? '';
             $title      = $item['title'] ?? '';
             $extra_text = $item['text'] ?? '';
             $media_html = '';
@@ -122,16 +184,16 @@ if(isset($_GET['export']) && $_GET['export']==='json'){
                 $short_title = mb_strlen($title)>30 ? mb_substr($title,0,30).' ...' : $title;
         ?>
         <div class="queue-card"
-             data-content-id="<?php echo $item['original_id'] ?? $item['id'] ?? $index+1; ?>"
-             data-original-id="<?php echo $item['original_id'] ?? $item['id'] ?? $index+1; ?>"
-             data-order-id="<?php echo $index+1; ?>"
+             data-content-id="<?php echo $item['original_id']; ?>"
+             data-original-id="<?php echo $item['original_id']; ?>"
+             data-order-id="<?php echo $item['order_id']; ?>"
              data-title="<?php echo htmlspecialchars($title); ?>"
              data-thumbnail="<?php echo htmlspecialchars($media_url); ?>"
              data-extra-text="<?php echo htmlspecialchars($extra_text); ?>"
              data-type="<?php echo $type; ?>"
              onclick="openContentModal(this)">
             <div class="card-preview"><?php echo $media_html; ?></div>
-            <div class="card-order-badge"><?php echo $index+1; ?></div>
+            <div class="card-order-badge"><?php echo $item['order_id']; ?></div>
             <div class="card-subtitle"><?php echo htmlspecialchars($short_title); ?></div>
         </div>
         <?php endif; endforeach; ?>
@@ -159,10 +221,8 @@ if(isset($_GET['export']) && $_GET['export']==='json'){
 </div>
 
 <script>
-// GLOBAL
 let currentContentId = null;
 
-// Prepare queue JSON before submitting
 function prepareQueueData(){
     const cards = document.querySelectorAll('.queue-card');
     const data = Array.from(cards).map((c, idx)=>({
@@ -173,11 +233,9 @@ function prepareQueueData(){
         media: c.dataset.thumbnail,
         text: c.dataset.extraText || ''
     }));
-
     document.getElementById('queue_data').value = JSON.stringify(data);
 }
 
-// Drag-drop, modal, hover previews, delete, scroll
 let draggedCard=null;
 
 document.addEventListener('DOMContentLoaded',()=>{
@@ -223,7 +281,6 @@ function reassignOrderIds(){
     });
 }
 
-// MODAL
 function openContentModal(card){
     currentContentId=card.dataset.contentId;
     const t = card.dataset.title || 'Von [Username]';
@@ -236,29 +293,21 @@ function openContentModal(card){
     modalTitle.textContent = t;
     sep.style.display = 'block';
 
-    if (extra && extra.trim() !== '') {
+    if(extra && extra.trim()!==''){
         modalExtra.textContent = extra;
-        modalExtra.style.display = '';
-        setTimeout(() => {
-            sep.style.width = Math.max(modalTitle.offsetWidth, modalExtra.offsetWidth) + 'px';
-        }, 0);
+        modalExtra.style.display='';
+        setTimeout(()=>{ sep.style.width = Math.max(modalTitle.offsetWidth, modalExtra.offsetWidth)+'px'; },0);
     } else {
-        modalExtra.style.display = 'none';
-        setTimeout(() => {
-            sep.style.width = modalTitle.offsetWidth + 'px';
-        }, 0);
+        modalExtra.style.display='none';
+        setTimeout(()=>{ sep.style.width = modalTitle.offsetWidth+'px'; },0);
     }
 
-    const preview = document.getElementById('modalPreviewArea');
-    if (thumb) {
+    const preview=document.getElementById('modalPreviewArea');
+    if(thumb){
         const ext = thumb.split('.').pop().toLowerCase();
-        if (['mp4','webm','ogg'].includes(ext))
-            preview.innerHTML = '<video src="'+thumb+'" controls autoplay muted playsinline></video>';
-        else
-            preview.innerHTML = '<img src="'+thumb+'" alt="Preview"/>';
-    } else {
-        preview.innerHTML = '<span class="preview-placeholder">PREVIEW</span>';
-    }
+        if(['mp4','webm','ogg'].includes(ext)) preview.innerHTML='<video src="'+thumb+'" controls autoplay muted playsinline></video>';
+        else preview.innerHTML='<img src="'+thumb+'" alt="Preview"/>';
+    } else preview.innerHTML='<span class="preview-placeholder">PREVIEW</span>';
 
     document.getElementById('contentModal').style.display='flex';
     document.body.style.overflow='hidden';
@@ -274,16 +323,24 @@ function closeContentModal(event){
 function deleteContent(){
     if(!currentContentId) return;
     if(!confirm('Are you sure you want to delete this content?')) return;
-    const card=document.querySelector(`.queue-card[data-content-id="${currentContentId}"]`);
-    if(card){ card.remove(); closeContentModal(); reassignOrderIds(); }
+
+    fetch('', {
+        method:'POST',
+        headers:{'Content-Type':'application/x-www-form-urlencoded'},
+        body:'delete_id='+encodeURIComponent(currentContentId)
+    }).then(res=>res.json())
+      .then(data=>{
+        if(data.success){
+            const card=document.querySelector(`.queue-card[data-content-id="${currentContentId}"]`);
+            if(card) card.remove();
+            closeContentModal();
+            reassignOrderIds();
+        } else alert('Failed to delete content.');
+    });
 }
 
-document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeContentModal(); });
-document.querySelector('.content-queue-container')
-    .addEventListener('wheel',e=>{
-        e.preventDefault();
-        e.currentTarget.scrollLeft+=e.deltaY*2;
-    });
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeContentModal(); });
+document.querySelector('.content-queue-container').addEventListener('wheel',e=>{ e.preventDefault(); e.currentTarget.scrollLeft+=e.deltaY*2; });
 </script>
 
 </body>
