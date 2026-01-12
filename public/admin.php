@@ -2,7 +2,7 @@
 session_start();
 
 // Composer Autoload
-require __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 use Insi\Ssm\Auth;
 
