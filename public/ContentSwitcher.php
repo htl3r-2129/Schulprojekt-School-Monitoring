@@ -48,9 +48,9 @@
 
     //++++++++++++++++++++ DATA CRATION ++++++++++++++++++++
 
-    let titles = []; // <<< ÄNDERUNG
-    let texts = []; // <<< ÄNDERUNG
-    let media = []; // <<< ÄNDERUNG
+    let titles = []; // 
+    let texts = [];
+    let media = []; 
     let init = true;
 
     let lastSlidesJson = null;
@@ -67,7 +67,7 @@
 
 
     function TimeFetch() {
-      fetch('settings.json')
+      fetch('settings.json', { cache: 'no-store' })
         .then(res => res.json())
         .then(settings => {
           const newTimeJson = JSON.stringify(settings);
@@ -80,10 +80,9 @@
             return;
           }
 
-          console.log("Msg Zeit beträgt: " + slideDurationSeconds + "s");
+          //console.log("Msg Zeit beträgt: " + slideDurationSeconds + "s"); --> Debugging
           lastTimeJson = newTimeJson;
           const fetchedTime = Number(settings.bilderzeit?.replace(/\D/g, ''));
-          console.log("Msg Zeit beträgt: " + settings.bilderzeit);
           if (slideDurationSeconds === 1) {
             slideDurationSeconds = Number(fetchedTime ?? 3);
             console.log("Msg Zeit beträgt: " + slideDurationSeconds + "s");
@@ -95,12 +94,12 @@
 
 
     function SlideFetch() {
-      fetch('queue.json')
+      fetch('queue.json', { cache: 'no-store' })
         .then(res => res.json())
         .then(data => {
           const newSlidesJson = JSON.stringify(data);
 
-          // Prüfen auf Änderungen
+          console.log(newSlidesJson)
           if (lastSlidesJson && lastSlidesJson !== newSlidesJson) {
             console.log("Update erkannt! Seite reloadet...");
             location.reload();
