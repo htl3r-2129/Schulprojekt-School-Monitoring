@@ -48,92 +48,101 @@
 
     //++++++++++++++++++++ DATA CRATION ++++++++++++++++++++
 
-    let titles = []; // <<< ÄNDERUNG
-    let texts = []; // <<< ÄNDERUNG
-    let media = []; // <<< ÄNDERUNG
+    let titles = []; // 
+    let texts = [];
+    let media = []; 
     let init = true;
-    
+
     let lastSlidesJson = null;
-    let lastTimeJson   = null;
+    let lastTimeJson = null;
 
-
-        //++++++++++++++++++++ TIME-CONTROL ++++++++++++++++++++
+    //++++++++++++++++++++ TIME-CONTROL ++++++++++++++++++++
 
     //default time
-    let slideDurationSeconds = 6;
+    let slideDurationSeconds = 1;
     //instant time
-    let instantDurationSeconds = 10;
+    let instantDurationSeconds = 5;
+
+    //++++++++++++++++++++ FETCH-CONTROL ++++++++++++++++++++   
 
 
- function TimeFetch() {
-    fetch("./slidesTime.php")
-      .then(res => res.json())
-      .then(timeData => {
-        const newTimeJson = JSON.stringify(timeData);
+    function TimeFetch() {
+      fetch('settings.json', { cache: 'no-store' })
+        .then(res => res.json())
+        .then(settings => {
+          const newTimeJson = JSON.stringify(settings);
 
-        // Prüfen auf Änderungen
-        if(lastTimeJson && lastTimeJson !== newTimeJson){
-          console.log("Time Update erkannt! Seite reloadet...");
-          location.reload();
-          return;
-        }
+    
+          console.log(newTimeJson);
+          if (lastTimeJson && lastTimeJson !== newTimeJson) {
+            console.log("Time Update erkannt! Seite reloadet...");
+            location.reload();
+            return;
+          }
 
-        lastTimeJson = newTimeJson;
+          //console.log("Msg Zeit beträgt: " + slideDurationSeconds + "s"); --> Debugging
+          lastTimeJson = newTimeJson;
+          const fetchedTime = Number(settings.bilderzeit?.replace(/\D/g, ''));
+          if (slideDurationSeconds === 1) {
+            slideDurationSeconds = Number(fetchedTime ?? 3);
+            console.log("Msg Zeit beträgt: " + slideDurationSeconds + "s");
+          }
+        })
+        .catch(err => console.error("Fehler beim Laden der Time-Daten:", err));
+    }
 
-        slideDurationSeconds = Number(timeData.MsgTime ?? 3);
-      })
-      .catch(err => console.error("Fehler beim Laden der Time-Daten:", err));
-  }
 
 
-function SlideFetch() {
-  fetch("./slidesGenTest.php")
-    .then(res => res.json())
-    .then(data => {
-      const newSlidesJson = JSON.stringify(data);
+    function SlideFetch() {
+      fetch('queue.json', { cache: 'no-store' })
+        .then(res => res.json())
+        .then(data => {
+          const newSlidesJson = JSON.stringify(data);
 
-      // Prüfen auf Änderungen
-      if (lastSlidesJson && lastSlidesJson !== newSlidesJson) {
-        console.log("Update erkannt! Seite reloadet...");
-        location.reload();
-        return;
-      }
+          //console.log(newSlidesJson) --> Debug
+          if (lastSlidesJson && lastSlidesJson !== newSlidesJson) {
+            console.log("Update erkannt! Seite reloadet...");
+            location.reload();
+            return;
+          }
 
-      lastSlidesJson = newSlidesJson;
+          lastSlidesJson = newSlidesJson;
 
-      data.forEach(item => {
-        titles.push(item.title);
-        texts.push(item.text ?? "");
-        if (!item.media || item.media.trim() === "") {
-          media.push({ instant: false });
-        } else {
-          media.push({
-            type: item.type?.toLowerCase() === "video" ? "video" : "image",
-            src: item.media,
-            instant: false
+          data.forEach(item => {
+            titles.push(item.title);
+            texts.push(item.text ?? "");
+            if (!item.media || item.media.trim() === "") {
+              media.push({
+                instant: false
+              });
+            } else {
+              media.push({
+                type: item.type?.toLowerCase() === "video" ? "video" : "image",
+                src: item.media,
+                instant: false
+              });
+            }
           });
-        }
-      });
 
-      // Slides initialisieren **nur einmal**
-      if (init === true) {
-        initSlides();
-        console.log("INIT erkannt! Seite reloadet...");
-        init = false;
-      }
-    })
-    .catch(err => console.error("Fehler beim Slides-Fetch:", err));
-}
+          if (init === true) {
+            initSlides();
+            console.log("INIT erkannt! Seite reloadet...");
+            init = false;
+          }
+        })
+        .catch(err => console.error("Fehler beim Slides-Fetch:", err));
+    }
+  
 
-TimeFetch();
-SlideFetch();
+    TimeFetch();
+    SlideFetch();
 
-setInterval(TimeFetch, 10000)
-setInterval(SlideFetch, 10000);
+    setInterval(TimeFetch, 1000);
+    setInterval(SlideFetch, 10000);
 
 
     //++++++++++++++++++++ Slide Creation ++++++++++++++++++++
-    function initSlides() { // <<< ÄNDERUNG
+    function initSlides() { 
 
       const slidesInner = document.getElementById('slidesInner');
       const n = titles.length;
@@ -150,7 +159,7 @@ setInterval(SlideFetch, 10000);
         slide.appendChild(h);
 
         //++++++ TEXT CONTROL ++++++
-        if (texts[i] && texts[i].trim() !== "") {
+        if (texts[i] && texts[i].trim() !== "" || (media[i] !== null && media[i] !== undefined && (media[i].type === "video" || media[i].type === "image"))) {
           const isInstant = media[i]?.instant === true;
 
           // Add separator bar before text
@@ -158,13 +167,15 @@ setInterval(SlideFetch, 10000);
           separator.className = 'text-separator';
           slide.appendChild(separator);
 
-          const d = document.createElement('div');
-          d.className = 'text';
-          if (isInstant) {
-            d.classList.add('instant');
+          if (texts[i] && texts[i].trim() !== "") {
+            const d = document.createElement('div');
+            d.className = 'text';
+            if (isInstant) {
+              d.classList.add('instant');
+            }
+            d.textContent = texts[i];
+            slide.appendChild(d);
           }
-          d.textContent = texts[i];
-          slide.appendChild(d);
         }
 
 
@@ -221,11 +232,13 @@ setInterval(SlideFetch, 10000);
           const textEl = slide.querySelector('.text');
           const separator = slide.querySelector('.text-separator');
 
-          if (separator && titleEl && textEl) {
-            // Get the actual width of both elements
+          if (separator && titleEl) {
             const titleWidth = titleEl.scrollWidth;
-            const textWidth = textEl.scrollWidth;
-            const maxWidth = Math.max(titleWidth, textWidth);
+            let maxWidth = titleWidth;
+            if (textEl) {
+              const textWidth = textEl.scrollWidth;
+              maxWidth = Math.max(titleWidth, textWidth);
+            }
             separator.style.width = maxWidth + 'px';
           }
         });
