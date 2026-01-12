@@ -21,6 +21,8 @@
             gap: 10px;
 
             margin-bottom: 20px;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         /* Überschrift */
@@ -59,6 +61,11 @@
             text-align: center;
             max-width: 100%;
             word-wrap: break-word;
+            word-break: break-word;
+            overflow-wrap: anywhere;
+            /* allow preview to expand with content instead of scrolling */
+            max-height: none;
+            overflow: visible;
         }
 
         /* ---------- MEDIA (UNTEN) ---------- */
