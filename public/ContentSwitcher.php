@@ -141,7 +141,7 @@
 
 
     //++++++++++++++++++++ Slide Creation ++++++++++++++++++++
-    function initSlides() { // <<< ÄNDERUNG
+    function initSlides() { 
 
       const slidesInner = document.getElementById('slidesInner');
       const n = titles.length;
