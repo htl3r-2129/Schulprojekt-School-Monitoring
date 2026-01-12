@@ -16,7 +16,6 @@ if (isset($_SESSION['user'])) {
     header(header: 'Location: error/401.php');
 }
 
-
 $file = __DIR__ . '/content_source.json';
 
 // JSON-Datei laden oder anlegen
@@ -149,6 +148,11 @@ unset($item);
             font-weight:600;
             margin-bottom:10px;
         }
+        .modal-text {
+            font-size:1rem;
+            color:#333;
+            margin-bottom:10px;
+        }
         .modal-footer {
             display:flex;
             justify-content:flex-start;
@@ -189,9 +193,10 @@ unset($item);
                 <div class="queue-card"
                      data-content-id="<?= $item['original_id'] ?>"
                      data-title="<?= htmlspecialchars($item['title']) ?>"
-                     data-thumbnail="<?= htmlspecialchars($item['media']) ?>"
+                     data-thumbnail="<?= htmlspecialchars($item['media'] ?? '') ?>"
                      data-extra-text="<?= htmlspecialchars($item['text'] ?? '') ?>"
                      data-uploader="<?= htmlspecialchars($item['uploader_text']) ?>">
+                    <?php if (!empty($item['media'])): ?>
                     <div class="card-preview" style="width:250px;height:200px;background:#f3f3f3;overflow:hidden;border-radius:12px;position:relative;margin:0 auto 10px auto;">
                         <?php
                         $ext = strtolower(pathinfo($item['media'], PATHINFO_EXTENSION));
@@ -202,6 +207,7 @@ unset($item);
                         }
                         ?>
                     </div>
+                    <?php endif; ?>
                     <div class="card-subtitle"><?= htmlspecialchars($item['title']) ?></div>
                 </div>
             <?php endforeach; ?>
@@ -214,6 +220,7 @@ unset($item);
     <div class="modal-content" onclick="event.stopPropagation()">
         <button class="btn primary modal-close" onclick="closeContentModal()">&times;</button>
         <div class="modal-title" id="modalTitle"></div>
+        <div class="modal-text" id="modalText"></div>
         <div class="modal-preview" id="modalPreviewArea"></div>
         <div class="modal-footer">
             <button class="btn accent" onclick="approveContent()">Approve</button>
@@ -234,17 +241,22 @@ function openContentModal(card) {
     currentContentId = card.dataset.contentId;
     const title = card.dataset.title;
     const uploader = card.dataset.uploader || '';
+    const extraText = card.dataset.extraText || '';
 
     document.getElementById('modalTitle').textContent = title;
+    document.getElementById('modalText').textContent = extraText;
     document.getElementById('modalUploader').textContent = uploader;
 
     const media = card.dataset.thumbnail;
-    const ext = media.split('.').pop().toLowerCase();
-
-    document.getElementById('modalPreviewArea').innerHTML =
-        ["mp4","webm","ogg"].includes(ext)
-            ? `<video src="${media}" controls style="width:100%;height:100%"></video>`
-            : `<img src="${media}" style="width:100%;height:100%">`;
+    if (media) {
+        const ext = media.split('.').pop().toLowerCase();
+        document.getElementById('modalPreviewArea').innerHTML =
+            ["mp4","webm","ogg"].includes(ext)
+                ? `<video src="${media}" controls style="width:100%;height:100%"></video>`
+                : `<img src="${media}" style="width:100%;height:100%">`;
+    } else {
+        document.getElementById('modalPreviewArea').innerHTML = ''; // kein Media anzeigen
+    }
 
     document.getElementById('contentModal').style.display = 'flex';
 }

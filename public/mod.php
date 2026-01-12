@@ -1,29 +1,15 @@
 <?php 
 session_start();
 
-// --- JSON API: Prevent caching ---
-if (isset($_GET['get_content_json'])) {
+// --- JSON API: Prevent caching globally ---
+function sendNoCacheJson($data) {
     header('Content-Type: application/json; charset=utf-8');
     header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
     header("Pragma: no-cache");
     header("Expires: 0");
-
-    $contentSourceFile = __DIR__ . '/content_source.json';
-    $content_source = file_exists($contentSourceFile) 
-        ? json_decode(file_get_contents($contentSourceFile), true) 
-        : [];
-
-    echo json_encode($content_source, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    echo json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     exit;
 }
-
-
-
-// --- Disable caching ---
-header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
-header("Cache-Control: post-check=0, pre-check=0", false);
-header("Pragma: no-cache");
-header("Expires: 0");
 
 // --- File paths ---
 $queueFile = __DIR__ . '/queue.json';
@@ -31,36 +17,39 @@ $contentSourceFile = __DIR__ . '/content_source.json';
 $queue_items = [];
 $content_source = [];
 
+// --- JSON Content API ---
+if (isset($_GET['get_content_json'])) {
+    $content_source = file_exists($contentSourceFile) 
+        ? json_decode(file_get_contents($contentSourceFile), true) 
+        : [];
+    sendNoCacheJson($content_source);
+}
+
+// --- Disable caching for the entire page ---
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
+header("Expires: 0");
+
 // --- DELETE Content via AJAX ---
 if($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['delete_id'])){
     $delete_id = $_POST['delete_id'];
 
-    // Load content_source.json
     $content_source = file_exists($contentSourceFile) ? json_decode(file_get_contents($contentSourceFile), true) : [];
-
-    // Remove content
     $content_source = array_filter($content_source, fn($item) => $item['original_id'] != $delete_id);
     $content_source = array_values($content_source);
-
-    // Save content_source.json
     file_put_contents($contentSourceFile, json_encode($content_source, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
 
-    // Load queue.json
     $queue_items = file_exists($queueFile) ? json_decode(file_get_contents($queueFile), true) : [];
-
-    // Remove deleted item from queue
     $queue_items = array_filter($queue_items, fn($item) => $item['original_id'] != $delete_id);
     $queue_items = array_values($queue_items);
 
-    // Reorder order_id
     foreach($queue_items as $idx => &$item) $item['order_id'] = $idx+1;
     unset($item);
 
-    // Save updated queue.json
     file_put_contents($queueFile, json_encode($queue_items, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
 
-    echo json_encode(['success'=>true]);
-    exit;
+    sendNoCacheJson(['success'=>true]);
 }
 
 // --- Load content_source.json and filter only approved ---
@@ -96,13 +85,11 @@ foreach($queue_items as $q_item){
             'media'       => $src['media'] ?? $q_item['media'],
             'text'        => $src['text'] ?? $q_item['text'],
             'type'        => $src['type'] ?? $q_item['type']
-            // uploader_text wird nicht gespeichert
         ];
         unset($source_map[$q_item['original_id']]);
     }
 }
 
-// Append new items
 $order_counter = count($new_queue)+1;
 foreach($source_map as $item){
     $new_queue[] = [
@@ -112,20 +99,16 @@ foreach($source_map as $item){
         'media'       => $item['media'],
         'text'        => $item['text'],
         'type'        => $item['type']
-        // uploader_text wird nicht gespeichert
     ];
 }
 
 $queue_items = $new_queue;
 
-// Save updated queue.json
 file_put_contents($queueFile, json_encode($queue_items, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
 
 // --- POST Save Queue (Drag&Drop changes) ---
 if($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['queue_data'])){
     $data = json_decode($_POST['queue_data'], true);
-
-    // Remove uploader_text just in case
     foreach($data as &$item) unset($item['uploader_text']);
     unset($item);
 
@@ -139,20 +122,15 @@ if($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['queue_data'])){
 
 // Composer Autoload
 require_once __DIR__ . '/../vendor/autoload.php';
-
 use Insi\Ssm\Auth;
-$auth = new Auth();
 
-if (isset($_SESSION['user'])) {
-    if (!$auth->isModerator($_SESSION['user'])) {
-        header(header: 'Location: error/401.php');
-    }
-} else {
-    header(header: 'Location: error/401.php');
+$auth = new Auth();
+if (!isset($_SESSION['user']) || !$auth->isModerator($_SESSION['user'])) {
+    header('Location: error/401.php');
+    exit;
 }
 
-
-// If requested, output the queue as JSON (same order as $queue_items)
+// --- Export queue as JSON ---
 if (isset($_GET['export']) && $_GET['export'] === 'json') {
     $out = [];
     foreach ($queue_items as $item) {
@@ -162,29 +140,22 @@ if (isset($_GET['export']) && $_GET['export'] === 'json') {
             'media' => $item['thumbnail_url'] ?? $item['id'] ?? ''
         ];
     }
-    header('Content-Type: application/json; charset=utf-8');
-    echo json_encode($out, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-    exit;
+    sendNoCacheJson($out);
 }
 
-// Receive client-side JSON (current order) via POST so it can be inspected in DevTools
+// --- Receive client-side JSON via POST ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['save_client_json'])) {
     $input = file_get_contents('php://input');
     $data = json_decode($input, true);
-    header('Content-Type: application/json; charset=utf-8');
     if ($data === null && json_last_error() !== JSON_ERROR_NONE) {
-        echo json_encode(['success' => false, 'message' => 'Invalid JSON', 'error' => json_last_error_msg()]);
-        exit;
+        sendNoCacheJson(['success' => false, 'message' => 'Invalid JSON', 'error' => json_last_error_msg()]);
     }
-
-    // Return the received payload and the current server-side queue for reference
-    echo json_encode([
+    sendNoCacheJson([
         'success' => true,
         'message' => 'Received client queue JSON',
         'received' => $data,
         'server_queue' => $queue_items
-    ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-    exit;
+    ]);
 }
 ?>
 <!DOCTYPE html>
@@ -227,7 +198,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['save_client_json'])) {
         <h3 class="queue-title">Active Content Queue:</h3>
     </div>
 
-    <!-- APPLY CHANGES FORM -->
     <form method="POST">
         <input type="hidden" name="queue_data" id="queue_data">
         <button type="submit" class="btn primary apply-changes-btn" onclick="prepareQueueData()">Apply Changes</button>
@@ -243,16 +213,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['save_client_json'])) {
             $show_card  = false;
             $type       = $item['type'] ?? '';
 
-            if(!empty($media_url) && file_exists($media_url)){
-                $ext = strtolower(pathinfo($media_url, PATHINFO_EXTENSION));
-                if(in_array($ext,['mp4','webm','ogg'])){
-                    $media_html = '<video src="'.htmlspecialchars($media_url).'" class="preview-video" muted playsinline></video>';
-                    $type = 'video';
-                    $show_card=true;
-                } elseif(in_array($ext,['jpg','jpeg','png','gif','bmp','webp'])){
-                    $media_html = '<img src="'.htmlspecialchars($media_url).'" alt="Preview" class="preview-img" />';
-                    $type = 'image';
-                    $show_card=true;
+            // --- Show card if it has media OR title OR text ---
+            if((!empty($media_url) && file_exists($media_url)) || !empty(trim($title)) || !empty(trim($extra_text))){
+                $show_card = true;
+
+                if(!empty($media_url) && file_exists($media_url)){
+                    $ext = strtolower(pathinfo($media_url, PATHINFO_EXTENSION));
+                    if(in_array($ext,['mp4','webm','ogg'])){
+                        $media_html = '<video src="'.htmlspecialchars($media_url).'" class="preview-video" muted playsinline></video>';
+                        $type = 'video';
+                    } elseif(in_array($ext,['jpg','jpeg','png','gif','bmp','webp'])){
+                        $media_html = '<img src="'.htmlspecialchars($media_url).'" alt="Preview" class="preview-img" />';
+                        $type = 'image';
+                    }
                 }
             }
 
@@ -282,7 +255,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['save_client_json'])) {
 </div>
 </main>
 
-<!-- Content Modal -->
 <div id="contentModal" class="modal-overlay" onclick="closeContentModal(event)">
     <div class="modal-content" onclick="event.stopPropagation()">
         <button class="btn primary modal-close" onclick="closeContentModal()">&times;</button>
@@ -309,7 +281,6 @@ function prepareQueueData(){
         type: c.dataset.type,
         media: c.dataset.thumbnail,
         text: c.dataset.extraText || ''
-        // uploader_text wird NICHT gespeichert
     }));
     document.getElementById('queue_data').value = JSON.stringify(data);
 }
