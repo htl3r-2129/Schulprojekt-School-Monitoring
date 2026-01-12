@@ -67,15 +67,17 @@ $blocked = $auth->getAllLocked();
         </style>
     </head>
     <body>
-    <header class="topbar">
-        <a href="https://www.htlrennweg.at/" class="logo-link">
-            <img src="images/logo.png" alt="Logo" class="logo">
-        </a>
-        <div class="brand">Schulmonitor</div>
-        <div class="user-profile">
-            <div class="user-info">
-                <div class="user-role">Administrator</div>
-                <span class="user-name"><<?= htmlspecialchars($_SESSION['name']); ?></span>
+<header class="topbar">
+    <a href="https://www.htlrennweg.at/" class="logo-link">
+        <img src="images/logo.png" alt="Logo" class="logo">
+    </a>
+    <div class="brand">Schulmonitor</div>
+    <div class="user-profile">
+        <div class="user-info">
+            <div class="user-role">Administrator</div>
+            <div class="user-name-row">
+                <span class="user-name"><?= htmlspecialchars($_SESSION['name']); ?></span>
+                <a href="logout.php" class="btn accent logout">Log-out</a>
             </div>
         </div>
     </div>
@@ -90,9 +92,13 @@ $blocked = $auth->getAllLocked();
                     <div class="user-list">
                         <?php foreach($moderators as $m): ?>
                             <div class="user-item">
-                                <div class="user-label"><?php echo htmlspecialchars($m['username']); ?></div>
-                                <div><?php echo htmlspecialchars($m['email']); ?></div>
-                                <div><?php echo htmlspecialchars($m['PK_User_ID']); ?></div>
+                                <div class="user-info-left">
+                                    <div class="user-label"><?php echo htmlspecialchars($m['username']); ?></div>
+                                    <div class="user-meta">
+                                        <div class="user-email"><?php echo htmlspecialchars($m['email']); ?></div>
+                                        <div class="user-id"><?php echo htmlspecialchars($m['PK_User_ID']); ?></div>
+                                    </div>
+                                </div>
                                 <div class="actions">
                                     <form method="post">
                                         <button class="btn small accent" type="submit" name="remove_mod"
@@ -109,9 +115,13 @@ $blocked = $auth->getAllLocked();
                     <div class="user-list">
                         <?php foreach($users as $u): ?>
                             <div class="user-item">
-                                <div class="user-label"><?php echo htmlspecialchars($u['username']); ?></div>
-                                <div><?php echo htmlspecialchars($u['email']); ?></div>
-                                <div><?php echo htmlspecialchars($u['PK_User_ID']); ?></div>
+                                <div class="user-info-left">
+                                    <div class="user-label"><?php echo htmlspecialchars($u['username']); ?></div>
+                                    <div class="user-meta">
+                                        <div class="user-email"><?php echo htmlspecialchars($u['email']); ?></div>
+                                        <div class="user-id"><?php echo htmlspecialchars($u['PK_User_ID']); ?></div>
+                                    </div>
+                                </div>
                                 <div class="actions">
                                     <form method="post">
                                         <button class="btn small accent" type="submit" name="make_mod"
@@ -130,9 +140,13 @@ $blocked = $auth->getAllLocked();
                     <div class="user-list">
                         <?php foreach($blocked as $b): ?>
                             <div class="user-item">
-                                <div class="user-label"><?php echo htmlspecialchars($b['username']); ?></div>
-                                <div><?php echo htmlspecialchars($b['email']); ?></div>
-                                <div><?php echo htmlspecialchars($b['PK_User_ID']); ?></div>
+                                <div class="user-info-left">
+                                    <div class="user-label"><?php echo htmlspecialchars($b['username']); ?></div>
+                                    <div class="user-meta">
+                                        <div class="user-email"><?php echo htmlspecialchars($b['email']); ?></div>
+                                        <div class="user-id"><?php echo htmlspecialchars($b['PK_User_ID']); ?></div>
+                                    </div>
+                                </div>
                                 <div class="actions">
                                     <form method="post">
                                         <button class="btn small accent" type="submit" name="unblock"

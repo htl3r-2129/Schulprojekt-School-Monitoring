@@ -128,27 +128,64 @@ unset($item);
             width:80%;
             max-width:600px;
             max-height:80%;
-            overflow:auto;
             position:relative;
         }
         .modal-close {
             position:absolute;
             top:10px;
             right:10px;
-            font-size:24px;
-            background:none;
+            width:42px;
+            height:42px;
             border:none;
+            border-radius:6px;
+            font-size:24px;
+            font-weight:700;
             cursor:pointer;
+            padding:0;
+            line-height:1;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            background:#e23c21;
+            color:white;
         }
+        
         .modal-preview {
             width:100%;
             margin: 10px 0;
         }
-        .modal-title {
-            font-size:1.3rem;
-            font-weight:600;
-            margin-bottom:10px;
+        /* Ensure media fits its container without stretching */
+        /* Make the preview container take the card width and preserve aspect ratio */
+        .queue-card .card-preview {
+            width: 100% !important;
+            height: auto !important;
+            aspect-ratio: 16/9;
+            max-height: 320px;
+            padding: 0;
+            margin: 0 auto 10px auto;
+            display: block;
+            overflow: hidden;
+            background: #f3f3f3;
         }
+
+        /* Make images and videos fill the preview container while preserving aspect ratio */
+        .card-preview img,
+        .card-preview video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+        .modal-preview img,
+        .modal-preview video {
+            width: 100%;
+            height: auto;
+            max-height: 70vh;
+            object-fit: contain;
+            display: block;
+            margin: 0 auto;
+        }
+        
         .modal-footer {
             display:flex;
             justify-content:flex-start;
@@ -210,15 +247,17 @@ unset($item);
 </main>
 
 <!-- MODAL -->
+<!-- Content Modal -->
 <div id="contentModal" class="modal-overlay" onclick="closeContentModal(event)">
     <div class="modal-content" onclick="event.stopPropagation()">
         <button class="btn primary modal-close" onclick="closeContentModal()">&times;</button>
-        <div class="modal-title" id="modalTitle"></div>
-        <div class="modal-preview" id="modalPreviewArea"></div>
+        <div class="modal-title" id="modalTitle">Von: [Username]</div>
+        <hr class="modal-separator" id="modalSeparator" style="display:none;" />
+        <div class="modal-extra-text" id="modalExtraText"></div>
+        <div class="modal-preview" id="modalPreviewArea"><span class="preview-placeholder">PREVIEW</span></div>
         <div class="modal-footer">
-            <button class="btn accent" onclick="approveContent()">Approve</button>
-            <button class="btn accent" onclick="deleteContent()">Delete</button>
-            <span id="modalUploader"></span>
+            <button class="btn modalbtn primary" onclick="deleteContent()">Delete</button>
+            <button id="modalUploader" class="btn modalbtn accent modal-uploader" style="margin-left:18px;font-size:1.08rem;">Von: [Vorname] [Nachname]</button>
         </div>
     </div>
 </div>
@@ -235,16 +274,36 @@ function openContentModal(card) {
     const title = card.dataset.title;
     const uploader = card.dataset.uploader || '';
 
-    document.getElementById('modalTitle').textContent = title;
-    document.getElementById('modalUploader').textContent = uploader;
+    const modalTitle = document.getElementById('modalTitle');
+    const modalUploader = document.getElementById('modalUploader');
+    const modalExtra = document.getElementById('modalExtraText');
+    const sep = document.getElementById('modalSeparator');
 
-    const media = card.dataset.thumbnail;
-    const ext = media.split('.').pop().toLowerCase();
+    modalTitle.textContent = title;
+    modalUploader.textContent = uploader;
 
-    document.getElementById('modalPreviewArea').innerHTML =
-        ["mp4","webm","ogg"].includes(ext)
+    const extra = card.dataset.extraText || '';
+    if(extra && extra.trim() !== ''){
+        modalExtra.textContent = extra;
+        modalExtra.style.display = '';
+        sep.style.display = 'block';
+        setTimeout(()=>{ sep.style.width = Math.max(modalTitle.offsetWidth, modalExtra.offsetWidth)+'px'; },0);
+    } else {
+        modalExtra.style.display = 'none';
+        // always show separator for full-screen preview
+        sep.style.display = 'block';
+        setTimeout(()=>{ sep.style.width = modalTitle.offsetWidth+'px'; },0);
+    }
+
+    const media = card.dataset.thumbnail || '';
+    if(media){
+        const ext = media.split('.').pop().toLowerCase();
+        document.getElementById('modalPreviewArea').innerHTML = ["mp4","webm","ogg"].includes(ext)
             ? `<video src="${media}" controls style="width:100%;height:100%"></video>`
             : `<img src="${media}" style="width:100%;height:100%">`;
+    } else {
+        document.getElementById('modalPreviewArea').innerHTML = '<span class="preview-placeholder">PREVIEW</span>';
+    }
 
     document.getElementById('contentModal').style.display = 'flex';
 }

@@ -13,7 +13,7 @@
         "title": "Erde",
         "type": "image",
         "media": "media\/Images\/AWWWWWWWWWWWW.jpg",
-        "approved": true,
+        "approved": false,
         "ProvidedBy": "",
         "text": ""
     },
@@ -22,7 +22,7 @@
         "title": "Luft",
         "type": "image",
         "media": "media\/Images\/whitewhitey.jpg",
-        "approved": true,
+        "approved": false,
         "ProvidedBy": "",
         "text": "Frische Luft ist wichtig"
     },
@@ -31,7 +31,7 @@
         "title": "Erde nochmal",
         "type": "image",
         "media": "media\/Images\/AWWWWWWWWWWWW.jpg",
-        "approved": true,
+        "approved": false,
         "ProvidedBy": "",
         "text": "Bitte funktioniere"
     },
