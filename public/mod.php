@@ -1,4 +1,4 @@
-<?php
+<?php 
 session_start();
 
 // --- Disable caching ---
@@ -6,6 +6,7 @@ header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Cache-Control: post-check=0, pre-check=0", false);
 header("Pragma: no-cache");
 header("Expires: 0");
+
 
 // --- File paths ---
 $queueFile = __DIR__ . '/queue.json';
@@ -45,9 +46,11 @@ if($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['delete_id'])){
     exit;
 }
 
-// --- Load content_source.json ---
+// --- Load content_source.json and filter only approved ---
 if(file_exists($contentSourceFile)){
     $content_source = json_decode(file_get_contents($contentSourceFile), true) ?? [];
+    $content_source = array_filter($content_source, fn($item) => isset($item['approved']) && $item['approved'] === true);
+    $content_source = array_values($content_source);
 }
 
 // --- Load queue.json as main source ---
@@ -67,6 +70,10 @@ foreach($queue_items as $q_item){
         $q_item['media'] = $src['media'] ?? $q_item['media'];
         $q_item['text'] = $src['text'] ?? $q_item['text'];
         $q_item['type'] = $src['type'] ?? $q_item['type'];
+
+        // Neu: ProvidedBy in "Von [Name]" umwandeln
+        $q_item['uploader_text'] = 'Von' . (isset($src['ProvidedBy']) && trim($src['ProvidedBy']) !== '' ? ' ' . $src['ProvidedBy'] : ' Unbekannt');
+
         $new_queue[] = $q_item;
         unset($source_map[$q_item['original_id']]);
     }
@@ -76,6 +83,7 @@ foreach($queue_items as $q_item){
 $order_counter = count($new_queue)+1;
 foreach($source_map as $item){
     $item['order_id'] = $order_counter++;
+    $item['uploader_text'] = 'Von' . (isset($item['ProvidedBy']) && trim($item['ProvidedBy']) !== '' ? ' ' . $item['ProvidedBy'] : ' Unbekannt');
     $new_queue[] = $item;
 }
 
@@ -104,7 +112,6 @@ if(isset($_GET['export']) && $_GET['export']==='json'){
 
 // Composer Autoload
 require __DIR__ . '/../vendor/autoload.php';
-
 use Insi\Ssm\Auth;
 
 $auth = new Auth();
@@ -200,6 +207,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['save_client_json'])) {
             $media_url  = $item['media'] ?? '';
             $title      = $item['title'] ?? '';
             $extra_text = $item['text'] ?? '';
+            $uploader   = $item['uploader_text'] ?? 'Von unbekannt';
             $media_html = '';
             $show_card  = false;
             $type       = $item['type'] ?? '';
@@ -228,6 +236,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['save_client_json'])) {
              data-thumbnail="<?php echo htmlspecialchars($media_url); ?>"
              data-extra-text="<?php echo htmlspecialchars($extra_text); ?>"
              data-type="<?php echo $type; ?>"
+             data-uploader="<?php echo htmlspecialchars($uploader); ?>"
              onclick="openContentModal(this)">
             <div class="card-preview"><?php echo $media_html; ?></div>
             <div class="card-order-badge"><?php echo $item['order_id']; ?></div>
@@ -252,15 +261,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['save_client_json'])) {
         <div class="modal-preview" id="modalPreviewArea"><span class="preview-placeholder">PREVIEW</span></div>
         <div class="modal-footer">
             <button class="btn accent delete" onclick="deleteContent()">Delete</button>
-            <span class="modal-uploader" style="margin-left:18px;font-size:1.08rem;color:#374151;">Von [Vorname] [Nachname]</span>
+            <span class="modal-uploader" id="modalUploader" style="margin-left:18px;font-size:1.08rem;color:#374151;">Von [Vorname] [Nachname]</span>
         </div>
     </div>
 </div>
 
 <script>
 let currentContentId = null;
-// currentQueueJson mirrors the current DOM order; updated after any reorder
-let currentQueueJson = [];
 
 function prepareQueueData(){
     const cards = document.querySelectorAll('.queue-card');
@@ -270,7 +277,8 @@ function prepareQueueData(){
         title: c.dataset.title,
         type: c.dataset.type,
         media: c.dataset.thumbnail,
-        text: c.dataset.extraText || ''
+        text: c.dataset.extraText || '',
+        uploader_text: c.dataset.uploader || 'Von unbekannt'
     }));
     document.getElementById('queue_data').value = JSON.stringify(data);
 }
@@ -325,19 +333,24 @@ function openContentModal(card){
     const t = card.dataset.title || 'Von [Username]';
     const thumb = card.dataset.thumbnail;
     const extra = card.dataset.extraText;
+    const uploaderText = card.dataset.uploader || 'Von unbekannt';
+
     const modalTitle = document.getElementById('modalTitle');
     const modalExtra = document.getElementById('modalExtraText');
+    const modalUploader = document.getElementById('modalUploader');
     const sep = document.getElementById('modalSeparator');
 
     modalTitle.textContent = t;
-    sep.style.display = 'block';
+    modalUploader.textContent = uploaderText;
 
     if(extra && extra.trim()!==''){
         modalExtra.textContent = extra;
         modalExtra.style.display='';
+        sep.style.display='block';
         setTimeout(()=>{ sep.style.width = Math.max(modalTitle.offsetWidth, modalExtra.offsetWidth)+'px'; },0);
     } else {
         modalExtra.style.display='none';
+        sep.style.display='none';
         setTimeout(()=>{ sep.style.width = modalTitle.offsetWidth+'px'; },0);
     }
 

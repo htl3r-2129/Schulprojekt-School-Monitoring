@@ -4,20 +4,17 @@
         "title": "Wasser ist feucht und wichtig zu trinken !",
         "type": "video",
         "media": "media\/Videos\/WALKWAY0025-0220.mp4",
+        "approved": true,
+        "ProvidedBy": "Gabriel Berger",
         "text": ""
-    },
-    {
-        "original_id": "2",
-        "title": "Feuer",
-        "type": "image",
-        "media": "media\/Images\/Houser.jpg",
-        "text": "Ich habe Angst"
     },
     {
         "original_id": "3",
         "title": "Erde",
         "type": "image",
         "media": "media\/Images\/AWWWWWWWWWWWW.jpg",
+        "approved": true,
+        "ProvidedBy": "",
         "text": ""
     },
     {
@@ -25,6 +22,8 @@
         "title": "Luft",
         "type": "image",
         "media": "media\/Images\/whitewhitey.jpg",
+        "approved": true,
+        "ProvidedBy": "",
         "text": "Frische Luft ist wichtig"
     },
     {
@@ -32,6 +31,17 @@
         "title": "Erde nochmal",
         "type": "image",
         "media": "media\/Images\/AWWWWWWWWWWWW.jpg",
+        "approved": true,
+        "ProvidedBy": "",
         "text": "Bitte funktioniere"
+    },
+    {
+        "original_id": "7",
+        "title": "Luft aber anders",
+        "type": "image",
+        "media": "media\/Images\/AWWWWWWWWWWWW.jpg",
+        "approved": true,
+        "ProvidedBy": "",
+        "text": "Frische Luft ist semi wichtig"
     }
 ]
