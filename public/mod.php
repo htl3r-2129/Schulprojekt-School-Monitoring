@@ -103,16 +103,20 @@ if(isset($_GET['export']) && $_GET['export']==='json'){
 }
 
 // Composer Autoload
-require __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 use Insi\Ssm\Auth;
 
 $auth = new Auth();
 
-// User info
-$username = $_SESSION['username'] ?? 'Moderator';
-$first_name = 'Vorname';
-$last_name = 'NACHNAME';
+if (isset($_SESSION['user'])) {
+    if (!$auth->isModerator($_SESSION['user'])) {
+        header(header: 'Location: error/401.php');
+    }
+} else {
+    header(header: 'Location: error/401.php');
+}
+
 
 // If requested, output the queue as JSON (same order as $queue_items)
 if (isset($_GET['export']) && $_GET['export'] === 'json') {
@@ -169,7 +173,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['save_client_json'])) {
         <div class="user-info">
             <div class="user-role">Administrator</div>
             <div class="user-name-row">
-                <span class="user-name"><?php echo htmlspecialchars($first_name . ' ' . $last_name); ?></span>
+                <span class="user-name"><?= htmlspecialchars($_SESSION['name']); ?></span>
                 <a href="logout.php" class="btn accent logout">Log-out</a>
             </div>
         </div>
