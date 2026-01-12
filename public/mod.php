@@ -1,4 +1,4 @@
-<?php
+<?php 
 session_start();
 
 // --- Disable caching ---
@@ -45,14 +45,22 @@ if($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['delete_id'])){
     exit;
 }
 
-// --- Load content_source.json ---
+// --- Load content_source.json and filter only approved ---
 if(file_exists($contentSourceFile)){
     $content_source = json_decode(file_get_contents($contentSourceFile), true) ?? [];
+    $content_source = array_filter($content_source, fn($item) => isset($item['approved']) && $item['approved'] === true);
+    $content_source = array_values($content_source);
 }
 
 // --- Load queue.json as main source ---
 if(file_exists($queueFile)){
     $queue_items = json_decode(file_get_contents($queueFile), true) ?? [];
+}
+
+// --- Prepare ProvidedBy map ---
+$providedByMap = [];
+foreach($content_source as $c){
+    $providedByMap[$c['original_id']] = !empty(trim($c['ProvidedBy'])) ? 'Von '.$c['ProvidedBy'] : 'Von unbekannt';
 }
 
 // --- Sync: queue.json only shows content_source.json items, update titles/media/text/type ---
@@ -63,20 +71,31 @@ $new_queue = [];
 foreach($queue_items as $q_item){
     if(isset($source_map[$q_item['original_id']])){
         $src = $source_map[$q_item['original_id']];
-        $q_item['title'] = $src['title'] ?? $q_item['title'];
-        $q_item['media'] = $src['media'] ?? $q_item['media'];
-        $q_item['text'] = $src['text'] ?? $q_item['text'];
-        $q_item['type'] = $src['type'] ?? $q_item['type'];
-        $new_queue[] = $q_item;
+        $new_queue[] = [
+            'original_id' => $q_item['original_id'],
+            'order_id'    => $q_item['order_id'],
+            'title'       => $src['title'] ?? $q_item['title'],
+            'media'       => $src['media'] ?? $q_item['media'],
+            'text'        => $src['text'] ?? $q_item['text'],
+            'type'        => $src['type'] ?? $q_item['type']
+            // uploader_text wird nicht gespeichert
+        ];
         unset($source_map[$q_item['original_id']]);
     }
 }
 
-// Append any new items from content_source that are not in queue yet
+// Append new items
 $order_counter = count($new_queue)+1;
 foreach($source_map as $item){
-    $item['order_id'] = $order_counter++;
-    $new_queue[] = $item;
+    $new_queue[] = [
+        'original_id' => $item['original_id'],
+        'order_id'    => $order_counter++,
+        'title'       => $item['title'],
+        'media'       => $item['media'],
+        'text'        => $item['text'],
+        'type'        => $item['type']
+        // uploader_text wird nicht gespeichert
+    ];
 }
 
 $queue_items = $new_queue;
@@ -87,6 +106,11 @@ file_put_contents($queueFile, json_encode($queue_items, JSON_PRETTY_PRINT | JSON
 // --- POST Save Queue (Drag&Drop changes) ---
 if($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['queue_data'])){
     $data = json_decode($_POST['queue_data'], true);
+
+    // Remove uploader_text just in case
+    foreach($data as &$item) unset($item['uploader_text']);
+    unset($item);
+
     if(file_put_contents($queueFile, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES))){
         $message = "Queue saved successfully!";
         $queue_items = $data;
@@ -95,18 +119,10 @@ if($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['queue_data'])){
     }
 }
 
-// Export JSON
-if(isset($_GET['export']) && $_GET['export']==='json'){
-    header('Content-Type: application/json; charset=utf-8');
-    echo json_encode($queue_items, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-    exit;
-}
-
 // Composer Autoload
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use Insi\Ssm\Auth;
-
 $auth = new Auth();
 
 if (isset($_SESSION['user'])) {
@@ -204,6 +220,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['save_client_json'])) {
             $media_url  = $item['media'] ?? '';
             $title      = $item['title'] ?? '';
             $extra_text = $item['text'] ?? '';
+            $uploader   = $providedByMap[$item['original_id']] ?? 'Von unbekannt';
             $media_html = '';
             $show_card  = false;
             $type       = $item['type'] ?? '';
@@ -232,6 +249,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['save_client_json'])) {
              data-thumbnail="<?php echo htmlspecialchars($media_url); ?>"
              data-extra-text="<?php echo htmlspecialchars($extra_text); ?>"
              data-type="<?php echo $type; ?>"
+             data-uploader="<?php echo htmlspecialchars($uploader); ?>"
              onclick="openContentModal(this)">
             <div class="card-preview"><?php echo $media_html; ?></div>
             <div class="card-order-badge"><?php echo $item['order_id']; ?></div>
@@ -256,15 +274,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['save_client_json'])) {
         <div class="modal-preview" id="modalPreviewArea"><span class="preview-placeholder">PREVIEW</span></div>
         <div class="modal-footer">
             <button class="btn accent delete" onclick="deleteContent()">Delete</button>
-            <span class="modal-uploader" style="margin-left:18px;font-size:1.08rem;color:#374151;">Von [Vorname] [Nachname]</span>
+            <span class="modal-uploader" id="modalUploader" style="margin-left:18px;font-size:1.08rem;color:#374151;">Von [Vorname] [Nachname]</span>
         </div>
     </div>
 </div>
 
 <script>
 let currentContentId = null;
-// currentQueueJson mirrors the current DOM order; updated after any reorder
-let currentQueueJson = [];
 
 function prepareQueueData(){
     const cards = document.querySelectorAll('.queue-card');
@@ -275,6 +291,7 @@ function prepareQueueData(){
         type: c.dataset.type,
         media: c.dataset.thumbnail,
         text: c.dataset.extraText || ''
+        // uploader_text wird NICHT gespeichert
     }));
     document.getElementById('queue_data').value = JSON.stringify(data);
 }
@@ -329,19 +346,24 @@ function openContentModal(card){
     const t = card.dataset.title || 'Von [Username]';
     const thumb = card.dataset.thumbnail;
     const extra = card.dataset.extraText;
+    const uploaderText = card.dataset.uploader || 'Von unbekannt';
+
     const modalTitle = document.getElementById('modalTitle');
     const modalExtra = document.getElementById('modalExtraText');
+    const modalUploader = document.getElementById('modalUploader');
     const sep = document.getElementById('modalSeparator');
 
     modalTitle.textContent = t;
-    sep.style.display = 'block';
+    modalUploader.textContent = uploaderText;
 
     if(extra && extra.trim()!==''){
         modalExtra.textContent = extra;
         modalExtra.style.display='';
+        sep.style.display='block';
         setTimeout(()=>{ sep.style.width = Math.max(modalTitle.offsetWidth, modalExtra.offsetWidth)+'px'; },0);
     } else {
         modalExtra.style.display='none';
+        sep.style.display='none';
         setTimeout(()=>{ sep.style.width = modalTitle.offsetWidth+'px'; },0);
     }
 
