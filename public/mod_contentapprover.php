@@ -59,7 +59,7 @@ $queue_items = array_filter($json, fn($item) => empty($item['approved']));
 
 // --- ProvidedBy Feature hinzufügen ---
 foreach($queue_items as &$item) {
-    $item['uploader_text'] = 'Von' . (isset($item['ProvidedBy']) && trim($item['ProvidedBy']) !== '' ? ' ' . $item['ProvidedBy'] : '');
+    $item['uploader_text'] = 'Von' . (isset($item['ProvidedBy']) && trim($item['ProvidedBy']) !== '' ? ' ' . $item['ProvidedBy'] : ' Unbekannt');
 }
 unset($item);
 ?>

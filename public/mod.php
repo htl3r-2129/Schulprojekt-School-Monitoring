@@ -1,6 +1,24 @@
 <?php 
 session_start();
 
+// --- JSON API: Prevent caching ---
+if (isset($_GET['get_content_json'])) {
+    header('Content-Type: application/json; charset=utf-8');
+    header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+    header("Pragma: no-cache");
+    header("Expires: 0");
+
+    $contentSourceFile = __DIR__ . '/content_source.json';
+    $content_source = file_exists($contentSourceFile) 
+        ? json_decode(file_get_contents($contentSourceFile), true) 
+        : [];
+
+    echo json_encode($content_source, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    exit;
+}
+
+
+
 // --- Disable caching ---
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Cache-Control: post-check=0, pre-check=0", false);
