@@ -1,31 +1,14 @@
 FROM php:8.2-apache
 
-# Setze das Arbeitsverzeichnis
-WORKDIR /var/www/html
+# Enable mysqli extension
+RUN apt-get update
+RUN apt-get install -y libmariadb-dev curl git ssl-cert
+RUN docker-php-ext-install mysqli
 
-# Installiere notwendige Pakete und PHP-Erweiterungen
-# NEU: sendmail wird hinzugefügt, um die PHP mail() Funktion zu unterstützen.
-# Der Rest wird für DB, Composer etc. beibehalten.
-RUN apt-get update && apt-get install -y \
-    git \
-    curl \
-    libzip-dev \
-    libpng-dev \
-    libjpeg-dev \
-    sendmail \
-    && rm -rf /var/lib/apt/lists/*
-
-# Installiere PHP-Erweiterungen
-RUN docker-php-ext-install pdo pdo_mysql \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j$(nproc) gd \
-    && docker-php-ext-install curl
-
-# Composer Installation
+RUN rm -rf /usr/local/apache2/htdocs/*
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin/ --filename=composer
 
-# Entferne Standard-Apache-Dateien
-RUN rm -rf /var/www/html/*
+COPY . /var/www/html
 
 # Kopiere alle Anwendungsdateien
 COPY ./public/ /var/www/html/public/
@@ -33,8 +16,15 @@ COPY ./src /var/www/html/src
 COPY apache/vhost.conf /etc/apache2/sites-available/000-default.conf
 COPY ./composer.json /var/www/html/composer.json
 
+# Enable SSL module
+RUN a2enmod ssl
+
+# Enable the SSL virtual host
+RUN a2ensite default-ssl
+
 # Führe Composer Install aus (entfernt PHPMailer)
-RUN composer install --no-dev
+RUN composer update
+RUN composer install
 
 # Setze Schreibrechte für den public-Ordner (falls nötig)
 RUN chown -R www-data:www-data /var/www/html/public

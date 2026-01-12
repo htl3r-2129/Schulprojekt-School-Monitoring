@@ -1,14 +1,8 @@
 <?php
 session_start();
-require __DIR__ . '/../vendor/autoload.php';
 
-use App\classes\Auth;
-
-// Instanziierung ohne Argument
-$auth = new Auth(); 
-
-$auth->logout();
-
+session_unset();
+session_destroy();
 // Zurück zum Login
 header('Location: login.php');
 exit;

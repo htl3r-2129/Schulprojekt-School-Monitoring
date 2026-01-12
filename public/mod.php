@@ -104,13 +104,50 @@ if(isset($_GET['export']) && $_GET['export']==='json'){
 
 // Composer Autoload
 require __DIR__ . '/../vendor/autoload.php';
-use App\classes\Auth;
+
+use Insi\Ssm\Auth;
+
 $auth = new Auth();
 
 // User info
 $username = $_SESSION['username'] ?? 'Moderator';
 $first_name = 'Vorname';
 $last_name = 'NACHNAME';
+
+// If requested, output the queue as JSON (same order as $queue_items)
+if (isset($_GET['export']) && $_GET['export'] === 'json') {
+    $out = [];
+    foreach ($queue_items as $item) {
+        $out[] = [
+            'title' => $item['title'] ?? '',
+            'text'  => $item['text'] ?? '',
+            'media' => $item['thumbnail_url'] ?? $item['id'] ?? ''
+        ];
+    }
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode($out, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    exit;
+}
+
+// Receive client-side JSON (current order) via POST so it can be inspected in DevTools
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['save_client_json'])) {
+    $input = file_get_contents('php://input');
+    $data = json_decode($input, true);
+    header('Content-Type: application/json; charset=utf-8');
+    if ($data === null && json_last_error() !== JSON_ERROR_NONE) {
+        echo json_encode(['success' => false, 'message' => 'Invalid JSON', 'error' => json_last_error_msg()]);
+        exit;
+    }
+
+    // Return the received payload and the current server-side queue for reference
+    echo json_encode([
+        'success' => true,
+        'message' => 'Received client queue JSON',
+        'received' => $data,
+        'server_queue' => $queue_items
+    ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    exit;
+}
 ?>
 <!DOCTYPE html>
 <html lang="de">
@@ -132,7 +169,7 @@ $last_name = 'NACHNAME';
         <div class="user-info">
             <div class="user-role">Administrator</div>
             <div class="user-name-row">
-                <span class="user-name"><?php echo htmlspecialchars($first_name.' '.$last_name); ?></span>
+                <span class="user-name"><?php echo htmlspecialchars($first_name . ' ' . $last_name); ?></span>
                 <a href="logout.php" class="btn accent logout">Log-out</a>
             </div>
         </div>
@@ -222,6 +259,8 @@ $last_name = 'NACHNAME';
 
 <script>
 let currentContentId = null;
+// currentQueueJson mirrors the current DOM order; updated after any reorder
+let currentQueueJson = [];
 
 function prepareQueueData(){
     const cards = document.querySelectorAll('.queue-card');

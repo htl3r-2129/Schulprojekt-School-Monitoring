@@ -4,20 +4,55 @@ session_start();
 // Composer Autoload
 require __DIR__ . '/../vendor/autoload.php';
 
-use App\classes\Auth;
+use Insi\Ssm\Auth;
 
+$auth = new Auth(); // TODO: have one global Auth()
 
-//TODO : Check if user is admin, else redirect
+if (isset($_SESSION['user'])) {
+    if (!$auth->isAdmin($_COOKIE['user'])) {
+        header(header: 'Location: error/401.php');
+    }
+} else {
+    header(header: 'Location: error/401.php');
+}
 
-$username = $_SESSION['username'] ?? 'Administrator';
-$first_name = 'Vorname';
-$last_name = 'NACHNAME';
+$error = '';
+$success = '';
 
-// Sample lists (replace with DB fetch)
-$moderators = array_fill(0,9, 'Vorname Nachname (0000)');
-$users = array_fill(0,9, 'Vorname Nachname (0000)');
-$blocked = array_fill(0,9, 'Vorname Nachname (0000)');
+if($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['remove_mod'])) {
+        if ($auth->makeUser($_POST['remove_mod'])){
+            $success = 'Successfully removed Moderator.';
+        } else {
+            $error = 'Error: Failed to remove Moderator.';
+        }
+    }
+    if (isset($_POST['make_mod'])) {
+        if ($auth->makeModerator($_POST['make_mod'])) {
+            $success = 'Successfully added Moderator.';
+        } else {
+            $error = 'Error: Failed to add Moderator';
+        }
+    }
+    if (isset($_POST['block'])) {
+        if ($auth->lockUser($_POST['block'])){
+            $success = 'Successfully blocked User.';
+        } else {
+            $error = 'Error: Failed to block User.';
+        }
+    }
+    if (isset($_POST['unblock'])) {
+        if ($auth->unlockUser($_POST['unblock'])){
+            $success = "Successfully unblocked User.";
+        } else {
+            $error = 'Error: Failed to unblock User.';
+        }
+    }
+}
 
+$moderators = $auth->getAllMods();
+$users = $auth->getAllUsers();
+$blocked = $auth->getAllLocked();
 ?>
 <!DOCTYPE html>
 <html lang="de">
@@ -39,26 +74,30 @@ $blocked = array_fill(0,9, 'Vorname Nachname (0000)');
         <div class="brand">Schulmonitor</div>
         <div class="user-profile">
             <div class="user-info">
-            <div class="user-role">Administrator</div>
-            <div class="user-name-row">
-                <span class="user-name"><?php echo htmlspecialchars($first_name . ' ' . $last_name); ?></span>
-                <a href="logout.php" class="btn accent logout">Log-out</a>
+                <div class="user-role">Administrator</div>
+                <span class="user-name"><<?= htmlspecialchars($_SESSION['name']); ?></span>
             </div>
         </div>
     </div>
 </header>
         <main class="center-wrap">
             <h1 class="page-title">Manage Users</h1>
-
+            <?php if (!empty($error)) echo "<p class='error-message'>" . htmlspecialchars($error, ENT_QUOTES) . "</p>"; ?>
+            <?php if (!empty($success)) echo "<p class='success-message'>" . htmlspecialchars($success, ENT_QUOTES) . "</p>"; ?>
             <div class="manage-container">
                 <div class="user-column">
                     <h3>Moderators</h3>
                     <div class="user-list">
                         <?php foreach($moderators as $m): ?>
                             <div class="user-item">
-                                <div class="user-label"><?php echo htmlspecialchars($m); ?></div>
+                                <div class="user-label"><?php echo htmlspecialchars($m['username']); ?></div>
+                                <div><?php echo htmlspecialchars($m['email']); ?></div>
+                                <div><?php echo htmlspecialchars($m['PK_User_ID']); ?></div>
                                 <div class="actions">
-                                    <button class="btn small accent">remove</button>
+                                    <form method="post">
+                                        <button class="btn small accent" type="submit" name="remove_mod"
+                                                value="<?php echo htmlspecialchars($m['PK_User_ID']);?>">Remove</button>
+                                    </form>
                                 </div>
                             </div>
                         <?php endforeach; ?>
@@ -70,10 +109,16 @@ $blocked = array_fill(0,9, 'Vorname Nachname (0000)');
                     <div class="user-list">
                         <?php foreach($users as $u): ?>
                             <div class="user-item">
-                                <div class="user-label"><?php echo htmlspecialchars($u); ?></div>
+                                <div class="user-label"><?php echo htmlspecialchars($u['username']); ?></div>
+                                <div><?php echo htmlspecialchars($u['email']); ?></div>
+                                <div><?php echo htmlspecialchars($u['PK_User_ID']); ?></div>
                                 <div class="actions">
-                                    <button class="btn small accent">m</button>
-                                    <button class="btn small primary">block</button>
+                                    <form method="post">
+                                        <button class="btn small accent" type="submit" name="make_mod"
+                                        value="<?php echo htmlspecialchars($u['PK_User_ID']); ?>">Mod</button>
+                                        <button class="btn small primary" type="submit" name="block"
+                                        value="<?php echo htmlspecialchars($u['PK_User_ID']); ?>">Block</button>
+                                    </form>
                                 </div>
                             </div>
                         <?php endforeach; ?>
@@ -85,9 +130,14 @@ $blocked = array_fill(0,9, 'Vorname Nachname (0000)');
                     <div class="user-list">
                         <?php foreach($blocked as $b): ?>
                             <div class="user-item">
-                                <div class="user-label"><?php echo htmlspecialchars($b); ?></div>
+                                <div class="user-label"><?php echo htmlspecialchars($b['username']); ?></div>
+                                <div><?php echo htmlspecialchars($b['email']); ?></div>
+                                <div><?php echo htmlspecialchars($b['PK_User_ID']); ?></div>
                                 <div class="actions">
-                                    <button class="btn small accent">unblock</button>
+                                    <form method="post">
+                                        <button class="btn small accent" type="submit" name="unblock"
+                                        value="<?php echo htmlspecialchars($b['PK_User_ID']); ?>">Unblock</button>
+                                    </form>
                                 </div>
                             </div>
                         <?php endforeach; ?>

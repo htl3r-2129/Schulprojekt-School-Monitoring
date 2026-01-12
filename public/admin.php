@@ -4,10 +4,17 @@ session_start();
 // Composer Autoload
 require __DIR__ . '/../vendor/autoload.php';
 
-use App\classes\Auth;
+use Insi\Ssm\Auth;
 
-$auth = new Auth();
-// TODO : Check if user is admin, else redirect
+$auth = new Auth(); // TODO: have one global Auth()
+
+if (isset($_SESSION['user'])) {
+    if (!$auth->isAdmin($_SESSION['user'])) {
+        header(header: 'Location: error/401.php');
+    }
+} else {
+    header(header: 'Location: error/401.php');
+}
 
 $error = '';
 $success = '';
@@ -160,25 +167,22 @@ $last_name  = 'NACHNAME';
 ?>
 <!DOCTYPE html>
 <html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <title>Admin</title>
-    <link rel="stylesheet" href="styles/style.css">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-</head>
-<body>
-
-<header class="topbar">
-    <a href="https://www.htlrennweg.at/" class="logo-link">
-        <img src="images/logo.png" alt="Logo" class="logo">
-    </a>
-    <div class="brand">Schulmonitor</div>
-    <div class="user-profile">
-        <div class="user-info">
-            <div class="user-role">Administrator</div>
-            <div class="user-name-row">
-                <span class="user-name"><?= htmlspecialchars("$first_name $last_name") ?></span>
-                <a href="logout.php" class="btn accent logout">Log-out</a>
+    <head>
+        <meta charset="UTF-8">
+        <title>Admin</title>
+        <link rel="stylesheet" href="styles/style.css">
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+    </head>
+    <body>
+    <header class="topbar">
+        <a href="https://www.htlrennweg.at/" class="logo-link">
+            <img src="images/logo.png" alt="Logo" class="logo">
+        </a>
+        <div class="brand">Schulmonitor</div>
+        <div class="user-profile">
+            <div class="user-info">
+                <div class="user-role">Administrator</div>
+                <span class="user-name"><?= htmlspecialchars($_SESSION['name']); ?></span>
             </div>
         </div>
     </div>
