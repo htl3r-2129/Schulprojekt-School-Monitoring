@@ -91,7 +91,7 @@ if(isset($_GET['export']) && $_GET['export']==='json'){
     <!-- APPLY CHANGES FORM -->
     <form method="POST">
         <input type="hidden" name="queue_data" id="queue_data">
-        <button type="submit" class="btn secondary apply-changes-btn" onclick="prepareQueueData()">Apply Changes</button>
+        <button type="submit" class="btn primary apply-changes-btn" onclick="prepareQueueData()">Apply Changes</button>
     </form>
 
     <div class="content-queue-container">
@@ -216,22 +216,41 @@ function reassignOrderIds(){
 // MODAL
 function openContentModal(card){
     currentContentId=card.dataset.contentId;
-    const t=card.dataset.title||'Von [Username]';
-    const thumb=card.dataset.thumbnail;
-    const extra=card.dataset.extraText;
-    const modalTitle=document.getElementById('modalTitle');
-    const modalExtra=document.getElementById('modalExtraText');
-    const sep=document.getElementById('modalSeparator');
-    modalTitle.textContent=t;
-    if(extra && extra.trim()!==''){ modalExtra.textContent=extra; modalExtra.style.display=''; sep.style.display='block'; }
-    else { modalExtra.style.display='none'; sep.style.display='none'; }
-    const preview=document.getElementById('modalPreviewArea');
-    if(thumb){ const ext=thumb.split('.').pop().toLowerCase();
-        if(['mp4','webm','ogg'].includes(ext)) preview.innerHTML='<video src="'+thumb+'" controls autoplay muted playsinline></video>';
-        else preview.innerHTML='<img src="'+thumb+'" alt="Preview"/>';
-    } else preview.innerHTML='<span class="preview-placeholder">PREVIEW</span>';
-    document.getElementById('contentModal').style.display='flex';
-    document.body.style.overflow='hidden';
+    const t = card.dataset.title || 'Von [Username]';
+    const thumb = card.dataset.thumbnail;
+    const extra = card.dataset.extraText;
+    const modalTitle = document.getElementById('modalTitle');
+    const modalExtra = document.getElementById('modalExtraText');
+    const sep = document.getElementById('modalSeparator');
+    modalTitle.textContent = t;
+    // Always show separator
+    sep.style.display = 'block';
+    if (extra && extra.trim() !== '') {
+        modalExtra.textContent = extra;
+        modalExtra.style.display = '';
+        // Dynamically set separator width
+        setTimeout(() => {
+            const titleWidth = modalTitle.offsetWidth;
+            const extraWidth = modalExtra.offsetWidth;
+            const maxWidth = Math.max(titleWidth, extraWidth);
+            sep.style.width = maxWidth + 'px';
+        }, 0);
+    } else {
+        modalExtra.style.display = 'none';
+        // Set separator width to title width
+        setTimeout(() => {
+            const titleWidth = modalTitle.offsetWidth;
+            sep.style.width = titleWidth + 'px';
+        }, 0);
+    }
+    const preview = document.getElementById('modalPreviewArea');
+    if (thumb) {
+        const ext = thumb.split('.').pop().toLowerCase();
+        if (['mp4', 'webm', 'ogg'].includes(ext)) preview.innerHTML = '<video src="' + thumb + '" controls autoplay muted playsinline></video>';
+        else preview.innerHTML = '<img src="' + thumb + '" alt="Preview"/>';
+    } else preview.innerHTML = '<span class="preview-placeholder">PREVIEW</span>';
+    document.getElementById('contentModal').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
 }
 
 function closeContentModal(event){
