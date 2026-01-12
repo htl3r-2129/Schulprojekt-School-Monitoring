@@ -3,41 +3,47 @@
         "original_id": "3",
         "order_id": 1,
         "title": "Erde",
-        "media": "media/Images/AWWWWWWWWWWWW.jpg",
-        "text": "test123 test123 test123 test123 test123 test123 test123 test123 test123 test123 test123 test123 test123 test123 "
-    },
-    {
-        "original_id": "5",
-        "order_id": 2,
-        "title": "Erde",
+        "type": "image",
         "media": "media/Images/AWWWWWWWWWWWW.jpg",
         "text": ""
     },
     {
         "original_id": "2",
-        "order_id": 3,
+        "order_id": 2,
         "title": "Feuer",
+        "type": "image",
         "media": "media/Images/Houser.jpg",
-        "text": ""
-    },
-    {
-        "original_id": "4",
-        "order_id": 4,
-        "title": "Erde",
-        "media": "media/Images/AWWWWWWWWWWWW.jpg",
-        "text": ""
+        "text": "Ich habe angst"
     },
     {
         "original_id": "1",
-        "order_id": 5,
+        "order_id": 3,
         "title": "Wasser ist feucht und wichtig zu trinken !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!",
+        "type": "video",
         "media": "media/Videos/WALKWAY0025-0220.mp4",
+        "text": ""
+    },
+    {
+        "original_id": "5",
+        "order_id": 4,
+        "title": "Erde",
+        "type": "image",
+        "media": "media/Images/AWWWWWWWWWWWW.jpg",
+        "text": "Bitte funktioniere"
+    },
+    {
+        "original_id": "4",
+        "order_id": 5,
+        "title": "Erde",
+        "type": "image",
+        "media": "media/Images/AWWWWWWWWWWWW.jpg",
         "text": ""
     },
     {
         "original_id": "6",
         "order_id": 6,
         "title": "Erde",
+        "type": "image",
         "media": "media/Images/AWWWWWWWWWWWW.jpg",
         "text": ""
     }

@@ -1,4 +1,4 @@
-<?php
+<?php 
 session_start();
 
 // --- Simple POST save queue ---
@@ -59,6 +59,7 @@ if(isset($_GET['export']) && $_GET['export']==='json'){
 <meta name="viewport" content="width=device-width,initial-scale=1">
 </head>
 <body>
+
 <header class="topbar">
     <a href="https://www.htlrennweg.at/" class="logo-link">
         <img src="images/logo.png" alt="Logo" class="logo">
@@ -96,21 +97,27 @@ if(isset($_GET['export']) && $_GET['export']==='json'){
 
     <div class="content-queue-container">
         <?php foreach($queue_items as $index=>$item):
-            $media_url = $item['media'] ?? $item['thumbnail_url'] ?? '';
-            $title = $item['title'] ?? '';
+
+            $media_url  = $item['media'] ?? $item['thumbnail_url'] ?? '';
+            $title      = $item['title'] ?? '';
             $extra_text = $item['text'] ?? '';
             $media_html = '';
-            $show_card = false;
+            $show_card  = false;
+            $type       = $item['type'] ?? '';
+
             if(!empty($media_url) && file_exists($media_url)){
                 $ext = strtolower(pathinfo($media_url, PATHINFO_EXTENSION));
                 if(in_array($ext,['mp4','webm','ogg'])){
                     $media_html = '<video src="'.htmlspecialchars($media_url).'" class="preview-video" muted playsinline></video>';
+                    $type = 'video';
                     $show_card=true;
                 } elseif(in_array($ext,['jpg','jpeg','png','gif','bmp','webp'])){
                     $media_html = '<img src="'.htmlspecialchars($media_url).'" alt="Preview" class="preview-img" />';
+                    $type = 'image';
                     $show_card=true;
                 }
             }
+
             if($show_card):
                 $short_title = mb_strlen($title)>30 ? mb_substr($title,0,30).' ...' : $title;
         ?>
@@ -121,6 +128,7 @@ if(isset($_GET['export']) && $_GET['export']==='json'){
              data-title="<?php echo htmlspecialchars($title); ?>"
              data-thumbnail="<?php echo htmlspecialchars($media_url); ?>"
              data-extra-text="<?php echo htmlspecialchars($extra_text); ?>"
+             data-type="<?php echo $type; ?>"
              onclick="openContentModal(this)">
             <div class="card-preview"><?php echo $media_html; ?></div>
             <div class="card-order-badge"><?php echo $index+1; ?></div>
@@ -158,17 +166,18 @@ let currentContentId = null;
 function prepareQueueData(){
     const cards = document.querySelectorAll('.queue-card');
     const data = Array.from(cards).map((c, idx)=>({
-    original_id: c.dataset.originalId,
-    order_id: idx+1,
-    title: c.dataset.title,
-    media: c.dataset.thumbnail,
-    text: c.dataset.extraText || ''
-}));
+        original_id: c.dataset.originalId,
+        order_id: idx+1,
+        title: c.dataset.title,
+        type: c.dataset.type,
+        media: c.dataset.thumbnail,
+        text: c.dataset.extraText || ''
+    }));
 
     document.getElementById('queue_data').value = JSON.stringify(data);
 }
 
-// Drag-drop, modal, hover previews, delete, scroll — same as before
+// Drag-drop, modal, hover previews, delete, scroll
 let draggedCard=null;
 
 document.addEventListener('DOMContentLoaded',()=>{
@@ -209,7 +218,8 @@ function reassignOrderIds(){
     const cards=Array.from(container.querySelectorAll('.queue-card'));
     cards.forEach((c,idx)=>{
         c.dataset.orderId=idx+1;
-        const badge=c.querySelector('.card-order-badge'); if(badge) badge.textContent=idx+1;
+        const badge=c.querySelector('.card-order-badge');
+        if(badge) badge.textContent=idx+1;
     });
 }
 
@@ -222,35 +232,36 @@ function openContentModal(card){
     const modalTitle = document.getElementById('modalTitle');
     const modalExtra = document.getElementById('modalExtraText');
     const sep = document.getElementById('modalSeparator');
+
     modalTitle.textContent = t;
-    // Always show separator
     sep.style.display = 'block';
+
     if (extra && extra.trim() !== '') {
         modalExtra.textContent = extra;
         modalExtra.style.display = '';
-        // Dynamically set separator width
         setTimeout(() => {
-            const titleWidth = modalTitle.offsetWidth;
-            const extraWidth = modalExtra.offsetWidth;
-            const maxWidth = Math.max(titleWidth, extraWidth);
-            sep.style.width = maxWidth + 'px';
+            sep.style.width = Math.max(modalTitle.offsetWidth, modalExtra.offsetWidth) + 'px';
         }, 0);
     } else {
         modalExtra.style.display = 'none';
-        // Set separator width to title width
         setTimeout(() => {
-            const titleWidth = modalTitle.offsetWidth;
-            sep.style.width = titleWidth + 'px';
+            sep.style.width = modalTitle.offsetWidth + 'px';
         }, 0);
     }
+
     const preview = document.getElementById('modalPreviewArea');
     if (thumb) {
         const ext = thumb.split('.').pop().toLowerCase();
-        if (['mp4', 'webm', 'ogg'].includes(ext)) preview.innerHTML = '<video src="' + thumb + '" controls autoplay muted playsinline></video>';
-        else preview.innerHTML = '<img src="' + thumb + '" alt="Preview"/>';
-    } else preview.innerHTML = '<span class="preview-placeholder">PREVIEW</span>';
-    document.getElementById('contentModal').style.display = 'flex';
-    document.body.style.overflow = 'hidden';
+        if (['mp4','webm','ogg'].includes(ext))
+            preview.innerHTML = '<video src="'+thumb+'" controls autoplay muted playsinline></video>';
+        else
+            preview.innerHTML = '<img src="'+thumb+'" alt="Preview"/>';
+    } else {
+        preview.innerHTML = '<span class="preview-placeholder">PREVIEW</span>';
+    }
+
+    document.getElementById('contentModal').style.display='flex';
+    document.body.style.overflow='hidden';
 }
 
 function closeContentModal(event){
@@ -268,8 +279,12 @@ function deleteContent(){
 }
 
 document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeContentModal(); });
-document.querySelector('.content-queue-container').addEventListener('wheel',e=>{ e.preventDefault(); e.currentTarget.scrollLeft+=e.deltaY*2; });
-
+document.querySelector('.content-queue-container')
+    .addEventListener('wheel',e=>{
+        e.preventDefault();
+        e.currentTarget.scrollLeft+=e.deltaY*2;
+    });
 </script>
+
 </body>
 </html>
