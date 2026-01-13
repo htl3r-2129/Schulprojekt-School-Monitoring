@@ -1,0 +1,255 @@
+ :root {
+      --gap: 18px;
+      --primary-red: #e23c21;
+      --primary-blue: #668099;
+      --dark-blue: #303b46;
+      --charcoal: #3d4752;
+    }
+
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      font-family: "Segoe UI", Roboto, Arial, sans-serif;
+      background: #f5f7fa;
+      color: #303b46;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Header */
+    .content-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 100px;
+      background: var(--primary-blue);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 20px;
+      z-index: 1000;
+      box-sizing: border-box;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .logo-link {
+      display: flex;
+      align-items: center;
+    }
+
+    .logo {
+      height: 120px;
+      width: auto;
+    }
+
+    .brand {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--primary-red);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+    }
+
+    .current-time {
+      font-size: 35px;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    /* Gesamtes Viewport-Layout */
+    .slides {
+      height: 100vh;
+      width: 100%;
+      overflow: hidden;
+      position: relative;
+      margin-top: 0;
+    }
+
+    /* Innerer Container, den wir vertikal verschieben */
+    .slides-inner {
+      height: 100%;
+      transition: transform 0.75s cubic-bezier(.22, .9, .3, 1);
+      will-change: transform;
+    }
+
+    /* Einzelne Slide - nimmt ganze Höhe */
+    .slide {
+      height: 100vh;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      padding: 40px;
+      gap: 20px;
+      background: linear-gradient(135deg, #ffffff 0%, #f5f7fa 100%);
+      align-items: center;
+      justify-content: flex-start;
+    }
+
+    /* Titel */
+    .slide h1 {
+      margin: 0;
+      font-weight: 700;
+      font-size: clamp(20px, 3.5vw, 40px);
+      color: var(--primary-red);
+      text-align: right;
+      padding-top: 100px;
+    }
+
+    /* Optionaler Text - wird nicht gerendert wenn leer (wir erstellen ihn nur bei Inhalt) */
+    .slide .text {
+      margin: 0;
+      font-size: clamp(16px, 2.5vw, 24px);
+      padding: 0 -10px 16px 0;
+      color: var(--dark-blue);
+      text-align: center;
+      max-width: 900px;
+      line-height: 1.6;
+      height: auto;
+      overflow: hidden;
+    }
+
+    /* Instant message styling */
+    .slide .text.instant {
+      background: var(--primary-red);
+      color: #ffffff;
+      padding: 16px 0;
+      border-radius: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0;
+      font-size: clamp(24px, 4vw, 48px);
+      line-height: 1.5;
+      font-weight: 700;
+    }
+
+    /* Instant Message Overlay */
+    .instant-message-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100vw;
+      height: 100vh;
+      background: var(--primary-red);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 5000;
+    }
+
+    .instant-message-overlay.active {
+      display: flex;
+    }
+
+    .instant-message-content {
+      color: #ffffff;
+      font-size: clamp(24px, 4vw, 48px);
+      line-height: 1.5;
+      font-weight: 700;
+      text-align: center;
+      padding: 40px;
+      max-width: 90%;
+    }
+
+    /* Hide title and separator for instant messages */
+    .slide:has(.text.instant) h1,
+    .slide:has(.text.instant) .text-separator {
+      display: none;
+    }
+
+    /* Text separator bar */
+    .text-separator {
+      margin: 12px auto;
+      border: none;
+      border-top: 2px solid var(--primary-blue);
+      padding: 0;
+      align-self: center;
+    }
+
+    /* Text-only mode (no video/image) */
+    .slide:has(.text):not(:has(.video-wrap)) h1 {
+      font-size: clamp(28px, 4.5vw, 52px);
+    }
+
+    .slide:has(.text):not(:has(.video-wrap)) .text {
+      font-size: clamp(24px, 3.5vw, 40px);
+    }
+
+    /* Video-Container */
+    .video-wrap {
+      margin-top: 20px;
+      flex: 0 0 auto;
+      box-sizing: border-box;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background: transparent;
+      aspect-ratio: 16 / 9;
+      max-width: 100%;
+      max-height: 50vh;
+      border-radius: 10px;
+    }
+
+    /* Video-wrap when no text present */
+    .slide:not(:has(.text)) .video-wrap {
+      margin-top: 0;
+      margin-bottom: 40px;
+      aspect-ratio: auto;
+      flex: 0 1 auto;
+      height: auto;
+      max-height: calc(100vh - 280px);
+      width: 100%;
+    }
+    
+
+    .video-wrap video,
+    .video-wrap img {
+      max-width: 100%;
+      max-height: 100%;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      display: block;
+      pointer-events: none;
+    }
+
+    /* Platzhalter wenn kein Video vorhanden */
+    .video-placeholder {
+      font-size: clamp(20px, 3vw, 48px);
+      color: var(--dark-blue);
+      font-weight: 700;
+    }
+
+    /* Optional: keine Interaktionen auf der ganzen Seite */
+    body {
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
+    .slides,
+    .slide {
+      pointer-events: none;
+    }
+
+    @media (max-width:600px) {
+      .slide {
+        padding: 24px;
+      }
+
+      .slide h1 {
+        font-size: clamp(20px, 8vw, 40px);
+      }
+    }
