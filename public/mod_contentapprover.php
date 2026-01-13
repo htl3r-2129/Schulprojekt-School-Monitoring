@@ -71,99 +71,90 @@ unset($item);
     <link rel="stylesheet" href="styles/style.css">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <style>
-        .content-grid-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 18px;
-            justify-content: flex-start;
-            align-items: flex-start;
-        }
-        .queue-card {
-            width: 340px;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: stretch;
-            background: #fff;
-            border-radius: 14px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
-            padding: 12px 0 18px 0;
-            transition: all 0.25s ease;
-            cursor: pointer;
-        }
-        .queue-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
-        }
-        .card-subtitle {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 320px;
-            margin: 0 auto;
-            font-size: 1.15rem;
-            font-weight: 500;
-            text-align: center;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+/* --- restored approver-specific CSS (old) --- */
+/* Grundlayout */
+html, body {
+    background-color: #ffffff !important;
+    height: 100% !important;
+}
+body {
+    font-family: 'Trebuchet MS', Helvetica, Arial, sans-serif;
+    margin: 0 !important;
+    padding: 0 !important;
+    min-height: 100vh !important;
+    background-color: #ffffff !important;
+}
 
-        /* Modal Styles */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top:0; left:0;
-            width:100%; height:100%;
-            background: rgba(0,0,0,0.5);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-        .modal-content {
-            background:#fff;
-            padding:20px;
-            border-radius:12px;
-            width:80%;
-            max-width:600px;
-            max-height:80%;
-            overflow:auto;
-            position:relative;
-        }
-        .modal-close {
-            position:absolute;
-            top:10px;
-            right:10px;
-            font-size:24px;
-            background:none;
-            border:none;
-            cursor:pointer;
-        }
-        .modal-preview {
-            width:100%;
-            margin: 10px 0;
-        }
-        .modal-title {
-            font-size:1.3rem;
-            font-weight:600;
-            margin-bottom:10px;
-        }
-        .modal-text {
-            font-size:1rem;
-            color:#333;
-            margin-bottom:10px;
-        }
-        .modal-footer {
-            display:flex;
-            justify-content:flex-start;
-            align-items:center;
-            gap:10px;
-        }
-        .modal-footer span {
-            margin-left:auto;
-            font-size:1rem;
-            color:#374151;
-        }
+/* Centered content area */
+.center-wrap {
+    max-width: 1600px;
+    margin: 40px auto;
+    padding: 0 20px 60px;
+    background-color: #ffffff !important;
+}
+
+.mod-greeting { color: #e23c21; font-size:36px; margin: 20px 0; text-align:center; }
+.mod-link { text-align:center; margin-bottom:18px }
+
+.content-grid-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    align-items: start;
+    justify-items: stretch;
+    width: 100%;
+}
+
+.queue-card {
+    flex: 0 0 auto; /* prevent wrapping/shrinking */
+    width: 320px;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    padding: 12px 12px 18px 12px;
+    transition: all 0.25s ease;
+    cursor: pointer;
+}
+.queue-card:hover { transform: translateY(-6px); box-shadow: 0 12px 32px rgba(0,0,0,0.18); }
+
+.card-preview { width: 100%; height: 180px; background: #f3f3f3; overflow:hidden; border-radius:12px; display:block; margin:0 0 10px 0; position:relative; padding:0; box-sizing:border-box; }
+.card-preview img, .card-preview video { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; display:block; }
+
+.card-subtitle { background: #3d4752; color: white; padding: 10px; text-align:center; font-size:14px; font-weight:700; border-radius:10px; }
+
+/* When a card lacks a preview, push subtitle down to match cards that have previews */
+.queue-card.no-preview .card-subtitle {
+    margin-top: auto;
+}
+
+/* Modal Styles */
+.modal-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color: rgba(0,0,0,0.75); z-index:9999; align-items:center; justify-content:center; backdrop-filter: blur(3px); }
+.modal-content { background: linear-gradient(135deg,#ffffff 0%,#f5f7fa 100%); border-radius: 10px; width:92%; max-width:900px; display:flex; flex-direction:column; gap:20px; position:relative; padding:24px; align-items:center; justify-content:flex-start; }
+.modal-close { position:absolute; top:14px; right:14px; width:42px; height:42px; border:none; border-radius:6px; font-size:28px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; background:#e23c21; color:#fff; }
+.modal-title { font-size: clamp(20px,3.5vw,40px); font-weight:700; color:#e23c21; margin:0; text-align:center; width:100%; }
+.modal-separator, .modal-title-separator { border:0; border-top:2px solid #668099; margin:12px auto; width:auto; }
+.modal-preview { width:100%; max-width:100%; aspect-ratio:16/9; background:transparent; border-radius:10px; display:flex; align-items:center; justify-content:center; overflow:hidden; }
+.modal-preview img, .modal-preview video { width:100%; height:100%; object-fit:contain; display:block; border-radius:10px; }
+.modal-extra-text, .modal-text { width:100%; max-width:900px; font-size: clamp(16px,2.5vw,24px); color: #303b46; text-align:center; padding:16px 0; word-break:break-word; line-height:1.6; margin:0 auto; display:flex; align-items:center; justify-content:center; }
+.modal-footer { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:20px 0 0; background:transparent; width:100%; }
+.modalbtn { padding: 12px 24px; border-radius: 8px; font-size: 16px; font-weight: 700; border: none; cursor: pointer; transition: background 0.2s; }
+.modal-footer .btn { padding:12px 24px; border-radius:8px; font-size:16px; font-weight:700; }
+.modal-footer .modalbtn.primary { background-color: #e23c21; color: #fff; }
+.modal-footer .modalbtn.primary:hover { background-color: #c13616; }
+.modal-footer .modalbtn.secondary { background-color: #668099; color: #fff; }
+.modal-footer .modalbtn.secondary:hover { background-color: #56667a; }
+.modal-footer .modalbtn.accent { background-color: #303b46; color: #fff; }
+.modal-footer .modalbtn.accent:hover { background-color: #3d4752; }
+.modal-footer span { margin-left:auto; font-size:1rem; color:#374151; }
+
+/* small helpers */
+.btn { padding:6px 10px; border-radius:6px; font-weight:700; }
+
+/* end restored CSS */
     </style>
 </head>
 <body>
@@ -190,14 +181,15 @@ unset($item);
     <div class="mod-section">
         <div class="content-grid-container">
             <?php foreach($queue_items as $item): ?>
-                <div class="queue-card"
+                <?php $hasMedia = !empty($item['media']); ?>
+                <div class="queue-card<?= $hasMedia ? '' : ' no-preview' ?>"
                      data-content-id="<?= $item['original_id'] ?>"
                      data-title="<?= htmlspecialchars($item['title']) ?>"
                      data-thumbnail="<?= htmlspecialchars($item['media'] ?? '') ?>"
                      data-extra-text="<?= htmlspecialchars($item['text'] ?? '') ?>"
                      data-uploader="<?= htmlspecialchars($item['uploader_text']) ?>">
-                    <?php if (!empty($item['media'])): ?>
-                    <div class="card-preview" style="width:250px;height:200px;background:#f3f3f3;overflow:hidden;border-radius:12px;position:relative;margin:0 auto 10px auto;">
+                    <?php if ($hasMedia): ?>
+                    <div class="card-preview">
                         <?php
                         $ext = strtolower(pathinfo($item['media'], PATHINFO_EXTENSION));
                         if (in_array($ext, ['mp4','webm','ogg'])) {
@@ -220,12 +212,13 @@ unset($item);
     <div class="modal-content" onclick="event.stopPropagation()">
         <button class="btn primary modal-close" onclick="closeContentModal()">&times;</button>
         <div class="modal-title" id="modalTitle"></div>
+        <hr class="modal-separator" id="modalSeparator" style="display:none;" />
         <div class="modal-text" id="modalText"></div>
         <div class="modal-preview" id="modalPreviewArea"></div>
         <div class="modal-footer">
-            <button class="btn accent" onclick="approveContent()">Approve</button>
-            <button class="btn accent" onclick="deleteContent()">Delete</button>
-            <span id="modalUploader"></span>
+            <button class="modalbtn primary" onclick="approveContent()">Approve</button>
+            <button class="modalbtn secondary" onclick="deleteContent()">Delete</button>
+            <button id="modalUploader" type="button" class="modalbtn accent" aria-hidden="true"></button>
         </div>
     </div>
 </div>
@@ -243,9 +236,24 @@ function openContentModal(card) {
     const uploader = card.dataset.uploader || '';
     const extraText = card.dataset.extraText || '';
 
-    document.getElementById('modalTitle').textContent = title;
-    document.getElementById('modalText').textContent = extraText;
-    document.getElementById('modalUploader').textContent = uploader;
+    const modalTitleEl = document.getElementById('modalTitle');
+    const modalTextEl = document.getElementById('modalText');
+    const modalUploaderEl = document.getElementById('modalUploader');
+    const sep = document.getElementById('modalSeparator');
+
+    modalTitleEl.textContent = title;
+    modalTextEl.textContent = extraText;
+    modalUploaderEl.textContent = uploader;
+
+    // Show separator always; size to larger of title or extra text when extra exists
+    if(sep){
+        sep.style.display = 'block';
+        setTimeout(()=>{
+            const w1 = modalTitleEl ? modalTitleEl.offsetWidth : 0;
+            const w2 = modalTextEl ? modalTextEl.offsetWidth : 0;
+            sep.style.width = Math.max(w1, w2)+'px';
+        },0);
+    }
 
     const media = card.dataset.thumbnail;
     if (media) {

@@ -301,7 +301,26 @@ function validateMediaForm(){
     sendMediaBtn.disabled = !(title.length>=1 && mediaFilled);
 
     document.getElementById('previewTitle').textContent = title;
+    const previewExtra = document.getElementById('previewExtra');
+    const previewSep = document.getElementById('previewSeparator');
     document.getElementById('previewExtra').textContent = extra;
+
+    // Show separator only when there is a title; size it to the larger of title/extra
+    if(previewSep){
+        if(title.length>0){
+            previewSep.hidden = false;
+            setTimeout(()=>{
+                const titleEl = document.getElementById('previewTitle');
+                const titleW = titleEl ? titleEl.offsetWidth : 0;
+                const extraW = previewExtra ? previewExtra.offsetWidth : 0;
+                previewSep.style.width = Math.max(titleW, extraW)+'px';
+            },0);
+        } else {
+            previewSep.hidden = true;
+        }
+    }
+    // Hide extra text element if empty
+    previewExtra.style.display = extra && extra.length>0 ? '' : 'none';
 }
 function validateTextForm(){
     const title = textTitleInput.value.trim();
@@ -309,7 +328,25 @@ function validateTextForm(){
     sendTextBtn.disabled = !(title.length>=1 && text.length>=1);
 
     document.getElementById('textPreviewTitle').textContent = title;
-    document.getElementById('textPreviewExtra').textContent = text;
+    const textPreviewExtra = document.getElementById('textPreviewExtra');
+    const textPreviewSep = document.getElementById('textPreviewSeparator');
+    textPreviewExtra.textContent = text;
+
+    // Show separator for text preview only when there is a title; size to larger of title/extra
+    if(textPreviewSep){
+        if(title.length>0){
+            textPreviewSep.hidden = false;
+            setTimeout(()=>{
+                const tEl = document.getElementById('textPreviewTitle');
+                const tW = tEl ? tEl.offsetWidth : 0;
+                const eW = textPreviewExtra ? textPreviewExtra.offsetWidth : 0;
+                textPreviewSep.style.width = Math.max(tW, eW)+'px';
+            },0);
+        } else {
+            textPreviewSep.hidden = true;
+        }
+    }
+    textPreviewExtra.style.display = text && text.length>0 ? '' : 'none';
 }
 
 // SEND CONTENT

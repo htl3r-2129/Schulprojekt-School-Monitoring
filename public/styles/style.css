@@ -524,50 +524,82 @@ p {
 
 .admin-greeting {
     text-align: center;
-    font-size: 32px;
+    font-size: 30px;
     color: #e23c21;
-    margin: 30px 0 20px;
+    margin: 20px 0 14px;
 }
 
 .admin-box {
     background-color: #668099;
     border-radius: 8px;
-    padding: 20px;
-    max-width: 600px;
-    margin: 30px auto;
+    padding: 14px 16px;
+    max-width: 580px;
+    margin: 20px auto;
     color: white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
 
 .admin-box h3 {
     color: #e23c21;
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 700;
-    margin-top: 0;
-    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
-    padding-bottom: 10px;
+    margin: 0 0 8px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    padding-bottom: 8px;
 }
 
 .admin-box .form-row {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 12px;
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 10px 12px;
+    margin-bottom: 10px;
     align-items: center;
 }
 
 .admin-box .form-row label {
     font-family: 'Trebuchet MS', Helvetica, Arial, sans-serif;
-    font-size: 12px;
-    min-width: 150px;
+    font-size: 13px;
     color: white;
+    margin: 0;
+}
+
+/* Ensure any controls after the label occupy the second column
+   and render inline (useful for multiple inputs like start/end time) */
+.admin-box .form-row > label { grid-column: 1; }
+.admin-box .form-row > *:not(label) {
+    grid-column: 2;
+    display: inline-flex;
+    gap: 8px;
+    align-items: center;
+}
+
+/* Specific inline layout for the Betriebszeit inputs container */
+.admin-box .form-row .time-inputs {
+    grid-column: 2;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.admin-box .time-inputs input[type="time"] {
+    width: auto;
+    padding: 6px 8px;
+    border-radius: 4px;
+}
+
+.admin-box .time-separator {
+    display: inline-block;
+    color: white;
+    padding: 0 6px;
 }
 
 .admin-box input {
-    flex: 1;
+    width: 96%;
     padding: 6px 8px;
     border: 1px solid #556a7d;
-    border-radius: 3px;
+    border-radius: 4px;
     font-family: 'Trebuchet MS', Helvetica, Arial, sans-serif;
-    font-size: 12px;
+    font-size: 13px;
     background: white;
     color: #303b46;
 }
@@ -596,38 +628,32 @@ p {
 }
 
 .admin-box textarea {
-    /* fit ~255 characters by using monospace and ch units */
     font-family: Menlo, Monaco, "Courier New", monospace;
-    width: 255ch;
-    max-width: 100%;
+    width: 100%;
     padding: 8px;
     border: 1px solid #556a7d;
-    border-radius: 3px;
-    font-size: 12px;
+    border-radius: 4px;
+    font-size: 13px;
     background: white;
     color: #303b46;
-    min-height: 80px;
+    min-height: 60px;
+    max-height: 160px;
     resize: vertical;
-    margin-bottom: 6px;
+    margin: 0 0 8px 0;
     display: block;
 }
 
 .admin-box .message-wrapper {
     display: flex;
-    gap: 12px;
+    gap: 10px;
     align-items: flex-start;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
 }
 
 .admin-box .message-section {
-    margin-bottom: 16px;
-}
-
-.admin-box .message-wrapper {
-    display: flex;
-    gap: 12px;
-    align-items: flex-start;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
+    width: 100%;
 }
 
 .admin-box .message-controls {
@@ -643,9 +669,9 @@ p {
 
 .admin-box .char-counter {
     font-size: 12px;
-    color: #556a7d;
+    color: #d7e0e8;
     margin-left: 6px;
-    align-self: flex-start;
+    align-self: center;
 }
 
 /* Manage Users page styles */
@@ -722,9 +748,9 @@ p {
 
 .admin-box .button-group {
     display: flex;
-    gap: 12px;
+    gap: 10px;
     justify-content: flex-end;
-    margin-top: 16px;
+    margin-top: 10px;
 }
 
 .admin-box .btn-reset {
@@ -735,20 +761,21 @@ p {
 
 .admin-box .btn-save {
     width: auto;
-    padding: 8px 16px;
+    padding: 7px 14px;
     background-color: #3d4752;
-    font-size: 12px;
+    font-size: 13px;
+    border-radius: 6px;
 }
 
 .admin-box .btn-save:hover {
-    background-color: #2a3039;
+    background-color: #32383f;
 }
 
 .admin-actions {
     display: flex;
-    gap: 20px;
+    gap: 14px;
     justify-content: center;
-    margin: 40px 0;
+    margin: 24px 0;
 }
 
 .admin-actions .manage {
@@ -1070,6 +1097,14 @@ p {
     justify-content: center;
 }
 
+.modalbtn {
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+}
 
 
 .modal-footer {

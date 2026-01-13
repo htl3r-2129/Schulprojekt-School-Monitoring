@@ -67,7 +67,7 @@ if(file_exists($queueFile)){
 // --- Prepare ProvidedBy map ---
 $providedByMap = [];
 foreach($content_source as $c){
-    $providedByMap[$c['original_id']] = !empty(trim($c['ProvidedBy'])) ? 'Von '.$c['ProvidedBy'] : 'Von unbekannt';
+    $providedByMap[$c['original_id']] = !empty(trim($c['ProvidedBy'])) ? 'Von: '.$c['ProvidedBy'] : 'Von: Unbekannt';
 }
 
 // --- Sync: queue.json only shows content_source.json items, update titles/media/text/type ---
@@ -208,7 +208,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['save_client_json'])) {
             $media_url  = $item['media'] ?? '';
             $title      = $item['title'] ?? '';
             $extra_text = $item['text'] ?? '';
-            $uploader   = $providedByMap[$item['original_id']] ?? 'Von unbekannt';
+            $uploader   = $providedByMap[$item['original_id']] ?? 'Von: Unbekannt';
             $media_html = '';
             $show_card  = false;
             $type       = $item['type'] ?? '';
@@ -258,13 +258,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['save_client_json'])) {
 <div id="contentModal" class="modal-overlay" onclick="closeContentModal(event)">
     <div class="modal-content" onclick="event.stopPropagation()">
         <button class="btn primary modal-close" onclick="closeContentModal()">&times;</button>
-        <div class="modal-title" id="modalTitle">Von [Username]</div>
+        <div class="modal-title" id="modalTitle">Von: [Username]</div>
         <hr class="modal-separator" id="modalSeparator" style="display:none;" />
         <div class="modal-extra-text" id="modalExtraText"></div>
         <div class="modal-preview" id="modalPreviewArea"><span class="preview-placeholder">PREVIEW</span></div>
         <div class="modal-footer">
             <button class="btn accent delete" onclick="deleteContent()">Delete</button>
-            <span class="modal-uploader" id="modalUploader" style="margin-left:18px;font-size:1.08rem;color:#374151;">Von [Vorname] [Nachname]</span>
+            <button id="modalUploader" class="btn secondary delete modal-uploader" style="margin-left:18px;">Von [Vorname] [Nachname]</button>
         </div>
     </div>
 </div>
@@ -332,10 +332,10 @@ function reassignOrderIds(){
 
 function openContentModal(card){
     currentContentId=card.dataset.contentId;
-    const t = card.dataset.title || 'Von [Username]';
+    const t = card.dataset.title || 'Von: [Username]';
     const thumb = card.dataset.thumbnail;
     const extra = card.dataset.extraText;
-    const uploaderText = card.dataset.uploader || 'Von unbekannt';
+    const uploaderText = card.dataset.uploader || 'Von: Unbekannt';
 
     const modalTitle = document.getElementById('modalTitle');
     const modalExtra = document.getElementById('modalExtraText');
@@ -352,7 +352,8 @@ function openContentModal(card){
         setTimeout(()=>{ sep.style.width = Math.max(modalTitle.offsetWidth, modalExtra.offsetWidth)+'px'; },0);
     } else {
         modalExtra.style.display='none';
-        sep.style.display='none';
+        // Always show the separator even when there's no extra text
+        sep.style.display='block';
         setTimeout(()=>{ sep.style.width = modalTitle.offsetWidth+'px'; },0);
     }
 
