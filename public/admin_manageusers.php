@@ -9,7 +9,7 @@ use Insi\Ssm\Auth;
 $auth = new Auth(); // TODO: have one global Auth()
 
 if (isset($_SESSION['user'])) {
-    if (!$auth->isAdmin($_COOKIE['user'])) {
+    if (!$auth->isAdmin($_SESSION['user'])) {
         header(header: 'Location: error/401.php');
     }
 } else {
