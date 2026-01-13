@@ -90,7 +90,8 @@ $blocked = $auth->getAllLocked();
                 <div class="user-column">
                     <h3>Moderators</h3>
                     <div class="user-list">
-                        <?php foreach($moderators as $m): ?>
+                        <?php if (isset($moderators)) {
+                        foreach($moderators as $m): ?>
                             <div class="user-item">
                                 <div class="user-label"><?php echo htmlspecialchars($m['username']); ?></div>
                                 <div><?php echo htmlspecialchars($m['email']); ?></div>
@@ -102,14 +103,15 @@ $blocked = $auth->getAllLocked();
                                     </form>
                                 </div>
                             </div>
-                        <?php endforeach; ?>
+                        <?php endforeach; }?>
                     </div>
                 </div>
 
                 <div class="user-column">
                     <h3>Users</h3>
                     <div class="user-list">
-                        <?php foreach($users as $u): ?>
+                        <?php if (isset($users)) {
+                        foreach($users as $u): ?>
                             <div class="user-item">
                                 <div class="user-label"><?php echo htmlspecialchars($u['username']); ?></div>
                                 <div><?php echo htmlspecialchars($u['email']); ?></div>
@@ -123,14 +125,15 @@ $blocked = $auth->getAllLocked();
                                     </form>
                                 </div>
                             </div>
-                        <?php endforeach; ?>
+                        <?php endforeach; }?>
                     </div>
                 </div>
 
                 <div class="user-column">
                     <h3>Blocked</h3>
                     <div class="user-list">
-                        <?php foreach($blocked as $b): ?>
+                        <?php if (isset($blocked)) {
+                        foreach($blocked as $b): ?>
                             <div class="user-item">
                                 <div class="user-label"><?php echo htmlspecialchars($b['username']); ?></div>
                                 <div><?php echo htmlspecialchars($b['email']); ?></div>
@@ -142,7 +145,7 @@ $blocked = $auth->getAllLocked();
                                     </form>
                                 </div>
                             </div>
-                        <?php endforeach; ?>
+                        <?php endforeach; }?>
                     </div>
                 </div>
             </div>
