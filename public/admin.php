@@ -182,11 +182,13 @@ $last_name  = 'NACHNAME';
         <div class="user-profile">
             <div class="user-info">
                 <div class="user-role">Administrator</div>
-                <span class="user-name"><?= htmlspecialchars($_SESSION['name']); ?></span>
+                <div class="user-name-row">
+                    <span class="user-name"><?= htmlspecialchars($_SESSION['name']); ?></span>
+                    <a href="logout.php" class="btn accent logout">Log-out</a>
+                </div>
             </div>
         </div>
-    </div>
-</header>
+    </header>
 
 <main class="center-wrap">
     <h2 class="admin-greeting">Hello Admin!</h2>
@@ -206,9 +208,11 @@ $last_name  = 'NACHNAME';
 
             <div class="form-row">
                 <label>Betriebszeit:</label>
-                <input type="time" name="betriebszeit_start" value="<?= htmlspecialchars($settings['betriebszeit_start']) ?>">
-                <span class="time-separator">-</span>
-                <input type="time" name="betriebszeit_end" value="<?= htmlspecialchars($settings['betriebszeit_end']) ?>">
+                    <div class="time-inputs">
+                        <input type="time" name="betriebszeit_start" value="<?= htmlspecialchars($settings['betriebszeit_start']) ?>">
+                        <span class="time-separator">-</span>
+                        <input type="time" name="betriebszeit_end" value="<?= htmlspecialchars($settings['betriebszeit_end']) ?>">
+                    </div>
             </div>
 
             <div class="form-row">
