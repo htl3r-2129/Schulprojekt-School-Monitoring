@@ -1,0 +1,34 @@
+[
+    {
+        "original_id": "1",
+        "order_id": 1,
+        "title": "Wir lieben die HTL!",
+        "media": "media/Images/20210218-20-jahre-keyvisual-scaled-2535462770.jpg",
+        "text": "",
+        "type": "image"
+    },
+    {
+        "original_id": "3",
+        "order_id": 2,
+        "title": "Bescherung",
+        "media": "media/Videos/hund.mp4",
+        "text": "Frohe Weinachten!",
+        "type": "video"
+    },
+    {
+        "original_id": "4",
+        "order_id": 3,
+        "title": "Ein guter Tag",
+        "media": "media/Images/IMG_0450.jpg",
+        "text": "Funktion über Form",
+        "type": "image"
+    },
+    {
+        "original_id": "6",
+        "order_id": 4,
+        "title": "Das Itlers Gedicht",
+        "media": "",
+        "text": "Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum",
+        "type": ""
+    }
+]

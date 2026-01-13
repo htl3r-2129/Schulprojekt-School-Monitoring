@@ -87,7 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <label class="field-label">Confirm Password:</label>
         <input type="password" name="password_confirm" id="password_confirm" placeholder="Confirm Password" required>
 
-        <button type="submit" class="btn login">Sign-Up</button>
+        <button type="submit" class="btn accent login">Sign-Up</button>
 
         <div class="links">
             <a href="login.php">Already have an account? Login</a>

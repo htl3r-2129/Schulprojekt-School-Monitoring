@@ -1,0 +1,83 @@
+[
+    {
+        "original_id": "1",
+        "title": "Wir lieben die HTL!",
+        "type": "image",
+        "media": "media\/Images\/20210218-20-jahre-keyvisual-scaled-2535462770.jpg",
+        "approved": true,
+        "ProvidedBy": "Gabriel Berger",
+        "text": ""
+    },
+    {
+        "original_id": "2",
+        "title": "Ein Krokodil",
+        "type": "image",
+        "media": "media\/Images\/VeryCute.jpg",
+        "approved": false,
+        "ProvidedBy": "Timon Pfeffer",
+        "text": ""
+    },
+    {
+        "original_id": "3",
+        "title": "Bescherung",
+        "type": "video",
+        "media": "media\/Videos\/hund.mp4",
+        "approved": true,
+        "ProvidedBy": "Maxim Willinger",
+        "text": "Frohe Weinachten!"
+    },
+    {
+        "original_id": "4",
+        "title": "Ein guter Tag",
+        "type": "image",
+        "media": "media\/Images\/IMG_0450.jpg",
+        "approved": true,
+        "ProvidedBy": "Cemre Cengiz",
+        "text": "Funktion über Form"
+    },
+    {
+        "original_id": "5",
+        "title": "Mein Hund",
+        "type": "image",
+        "media": "media\/Images\/IMG_0686.jpg",
+        "approved": false,
+        "ProvidedBy": "Maxim Willinger",
+        "text": ""
+    },
+    {
+        "original_id": "6",
+        "title": "Das Itlers Gedicht",
+        "type": "",
+        "media": "",
+        "approved": true,
+        "ProvidedBy": "Gabriel Berger",
+        "text": "Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum"
+    },
+    {
+        "original_id": "7",
+        "title": "MEDT Kunstwerk",
+        "type": "image",
+        "media": "media\/Images\/OldTimes.png",
+        "approved": false,
+        "ProvidedBy": "Gabriel Berger",
+        "text": "Gemacht in Blender"
+    },
+    {
+        "original_id": "8",
+        "title": "Ein Witz",
+        "type": "image",
+        "media": "media\/Images\/funny-african-man-posing-pointing-fingers-at-camera-yellow-background.jpg",
+        "approved": false,
+        "ProvidedBy": "Thomas Emersberger",
+        "text": "Das habt ihr nicht erwartet"
+    },
+    {
+        "original_id": "9",
+        "title": "Spaziergang",
+        "type": "video",
+        "media": "media\/Videos\/VID_20221001_155642.mp4",
+        "approved": false,
+        "ProvidedBy": "Maxim Willinger",
+        "text": ""
+    }
+]

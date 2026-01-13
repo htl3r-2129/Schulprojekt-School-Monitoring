@@ -58,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <label class="field-label">School e-mail address:</label>
         <input type="email" name="email" placeholder="school@domain.edu" required>
 
-        <button type="submit" class="btn login">Enter</button>
+        <button type="submit" class="btn accent">Enter</button>
 
         <div class="links">
             <a href="login.php">Back to login</a>
