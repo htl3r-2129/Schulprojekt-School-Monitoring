@@ -6,7 +6,6 @@ require __DIR__ . '/../vendor/autoload.php';
 use Insi\Ssm\Auth;
 
 $auth = new Auth();
-$username = $_SESSION['username'] ?? 'Moderator';
 
 // --- HANDLE AJAX REQUEST ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action'])) {
