@@ -3,6 +3,7 @@ namespace Insi\Ssm;
 require_once '../vendor/autoload.php';
 use Insi\Ssm\User;
 use Insi\Ssm\DB;
+use Insi\Ssm\SendMail;
 
 class Auth {
     private $db;
@@ -179,11 +180,16 @@ class Auth {
 
     public function sendTwoFaEmail($uuid)
     {
-//        TODO: smtp-Server is required to send emails
-//        $msg = "This is a test email for 2-Factor-Authentication for the School Monitor Project.";
-//        $msg = wordwrap($msg, 70);
-//
-//        mail($this->email, "2 Factor Code", $msg);
+        $stmt = $this->db->getConn()->prepare("select email from user where PK_User_ID = ?");
+        $stmt->bind_param("s", $uuid);
+        $stmt->execute();
+        $stmt->bind_result($result);
+        $stmt->fetch();
+
+        $sendMail = new SendMail();
+        $sendMail($result);
+
+        return true;
     }
 
     public function sendResetPasswordEmail($uuid)
