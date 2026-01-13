@@ -263,8 +263,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['save_client_json'])) {
         <div class="modal-extra-text" id="modalExtraText"></div>
         <div class="modal-preview" id="modalPreviewArea"><span class="preview-placeholder">PREVIEW</span></div>
         <div class="modal-footer">
-            <button class="btn accent delete" onclick="deleteContent()">Delete</button>
-            <button id="modalUploader" class="btn secondary delete modal-uploader" style="margin-left:18px;">Von [Vorname] [Nachname]</button>
+            <button class="btn modalbtn primary" onclick="deleteContent()">Delete</button>
+            <button id="modalUploader" class="btn modalbtn accent modal-uploader" style="margin-left:18px;font-size:1.08rem;">Von: [Vorname] [Nachname]</button>
         </div>
     </div>
 </div>
@@ -352,7 +352,6 @@ function openContentModal(card){
         setTimeout(()=>{ sep.style.width = Math.max(modalTitle.offsetWidth, modalExtra.offsetWidth)+'px'; },0);
     } else {
         modalExtra.style.display='none';
-        // Always show the separator even when there's no extra text
         sep.style.display='block';
         setTimeout(()=>{ sep.style.width = modalTitle.offsetWidth+'px'; },0);
     }

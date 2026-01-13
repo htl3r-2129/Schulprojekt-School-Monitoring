@@ -2,6 +2,7 @@
 html, body {
     background-color: #ffffff !important; /* force white background */
     height: 100% !important;
+    /* overflow: hidden; */
 }
 
 body {
@@ -532,9 +533,9 @@ p {
 .admin-box {
     background-color: #668099;
     border-radius: 8px;
-    padding: 14px 16px;
-    max-width: 580px;
-    margin: 20px auto;
+    padding: 12px 14px; /* reduced padding to save vertical space */
+    max-width: 720px;
+    margin: 18px auto; /* less top/bottom margin */
     color: white;
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
@@ -544,14 +545,14 @@ p {
     font-size: 18px;
     font-weight: 700;
     margin: 0 0 8px 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    border-bottom: 2px solid rgba(255, 255, 255, 0.12);
     padding-bottom: 8px;
 }
 
 .admin-box .form-row {
     display: grid;
-    grid-template-columns: 140px 1fr;
-    gap: 10px 12px;
+    grid-template-columns: 160px 1fr;
+    gap: 8px 12px;
     margin-bottom: 10px;
     align-items: center;
 }
@@ -560,41 +561,11 @@ p {
     font-family: 'Trebuchet MS', Helvetica, Arial, sans-serif;
     font-size: 13px;
     color: white;
-    margin: 0;
-}
-
-/* Ensure any controls after the label occupy the second column
-   and render inline (useful for multiple inputs like start/end time) */
-.admin-box .form-row > label { grid-column: 1; }
-.admin-box .form-row > *:not(label) {
-    grid-column: 2;
-    display: inline-flex;
-    gap: 8px;
-    align-items: center;
-}
-
-/* Specific inline layout for the Betriebszeit inputs container */
-.admin-box .form-row .time-inputs {
-    grid-column: 2;
-    display: flex;
-    gap: 8px;
-    align-items: center;
-}
-
-.admin-box .time-inputs input[type="time"] {
-    width: auto;
-    padding: 6px 8px;
-    border-radius: 4px;
-}
-
-.admin-box .time-separator {
-    display: inline-block;
-    color: white;
-    padding: 0 6px;
+    padding-right: 6px;
 }
 
 .admin-box input {
-    width: 96%;
+    width: 100%;
     padding: 6px 8px;
     border: 1px solid #556a7d;
     border-radius: 4px;
@@ -602,6 +573,7 @@ p {
     font-size: 13px;
     background: white;
     color: #303b46;
+    box-sizing: border-box;
 }
 
 .admin-box input[type="time"] {
@@ -630,30 +602,33 @@ p {
 .admin-box textarea {
     font-family: Menlo, Monaco, "Courier New", monospace;
     width: 100%;
+    max-width: 100%;
     padding: 8px;
     border: 1px solid #556a7d;
     border-radius: 4px;
     font-size: 13px;
     background: white;
     color: #303b46;
-    min-height: 60px;
+    min-height: 60px; /* reduced height */
     max-height: 160px;
     resize: vertical;
     margin: 0 0 8px 0;
     display: block;
+    box-sizing: border-box;
 }
 
 .admin-box .message-wrapper {
-    display: flex;
-    gap: 10px;
-    align-items: flex-start;
-    margin-bottom: 10px;
-    flex-wrap: wrap;
+    display: block;
+    margin-bottom: 8px;
 }
 
 .admin-box .message-section {
+    margin-bottom: 10px;
+}
+
+.admin-box .message-wrapper {
+    display: block;
     margin-bottom: 8px;
-    width: 100%;
 }
 
 .admin-box .message-controls {
@@ -661,10 +636,12 @@ p {
     flex-direction: row;
     gap: 8px;
     align-items: center;
+    justify-content: flex-end; /* right-align controls */
 }
 
 .admin-box .small-input {
     width: 80px;
+    padding: 6px 8px;
 }
 
 .admin-box .char-counter {
@@ -677,13 +654,13 @@ p {
 /* Manage Users page styles */
 .manage-container {
     display: flex;
-    gap: 48px;
+    gap: 26px;
     justify-content: center;
     align-items: flex-start;
     padding: 20px 0 40px;
 }
 .user-column {
-    width: 260px;
+    width: 320px;
     text-align: center;
 }
 .user-column h3 {
@@ -722,6 +699,31 @@ p {
     flex-direction: column;
     gap: 8px;
     align-items: flex-end;
+    padding-left: 50px;
+}
+.user-item .user-info-left {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+}
+
+.user-item .user-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.user-item .user-email {
+    color: #0f1720;
+    font-size: 13px;
+    background: transparent;
+}
+
+.user-item .user-id {
+    color: rgba(15,23,32,0.6);
+    font-size: 12px;
+    padding-left: 6px;
 }
 .small {
     padding: 4px 8px;
@@ -759,14 +761,17 @@ p {
     font-size: 12px;
 }
 
+.admin-box .btn-reset {
+    width: auto;
+    padding: 8px 12px;
+    font-size: 13px;
+}
 .admin-box .btn-save {
     width: auto;
-    padding: 7px 14px;
+    padding: 8px 12px;
     background-color: #3d4752;
     font-size: 13px;
-    border-radius: 6px;
 }
-
 .admin-box .btn-save:hover {
     background-color: #32383f;
 }
@@ -1085,17 +1090,22 @@ p {
     border-radius: 10px;
 }
 
-.modal-extra-text {
-    font-size: clamp(16px, 2.5vw, 24px);
-    color: #303b46;
-    text-align: center;
-    padding: 16px 0;
-    line-height: 1.6;
-    max-width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
+ .modal-extra-text {
+        width: 100%;
+        max-width: 900px;
+        font-size: clamp(16px, 2.5vw, 24px);
+        color: var(--dark-blue, #303b46);
+        text-align: center;
+        padding: 16px 0;
+        word-break: break-word;
+        font-weight: 400;
+        font-family: "Helvetica", Sans-Serif; 
+        line-height: 1.6;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 
 .modalbtn {
     padding: 10px 20px;
@@ -1117,22 +1127,15 @@ p {
     background: transparent;
 }
 
-.approve {
-    padding: 10px 20px;
-    border-radius: 6px;
-    font-size: 14px;
+.modalbtn {
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 16px;
     font-weight: 700;
     border: none;
+    cursor: pointer;
+    transition: background 0.2s;
 }
-
-.delete {
-    padding: 10px 20px;
-    border-radius: 6px;
-    font-size: 14px;
-    font-weight: 700;
-    border: none;
-}
-
 
 .block {
     padding: 10px 20px;
