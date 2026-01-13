@@ -16,7 +16,6 @@ if (isset($_SESSION['user'])) {
     header(header: 'Location: error/401.php');
 }
 
-
 $file = __DIR__ . '/content_source.json';
 
 // JSON-Datei laden oder anlegen
@@ -72,43 +71,19 @@ unset($item);
     <link rel="stylesheet" href="styles/style.css">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <style>
-        .content-grid-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 18px;
-            justify-content: flex-start;
-            align-items: flex-start;
-        }
-        .queue-card {
-            width: 340px;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: stretch;
-            background: #fff;
-            border-radius: 14px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
-            padding: 12px 0 18px 0;
-            transition: all 0.25s ease;
-            cursor: pointer;
-        }
-        .queue-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
-        }
-        .card-subtitle {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 320px;
-            margin: 0 auto;
-            font-size: 1.15rem;
-            font-weight: 500;
-            text-align: center;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+/* --- restored approver-specific CSS (old) --- */
+/* Grundlayout */
+html, body {
+    background-color: #ffffff !important;
+    height: 100% !important;
+}
+body {
+    font-family: 'Trebuchet MS', Helvetica, Arial, sans-serif;
+    margin: 0 !important;
+    padding: 0 !important;
+    min-height: 100vh !important;
+    background-color: #ffffff !important;
+}
 
         /* Modal Styles */
         .modal-overlay {
@@ -207,7 +182,7 @@ unset($item);
     <div class="brand">Schulmonitor</div>
     <div class="user-profile">
         <div class="user-info">
-            <div class="user-role">Administrator</div>
+            <div class="user-role">Moderator</div>
             <div class="user-name-row">
                 <span class="user-name"><?= htmlspecialchars($_SESSION['name']); ?></span>
                 <a href="logout.php" class="btn accent logout">Log-out</a>
@@ -223,13 +198,15 @@ unset($item);
     <div class="mod-section">
         <div class="content-grid-container">
             <?php foreach($queue_items as $item): ?>
-                <div class="queue-card"
+                <?php $hasMedia = !empty($item['media']); ?>
+                <div class="queue-card<?= $hasMedia ? '' : ' no-preview' ?>"
                      data-content-id="<?= $item['original_id'] ?>"
                      data-title="<?= htmlspecialchars($item['title']) ?>"
-                     data-thumbnail="<?= htmlspecialchars($item['media']) ?>"
+                     data-thumbnail="<?= htmlspecialchars($item['media'] ?? '') ?>"
                      data-extra-text="<?= htmlspecialchars($item['text'] ?? '') ?>"
                      data-uploader="<?= htmlspecialchars($item['uploader_text']) ?>">
-                    <div class="card-preview" style="width:250px;height:200px;background:#f3f3f3;overflow:hidden;border-radius:12px;position:relative;margin:0 auto 10px auto;">
+                    <?php if ($hasMedia): ?>
+                    <div class="card-preview">
                         <?php
                         $ext = strtolower(pathinfo($item['media'], PATHINFO_EXTENSION));
                         if (in_array($ext, ['mp4','webm','ogg'])) {
@@ -239,6 +216,7 @@ unset($item);
                         }
                         ?>
                     </div>
+                    <?php endif; ?>
                     <div class="card-subtitle"><?= htmlspecialchars($item['title']) ?></div>
                 </div>
             <?php endforeach; ?>
@@ -251,13 +229,14 @@ unset($item);
 <div id="contentModal" class="modal-overlay" onclick="closeContentModal(event)">
     <div class="modal-content" onclick="event.stopPropagation()">
         <button class="btn primary modal-close" onclick="closeContentModal()">&times;</button>
-        <div class="modal-title" id="modalTitle">Von: [Username]</div>
+        <div class="modal-title" id="modalTitle"></div>
         <hr class="modal-separator" id="modalSeparator" style="display:none;" />
-        <div class="modal-extra-text" id="modalExtraText"></div>
-        <div class="modal-preview" id="modalPreviewArea"><span class="preview-placeholder">PREVIEW</span></div>
+        <div class="modal-text" id="modalText"></div>
+        <div class="modal-preview" id="modalPreviewArea"></div>
         <div class="modal-footer">
-            <button class="btn modalbtn primary" onclick="deleteContent()">Delete</button>
-            <button id="modalUploader" class="btn modalbtn accent modal-uploader" style="margin-left:18px;font-size:1.08rem;">Von: [Vorname] [Nachname]</button>
+            <button class="modalbtn primary" onclick="approveContent()">Approve</button>
+            <button class="modalbtn secondary" onclick="deleteContent()">Delete</button>
+            <button id="modalUploader" type="button" class="modalbtn accent" aria-hidden="true"></button>
         </div>
     </div>
 </div>
@@ -273,36 +252,36 @@ function openContentModal(card) {
     currentContentId = card.dataset.contentId;
     const title = card.dataset.title;
     const uploader = card.dataset.uploader || '';
+    const extraText = card.dataset.extraText || '';
 
-    const modalTitle = document.getElementById('modalTitle');
-    const modalUploader = document.getElementById('modalUploader');
-    const modalExtra = document.getElementById('modalExtraText');
+    const modalTitleEl = document.getElementById('modalTitle');
+    const modalTextEl = document.getElementById('modalText');
+    const modalUploaderEl = document.getElementById('modalUploader');
     const sep = document.getElementById('modalSeparator');
 
-    modalTitle.textContent = title;
-    modalUploader.textContent = uploader;
+    modalTitleEl.textContent = title;
+    modalTextEl.textContent = extraText;
+    modalUploaderEl.textContent = uploader;
 
-    const extra = card.dataset.extraText || '';
-    if(extra && extra.trim() !== ''){
-        modalExtra.textContent = extra;
-        modalExtra.style.display = '';
+    // Show separator always; size to larger of title or extra text when extra exists
+    if(sep){
         sep.style.display = 'block';
-        setTimeout(()=>{ sep.style.width = Math.max(modalTitle.offsetWidth, modalExtra.offsetWidth)+'px'; },0);
-    } else {
-        modalExtra.style.display = 'none';
-        // always show separator for full-screen preview
-        sep.style.display = 'block';
-        setTimeout(()=>{ sep.style.width = modalTitle.offsetWidth+'px'; },0);
+        setTimeout(()=>{
+            const w1 = modalTitleEl ? modalTitleEl.offsetWidth : 0;
+            const w2 = modalTextEl ? modalTextEl.offsetWidth : 0;
+            sep.style.width = Math.max(w1, w2)+'px';
+        },0);
     }
 
-    const media = card.dataset.thumbnail || '';
-    if(media){
+    const media = card.dataset.thumbnail;
+    if (media) {
         const ext = media.split('.').pop().toLowerCase();
-        document.getElementById('modalPreviewArea').innerHTML = ["mp4","webm","ogg"].includes(ext)
-            ? `<video src="${media}" controls style="width:100%;height:100%"></video>`
-            : `<img src="${media}" style="width:100%;height:100%">`;
+        document.getElementById('modalPreviewArea').innerHTML =
+            ["mp4","webm","ogg"].includes(ext)
+                ? `<video src="${media}" controls style="width:100%;height:100%"></video>`
+                : `<img src="${media}" style="width:100%;height:100%">`;
     } else {
-        document.getElementById('modalPreviewArea').innerHTML = '<span class="preview-placeholder">PREVIEW</span>';
+        document.getElementById('modalPreviewArea').innerHTML = ''; // kein Media anzeigen
     }
 
     document.getElementById('contentModal').style.display = 'flex';

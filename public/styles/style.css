@@ -525,9 +525,9 @@ p {
 
 .admin-greeting {
     text-align: center;
-    font-size: 32px;
+    font-size: 30px;
     color: #e23c21;
-    margin: 30px 0 20px;
+    margin: 20px 0 14px;
 }
 
 .admin-box {
@@ -537,6 +537,7 @@ p {
     max-width: 720px;
     margin: 18px auto; /* less top/bottom margin */
     color: white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
 
 .admin-box h3 {
@@ -611,7 +612,7 @@ p {
     min-height: 60px; /* reduced height */
     max-height: 160px;
     resize: vertical;
-    margin-bottom: 6px;
+    margin: 0 0 8px 0;
     display: block;
     box-sizing: border-box;
 }
@@ -645,9 +646,9 @@ p {
 
 .admin-box .char-counter {
     font-size: 12px;
-    color: #556a7d;
+    color: #d7e0e8;
     margin-left: 6px;
-    align-self: flex-start;
+    align-self: center;
 }
 
 /* Manage Users page styles */
@@ -749,9 +750,9 @@ p {
 
 .admin-box .button-group {
     display: flex;
-    gap: 12px;
+    gap: 10px;
     justify-content: flex-end;
-    margin-top: 16px;
+    margin-top: 10px;
 }
 
 .admin-box .btn-reset {
@@ -772,14 +773,14 @@ p {
     font-size: 13px;
 }
 .admin-box .btn-save:hover {
-    background-color: #2a3039;
+    background-color: #32383f;
 }
 
 .admin-actions {
     display: flex;
-    gap: 20px;
+    gap: 14px;
     justify-content: center;
-    margin: 40px 0;
+    margin: 24px 0;
 }
 
 .admin-actions .manage {
@@ -1106,6 +1107,14 @@ p {
         justify-content: center;
     }
 
+.modalbtn {
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+}
 
 
 .modal-footer {

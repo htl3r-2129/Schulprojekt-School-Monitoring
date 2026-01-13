@@ -9,7 +9,7 @@ use Insi\Ssm\Auth;
 $auth = new Auth(); // TODO: have one global Auth()
 
 if (isset($_SESSION['user'])) {
-    if (!$auth->isAdmin($_COOKIE['user'])) {
+    if (!$auth->isAdmin($_SESSION['user'])) {
         header(header: 'Location: error/401.php');
     }
 } else {
@@ -67,21 +67,21 @@ $blocked = $auth->getAllLocked();
         </style>
     </head>
     <body>
-<header class="topbar">
-    <a href="https://www.htlrennweg.at/" class="logo-link">
-        <img src="images/logo.png" alt="Logo" class="logo">
-    </a>
-    <div class="brand">Schulmonitor</div>
-    <div class="user-profile">
-        <div class="user-info">
-            <div class="user-role">Administrator</div>
-            <div class="user-name-row">
-                <span class="user-name"><?= htmlspecialchars($_SESSION['name']); ?></span>
-                <a href="logout.php" class="btn accent logout">Log-out</a>
+    <header class="topbar">
+        <a href="https://www.htlrennweg.at/" class="logo-link">
+            <img src="images/logo.png" alt="Logo" class="logo">
+        </a>
+        <div class="brand">Schulmonitor</div>
+        <div class="user-profile">
+            <div class="user-info">
+                <div class="user-role">Administrator</div>
+                <div class="user-name-row">
+                    <span class="user-name"><?= htmlspecialchars($_SESSION['name']); ?></span>
+                    <a href="logout.php" class="btn accent logout">Log-out</a>
+                </div>
             </div>
         </div>
-    </div>
-</header>
+    </header>
         <main class="center-wrap">
             <h1 class="page-title">Manage Users</h1>
             <?php if (!empty($error)) echo "<p class='error-message'>" . htmlspecialchars($error, ENT_QUOTES) . "</p>"; ?>
@@ -90,7 +90,8 @@ $blocked = $auth->getAllLocked();
                 <div class="user-column">
                     <h3>Moderators</h3>
                     <div class="user-list">
-                        <?php foreach($moderators as $m): ?>
+                        <?php if (isset($moderators)) {
+                        foreach($moderators as $m): ?>
                             <div class="user-item">
                                 <div class="user-info-left">
                                     <div class="user-label"><?php echo htmlspecialchars($m['username']); ?></div>
@@ -106,14 +107,15 @@ $blocked = $auth->getAllLocked();
                                     </form>
                                 </div>
                             </div>
-                        <?php endforeach; ?>
+                        <?php endforeach; }?>
                     </div>
                 </div>
 
                 <div class="user-column">
                     <h3>Users</h3>
                     <div class="user-list">
-                        <?php foreach($users as $u): ?>
+                        <?php if (isset($users)) {
+                        foreach($users as $u): ?>
                             <div class="user-item">
                                 <div class="user-info-left">
                                     <div class="user-label"><?php echo htmlspecialchars($u['username']); ?></div>
@@ -131,14 +133,15 @@ $blocked = $auth->getAllLocked();
                                     </form>
                                 </div>
                             </div>
-                        <?php endforeach; ?>
+                        <?php endforeach; }?>
                     </div>
                 </div>
 
                 <div class="user-column">
                     <h3>Blocked</h3>
                     <div class="user-list">
-                        <?php foreach($blocked as $b): ?>
+                        <?php if (isset($blocked)) {
+                        foreach($blocked as $b): ?>
                             <div class="user-item">
                                 <div class="user-info-left">
                                     <div class="user-label"><?php echo htmlspecialchars($b['username']); ?></div>
@@ -154,7 +157,7 @@ $blocked = $auth->getAllLocked();
                                     </form>
                                 </div>
                             </div>
-                        <?php endforeach; ?>
+                        <?php endforeach; }?>
                     </div>
                 </div>
             </div>

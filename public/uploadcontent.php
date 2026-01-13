@@ -3,772 +3,374 @@ session_start();
 
 // Composer Autoload
 require __DIR__ . '/../vendor/autoload.php';
-
 use Insi\Ssm\Auth;
 
 $auth = new Auth();
 
-//TODO : Check if user is moderator, else redirect
+// --- HANDLE AJAX REQUEST ---
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action'])) {
+    header('Content-Type: application/json');
+    $action = $_GET['action'];
 
-$username = $_SESSION['username'] ?? 'Moderator';
-$first_name = 'Vorname';
-$last_name = 'NACHNAME';
+    // Media Upload
+    if ($action === 'upload') {
+        if (!isset($_FILES['mediaFile'])) {
+            echo json_encode(['success'=>false,'message'=>'Keine Datei hochgeladen']);
+            exit;
+        }
+        $file = $_FILES['mediaFile'];
+        $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+
+        $allowedImages = ['jpg','jpeg','png','gif','webp'];
+        $allowedVideos = ['mp4','webm','ogg','mov','m4v'];
+
+        if (in_array($ext, $allowedImages)) {
+            $type = 'image';
+            $targetDir = __DIR__ . '/media/Images/';
+        } elseif (in_array($ext, $allowedVideos)) {
+            $type = 'video';
+            $targetDir = __DIR__ . '/media/Videos/';
+        } else {
+            echo json_encode(['success'=>false,'message'=>'Dateityp nicht erlaubt']);
+            exit;
+        }
+
+        if (!file_exists($targetDir)) mkdir($targetDir, 0777, true);
+        $filename = uniqid() . '.' . $ext;
+        $targetPath = $targetDir . $filename;
+
+        if (move_uploaded_file($file['tmp_name'], $targetPath)) {
+            $url = 'media/' . ($type==='image'?'Images/':'Videos/') . $filename;
+            echo json_encode(['success'=>true,'url'=>$url]);
+        } else {
+            echo json_encode(['success'=>false,'message'=>'Fehler beim Verschieben der Datei']);
+        }
+        exit;
+    }
+
+    // Save Content
+    if ($action === 'save') {
+        $jsonFile = __DIR__ . '/content_source.json';
+        if (!file_exists($jsonFile)) file_put_contents($jsonFile, json_encode([]));
+
+        $data = json_decode(file_get_contents('php://input'), true);
+        if (!$data || !isset($data['title'])) {
+            echo json_encode(['success'=>false,'message'=>'Fehlende Daten']);
+            exit;
+        }
+
+        // --- MINIMAL-LENGTH VALIDATION ---
+        if (strlen(trim($data['title'])) < 1) {
+            echo json_encode(['success'=>false,'message'=>'Titel muss mindestens 1 Zeichen haben']);
+            exit;
+        }
+        if (($data['type'] ?? '') === 'text' && strlen(trim($data['text'] ?? '')) < 1) {
+            echo json_encode(['success'=>false,'message'=>'Text darf nicht leer sein']);
+            exit;
+        }
+
+        $json = json_decode(file_get_contents($jsonFile), true);
+
+        // --- CORRECT INCREMENT LOGIC ---
+        $maxId = 0;
+        foreach ($json as $entry) {
+            $maxId = max($maxId, intval($entry['original_id']));
+        }
+        $newId = $maxId + 1;
+
+        // --- TYPE LOGIC ---
+        $type = '';
+        if (($data['type'] ?? '') === 'media') {
+            if (preg_match('/\.(jpg|jpeg|png|gif|webp)$/i', $data['media'] ?? '')) $type = 'image';
+            elseif (preg_match('/\.(mp4|webm|ogg|mov|m4v)$/i', $data['media'] ?? '')) $type = 'video';
+        }
+
+        $newEntry = [
+            'original_id' => strval($newId),
+            'title' => trim($data['title']),
+            'type' => $type,
+            'media' => $data['media'] ?? '',
+            'approved' => false,
+            'ProvidedBy' => htmlspecialchars($_SESSION['name'] ?? 'Moderator'),
+            'text' => trim($data['text'] ?? '')
+        ];
+
+        $json[] = $newEntry;
+
+        if (file_put_contents($jsonFile,json_encode($json,JSON_PRETTY_PRINT))) {
+            echo json_encode(['success'=>true,'entry'=>$newEntry]);
+        } else {
+            echo json_encode(['success'=>false,'message'=>'Fehler beim Speichern']);
+        }
+        exit;
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <title>Upload Content</title>
-    <link rel="stylesheet" href="styles/style.css">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <style>
-        /* =========================================================
-   PREVIEW – Schwarzer Rahmen + Text + Media (FINAL)
-   ========================================================= */
-
-        /* Schwarzer Rahmen */
-        .black-preview {
-            border: 3px solid #000;
-            padding: 25px 20px;
-            background: #fff;
-
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* ---------- TEXTBLOCK (OBEN) ---------- */
-        .preview-text {
-            display: flex;
-            flex-direction: column;
-            align-items: center;   /* 🔥 jede Zeile einzeln zentriert */
-            gap: 10px;
-
-            margin-bottom: 20px;
-        }
-
-        /* Überschrift */
-        .preview-title {
-            color: #e53935;
-            font-size: 30px;
-            font-weight: 700;
-
-            margin: 0;
-            padding: 0;
-
-            text-align: center;
-            max-width: 100%;
-            word-wrap: break-word;
-        }
-
-        /* Trennlinie */
-        .preview-separator {
-            width: 70%;
-            border: 1px solid #bbb;
-            margin: 0;
-        }
-
-        .preview-separator[hidden] {
-            display: none !important;
-        }
-
-        /* Zusatztext */
-        .preview-extra {
-            font-size: 16px;
-            color: #444;
-
-            margin: 0;
-            padding: 0;
-
-            text-align: center;
-            max-width: 100%;
-            word-wrap: break-word;
-        }
-
-        /* ---------- MEDIA (UNTEN) ---------- */
-        .preview-media-area {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-
-            width: 100%;
-            min-height: 200px;
-        }
-
-        /* Bild & Video */
-        .preview-media-area img,
-        .preview-media-area video {
-            width: 100%;
-            max-height: 450px;
-
-            object-fit: contain;
-            display: block;
-        }
-
-        /* Platzhalter */
-        .preview-placeholder {
-            color: #999;
-            font-size: 18px;
-            letter-spacing: 2px;
-        }
-
-        /* =========================================================
-   TEXT-ONLY PREVIEW – ZENTRIERT
-   ========================================================= */
-
-        .text-preview {
-            display: flex;
-            flex-direction: column;
-            align-items: center;   /* 🔥 jede Zeile einzeln zentriert */
-            gap: 10px;
-
-            padding: 25px 20px;
-        }
-
-        /* Überschrift */
-        .text-preview-title {
-            font-size: 30px;
-            font-weight: 700;
-            color: #e53935;
-
-            margin: 0;
-            text-align: center;
-            max-width: 100%;
-            word-wrap: break-word;
-        }
-
-        /* Trennlinie */
-        .text-preview .preview-separator {
-            width: 70%;
-            border: 1px solid #bbb;
-            margin: 0;
-        }
-
-        /* Zusatztext */
-        .text-preview-extra {
-            font-size: 16px;
-            color: #444;
-
-            margin: 0;
-            text-align: center;
-            max-width: 100%;
-            word-wrap: break-word;
-        }
-
-        /* ---------- MEDIA IM PREVIEW ---------- */
-        .preview-media-area img,
-        .preview-media-area video {
-            width: 75%;          /* 🔽 noch kleiner */
-            max-height: 280px;   /* 🔽 deutlich niedriger */
-            object-fit: contain;
-
-            display: block;
-            margin: 0 auto;
-
-            border: none;        /* ❌ kein schwarzer Rahmen */
-            outline: none;
-            box-shadow: none;
-        }
-
-        .preview-media-area * {
-            border: none !important;
-        }
-
-
-        /* Gilt für Überschrift UND Text */
-        .preview-title,
-        .preview-extra,
-        .text-preview-title,
-        .text-preview-extra {
-            max-width: 100%;
-            text-align: center;
-
-            /* 🔥 Zeilenumbruch erzwingen */
-            white-space: normal;
-            word-break: break-word;
-            overflow-wrap: anywhere;
-        }
-
-
-        /* VORGEFERTIGTES PREVIEW-KÄSTCHEN */
-        .preview-media-area {
-            width: 100%;
-            height: 180px;              /* feste Höhe */
-            overflow: hidden;           /* 🔥 nichts darf raus */
-
-            display: flex;
-            justify-content: center;
-            align-items: center;
-
-            background: #f5f7f9;
-            border-radius: 10px;
-        }
-
-        .preview-media-area img,
-        .preview-media-area video {
-            max-width: 100%;
-            max-height: 100%;
-
-            object-fit: cover;          /* 🔥 füllt die Box sauber */
-            display: block;
-
-            border: none;
-            box-shadow: none;
-        }
-
-        .card-preview {
-            width: 100%;
-            height: 160px;
-
-            display: flex;
-            justify-content: center;
-            align-items: center;
-
-            padding: 0;
-            border: none;
-        }
-
-        .card-preview img,
-        .card-preview video {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-        }
-
-
-
-        /* ==============================
-   CARD PREVIEW – FINAL
-   ============================== */
-
-        .card-preview {
-            width: 100%;
-            height: 160px;
-
-            display: flex;
-            justify-content: center;
-            align-items: center;
-
-            background: #f3f6f8;
-            border-radius: 10px;
-            overflow: hidden;
-            cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .card-preview img,
-        .card-preview video {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-        }
-
-
-
-        .preview-media-area {
-            width: 100%;
-            height: 320px;              /* 🔥 feste Höhe für große Preview */
-
-            display: flex;
-            justify-content: center;
-            align-items: center;
-
-            background: transparent;
-            padding: 0;
-        }
-
-        .preview-media-area img,
-        .preview-media-area video {
-            max-width: 100%;
-            max-height: 100%;
-
-            width: auto;
-            height: auto;
-
-            object-fit: contain;
-            display: block;
-        }
-
-        .card-subtitle {
-            color: #ffffff;      /* White text for card subtitles */
-            font-weight: 600;
-            text-align: center;
-        }
-</style>
-
+<meta charset="UTF-8">
+<title>Upload Content</title>
+<link rel="stylesheet" href="styles/style.css">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="./styles/style_upload.css" />
 </head>
 <body>
 <header class="topbar">
-    <a href="https://www.htlrennweg.at/" class="logo-link">
-        <img src="images/logo.png" alt="Logo" class="logo">
-    </a>
-    <div class="brand">Schulmonitor</div>
-    <div class="user-profile">
-        <div class="user-info">
-            <div class="user-role">User</div>
-            <div class="user-name-row">
-                <span class="user-name"><?php echo htmlspecialchars($first_name . ' ' . $last_name); ?></span>
-                <a href="logout.php" class="btn accent logout">Log-out</a>
-            </div>
-        </div>
-    </div>
+<a href="https://www.htlrennweg.at/" class="logo-link">
+<img src="images/logo.png" alt="Logo" class="logo">
+</a>
+<div class="brand">Schulmonitor</div>
+<div class="user-profile">
+<div class="user-info">
+<div class="user-role">User</div>
+<div class="user-name-row">
+<span class="user-name"><?= htmlspecialchars($_SESSION['name']); ?></span>
+<a href="logout.php" class="btn accent logout">Log-out</a>
+</div>
+</div>
+</div>
 </header>
 
 <main class="center-wrap">
-    <h2 class="section-title">Content Creation</h2>
+<h2 class="section-title">Content Creation</h2>
 
-    <div class="creation-control">
-        <label class="sr-only" for="creationSelect">Select content type</label>
-        <select id="creationSelect" class="select-control">
-            <option value="" selected>Select an option</option>
-            <option value="media">Media</option>
-            <option value="text">Text</option>
-        </select>
-    </div>
-
-    <div id="mediaSection" class="media-section" hidden>
-        <div class="media-layout">
-            <div class="media-form">
-                <div class="form-row">
-                    <label for="mediaTitle">Überschrift:</label>
-                    <input id="mediaTitle" type="text" placeholder="Text" maxlength="80" required>
-                </div>
-                <div class="form-row">
-                    <label for="mediaUrl">Bild/Video einfügen:</label>
-                    <div class="input-with-button">
-                        <input id="mediaUrl" type="text" placeholder="Bild-URL oder Dateiname" autocomplete="off" required>
-                        <label for="mediaFile" class="btn file-selector">Upload</label>
-                        <input id="mediaFile" type="file" accept="image/*,video/*" class="sr-only">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <label for="mediaExtra">Zusätzlicher Text:</label>
-                    <textarea id="mediaExtra" rows="4" placeholder="Text"></textarea>
-                </div>
-                <div class="form-actions">
-                    <button type="button" class="btn accent send" id="sendMedia">Send Content</button>
-                    <button type="button" class="btn primary clear" id="clearMedia">Clear</button>
-                </div>
-            </div>
-            <div class="preview-container">
-                <div class="media-preview black-preview">
-
-                    <!-- TEXT OBEN -->
-                    <div class="preview-text">
-                        <h3 id="previewTitle" class="preview-title"></h3>
-                        <hr id="previewSeparator" class="preview-separator" hidden>
-                        <p id="previewExtra" class="preview-extra"></p>
-                    </div>
-
-                    <!-- MEDIA UNTEN -->
-                    <div id="previewMedia" class="preview-media-area">
-                        <span class="preview-placeholder">PREVIEW</span>
-                    </div>
-
-                </div>
-            </div>
-
-
-        </div>
-    </div>
-
-    <div id="textSection" class="media-section" hidden>
-        <div class="media-layout">
-            <div class="media-form">
-                <div class="form-row">
-                    <label for="textTitle">Überschrift:</label>
-                    <input id="textTitle" type="text" placeholder="Text" maxlength="80" required>
-                </div>
-                <div class="form-row">
-                    <label for="textExtra">Zusätzlicher Text:</label>
-                    <textarea id="textExtra" rows="4" placeholder="Text" required></textarea>
-                </div>
-                <div class="form-actions">
-                    <button type="button" class="btn accent send" id="sendMedia">Send Content</button>
-                    <button type="button" class="btn primary clear" id="clearMedia">Clear</button>
-                </div>
-            </div>
-            <div class="preview-container">
-                <div class="text-preview">
-                    <h3 id="textPreviewTitle" class="text-preview-title"></h3>
-                    <hr id="textPreviewSeparator" class="preview-separator" hidden>
-                    <p id="textPreviewExtra" class="text-preview-extra"></p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <hr class="section-divider">
-
-    <h3 class="section-subtitle">Your Content History</h3>
-
-    <div class="content-history-grid">
-        <?php
-        // Sample content for demonstration - replace with actual DB data
-        $history_items = [
-            [
-                'id' => '1',
-                'title' => 'Wasser ist feucht und wichtig zu trinken !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!',
-                'thumbnail_url' => 'media/Videos/WALKWAY0025-0220.mp4',
-                'extra_text' => 'Feuchtigkeit ist wichtig'
-            ],
-            [
-                'id' => '2',
-                'title' => 'Feuer',
-                'thumbnail_url' => 'media/Images/Houser.jpg',
-                'extra_text' => 'Das ist ein Beispielbild.'
-            ],
-            [
-                'id' => '3',
-                'title' => 'Erde',
-                'thumbnail_url' => 'media/Images/AWWWWWWWWWWWW.jpg',
-                'extra_text' => ''
-            ]
-        ];
-
-        // Only show cards with valid media (image or video)
-        foreach($history_items as $index => $item) {
-            $media_url = $item['thumbnail_url'] ?? '';
-            $title = $item['title'] ?? '';
-            $extra_text = $item['extra_text'] ?? '';
-            $media_html = '';
-            $show_card = false;
-            if (!empty($media_url) && file_exists($media_url)) {
-                $ext = strtolower(pathinfo($media_url, PATHINFO_EXTENSION));
-                if (in_array($ext, ['mp4', 'webm', 'ogg'])) {
-                    $media_html = '<video src="' . htmlspecialchars($media_url) . '" class="preview-video" muted playsinline></video>';
-                    $show_card = true;
-                } elseif (in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'])) {
-                    $media_html = '<img src="' . htmlspecialchars($media_url) . '" alt="Preview" class="preview-img" />';
-                    $show_card = true;
-                }
-            }
-            $max_len = 30;
-            $short_title = mb_strlen($title) > $max_len ? mb_substr($title, 0, $max_len) . ' ...' : $title;
-            if ($show_card) {
-        ?>
-        <div class="queue-card" data-content-id="<?php echo $item['id']; ?>" data-title="<?php echo htmlspecialchars($title); ?>" data-thumbnail="<?php echo htmlspecialchars($media_url); ?>" data-extra-text="<?php echo htmlspecialchars($extra_text); ?>" onclick="openContentModal(this)">
-            <div class="card-preview" style="width:250px;height:200px;background:#f3f3f3;overflow:hidden;border-radius:12px;position:relative;margin:0 auto 10px auto;box-shadow:0 2px 8px rgba(0,0,0,0.07);padding:0;display:block;">
-                <?php
-                if (!empty($media_url) && file_exists($media_url)) {
-                    $ext = strtolower(pathinfo($media_url, PATHINFO_EXTENSION));
-                    if (in_array($ext, ['mp4', 'webm', 'ogg'])) {
-                        echo '<video src="' . htmlspecialchars($media_url) . '" class="preview-video" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;display:block;border-radius:12px;background:#e0e0e0;box-shadow:0 1px 4px rgba(0,0,0,0.04);margin:0;padding:0;" muted playsinline></video>';
-                    } elseif (in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'])) {
-                        echo '<img src="' . htmlspecialchars($media_url) . '" alt="Preview" class="preview-img" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;display:block;border-radius:12px;background:#e0e0e0;box-shadow:0 1px 4px rgba(0,0,0,0.04);margin:0;padding:0;" />';
-                    }
-                }
-                ?>
-            </div>
-            <div class="card-subtitle"><?php echo htmlspecialchars($short_title); ?></div>
-        </div>
-        <?php }} ?>
-    </div>
-
-</main>
-
-<!-- Content Preview Modal -->
-<div id="contentModal" class="modal-overlay" onclick="closeContentModal(event)">
-    <div class="modal-content" onclick="event.stopPropagation()">
-        <button class="btn primary modal-close" onclick="closeContentModal()">&times;</button>
-        <div class="modal-title" id="modalTitle">Von [Username]</div>
-        <hr class="modal-title-separator" id="modalSeparator" style="display:none;" />
-        <div class="modal-extra-text" id="modalExtraText"></div>
-        <div class="modal-preview" id="modalPreviewArea">
-            <span class="preview-placeholder">PREVIEW</span>
-        </div>
-    </div>
+<div class="creation-control">
+<label class="sr-only" for="creationSelect">Select content type</label>
+<select id="creationSelect" class="select-control">
+<option value="" selected>Select an option</option>
+<option value="media">Media</option>
+<option value="text">Text</option>
+</select>
 </div>
 
+<!-- MEDIA -->
+<div id="mediaSection" class="media-section" hidden>
+<div class="media-layout">
+<div class="media-form">
+<div class="form-row">
+<label for="mediaTitle">Überschrift:</label>
+<input id="mediaTitle" type="text" placeholder="Text" maxlength="80" required>
+</div>
+<div class="form-row">
+<label for="mediaUrl">Bild/Video einfügen:</label>
+<div class="input-with-button">
+<input id="mediaUrl" type="text" placeholder="Bild-URL oder Dateiname" autocomplete="off" required readonly>
+<label for="mediaFile" class="btn file-selector">Upload</label>
+<input id="mediaFile" type="file" accept="image/*,video/*" class="sr-only">
+</div>
+</div>
+<div class="form-row">
+<label for="mediaExtra">Zusätzlicher Text:</label>
+<textarea id="mediaExtra" rows="4" placeholder="Text"></textarea>
+</div>
+<div class="form-actions">
+<button type="button" class="btn accent send" id="sendMedia" disabled>Send Content</button>
+<button type="button" class="btn primary clear" id="clearMedia">Clear</button>
+</div>
+</div>
+<div class="preview-container">
+<div class="media-preview black-preview">
+<div class="preview-text">
+<h3 id="previewTitle" class="preview-title"></h3>
+<hr id="previewSeparator" class="preview-separator" hidden>
+<p id="previewExtra" class="preview-extra"></p>
+</div>
+<div id="previewMedia" class="preview-media-area">
+<span class="preview-placeholder">PREVIEW</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- TEXT -->
+<div id="textSection" class="media-section" hidden>
+<div class="media-layout">
+<div class="media-form">
+<div class="form-row">
+<label for="textTitle">Überschrift:</label>
+<input id="textTitle" type="text" placeholder="Text" maxlength="80" required>
+</div>
+<div class="form-row">
+<label for="textExtra">Zusätzlicher Text:</label>
+<textarea id="textExtra" rows="4" placeholder="Text" required></textarea>
+</div>
+<div class="form-actions">
+<button type="button" class="btn accent send" id="sendText" disabled>Send Content</button>
+<button type="button" class="btn primary clear" id="clearText">Clear</button>
+</div>
+</div>
+<div class="preview-container">
+<div class="text-preview">
+<h3 id="textPreviewTitle" class="text-preview-title"></h3>
+<hr id="textPreviewSeparator" class="preview-separator" hidden>
+<p id="textPreviewExtra" class="text-preview-extra"></p>
+</div>
+</div>
+</div>
+</div>
+</main>
+
 <script>
-let currentContentId = null;
+const creationSelect=document.getElementById('creationSelect');
+const mediaSection=document.getElementById('mediaSection');
+const textSection=document.getElementById('textSection');
 
-function openContentModal(cardElement) {
-    const contentId = cardElement.dataset.contentId;
-    const title = cardElement.dataset.title;
-    const thumbnail = cardElement.dataset.thumbnail;
-    const extraText = cardElement.dataset.extraText;
-    currentContentId = contentId;
-    const modalTitle = document.getElementById('modalTitle');
-    modalTitle.style.textAlign = 'center';
-    modalTitle.textContent = title ? title : 'Von [Username]';
-    // Set extra text in its own div
-    const extraTextDiv = document.getElementById('modalExtraText');
-    const separator = document.getElementById('modalSeparator');
-    // Always show separator for media previews
-    separator.style.display = 'block';
-    if (extraText && extraText.trim() !== '') {
-        extraTextDiv.textContent = extraText;
-        extraTextDiv.style.display = 'flex';
-        // Size separator based on title and text
-        setTimeout(() => {
-            const titleWidth = modalTitle.scrollWidth;
-            const textWidth = extraTextDiv.scrollWidth;
-            const sepWidth = Math.max(titleWidth, textWidth);
-            separator.style.width = sepWidth + 'px';
-            separator.style.margin = '12px auto';
-        }, 0);
-    } else {
-        extraTextDiv.textContent = '';
-        extraTextDiv.style.display = 'none';
-        // Size separator based on title only
-        setTimeout(() => {
-            const titleWidth = modalTitle.scrollWidth;
-            separator.style.width = titleWidth + 'px';
-            separator.style.margin = '12px auto';
-        }, 0);
-    }
-    // Update preview area: only the media
-    const previewArea = document.getElementById('modalPreviewArea');
-    let mediaHtml = '';
-    if (thumbnail && thumbnail.trim() !== '') {
-        const ext = thumbnail.split('.').pop().toLowerCase();
-        if (["mp4","webm","ogg"].includes(ext)) {
-            mediaHtml = '<video src="' + thumbnail + '" controls autoplay muted playsinline class="modal-preview-img" ></video>';
-        } else if (["jpg","jpeg","png","gif","bmp","webp"].includes(ext)) {
-            mediaHtml = '<img src="' + thumbnail + '" alt="Content Preview" class="modal-preview-img" />';
-        } else {
-            mediaHtml = '<span class="preview-placeholder">PREVIEW</span>';
-        }
-    } else {
-        mediaHtml = '<span class="preview-placeholder">PREVIEW</span>';
-    }
-    previewArea.innerHTML = mediaHtml;
-    // Show modal
-    document.getElementById('contentModal').style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-}
+const mediaFileInput=document.getElementById('mediaFile');
+const mediaUrlInput=document.getElementById('mediaUrl');
+const mediaTitleInput=document.getElementById('mediaTitle');
+const mediaExtraInput=document.getElementById('mediaExtra');
+const clearMediaBtn=document.getElementById('clearMedia');
+const sendMediaBtn=document.getElementById('sendMedia');
 
-function closeContentModal(event) {
-    if (event && event.target !== event.currentTarget) return;
-    document.getElementById('contentModal').style.display = 'none';
-    document.body.style.overflow = 'auto';
-    currentContentId = null;
-}
+const textTitleInput=document.getElementById('textTitle');
+const textExtraInput=document.getElementById('textExtra');
+const clearTextBtn=document.getElementById('clearText');
+const sendTextBtn=document.getElementById('sendText');
 
-// Toggle media section based on selector
-const creationSelect = document.getElementById('creationSelect');
-const mediaSection = document.getElementById('mediaSection');
-const mediaFileInput = document.getElementById('mediaFile');
-const mediaUrlInput = document.getElementById('mediaUrl');
-const mediaPreview = document.querySelector('.media-preview');
-const mediaTitleInput = document.getElementById('mediaTitle');
-const mediaExtraInput = document.getElementById('mediaExtra');
-const clearMediaBtn = document.getElementById('clearMedia');
+// Show sections based on select
+creationSelect.addEventListener('change',()=>{ 
+    if(creationSelect.value==='media'){mediaSection.hidden=false;textSection.hidden=true;}
+    else if(creationSelect.value==='text'){mediaSection.hidden=true;textSection.hidden=false;}
+    else{mediaSection.hidden=true;textSection.hidden=true;}
+});
 
-function renderInto(target, src, isVideo) {
-    target.innerHTML = '';
-
-    if (isVideo) {
-        const video = document.createElement('video');
-        video.src = src;
-
-        video.muted = false;
-        video.controls = true;
-        video.playsInline = true;
-        video.preload = 'metadata';
-
-        video.style.maxWidth = '100%';
-        video.style.maxHeight = '100%';
-        video.style.objectFit = 'contain';
-
+// Preview render function
+function renderInto(target,src,isVideo){
+    target.innerHTML='';
+    if(isVideo){
+        const video=document.createElement('video');
+        video.src=src; video.muted=false; video.controls=true; video.playsInline=true;
+        video.style.maxWidth='100%'; video.style.maxHeight='100%'; video.style.objectFit='contain';
         target.appendChild(video);
-        return;
+    } else{
+        const img=document.createElement('img');
+        img.src=src; img.alt='Preview'; img.style.maxWidth='100%'; img.style.maxHeight='100%'; img.style.objectFit='contain';
+        target.appendChild(img);
     }
-
-    const img = document.createElement('img');
-    img.src = src;
-    img.alt = 'Preview';
-
-    img.style.maxWidth = '100%';
-    img.style.maxHeight = '100%';
-    img.style.objectFit = 'contain';
-
-    target.appendChild(img);
 }
 
+// MEDIA EVENTS
+mediaTitleInput.addEventListener('input', validateMediaForm);
+mediaExtraInput.addEventListener('input', validateMediaForm);
+mediaFileInput.addEventListener('change',async function(){ 
+    const file=this.files[0]; if(!file) return;
+    const formData=new FormData(); formData.append('mediaFile',file);
+    const response=await fetch('?action=upload',{method:'POST',body:formData});
+    const result=await response.json();
+    if(result.success){
+        mediaUrlInput.value=result.url;
+        mediaUrlInput.readOnly=true;
+        renderInto(document.getElementById('previewMedia'),result.url,file.type.startsWith('video'));
+        validateMediaForm();
+    } else{alert('Upload fehlgeschlagen: '+result.message);}
+});
+mediaUrlInput.addEventListener('input', validateMediaForm);
 
+// TEXT EVENTS
+textTitleInput.addEventListener('input', validateTextForm);
+textExtraInput.addEventListener('input', validateTextForm);
 
-function handleUrlPreview() {
-    const url = mediaUrlInput.value.trim();
-    const previewMediaArea = document.getElementById('previewMedia');
-    if (!url) {
-        previewMediaArea.innerHTML = '<span class="preview-placeholder">PREVIEW</span>';
-        mediaFileInput.value = '';
-        return;
+// CLEAR BUTTONS
+clearMediaBtn.addEventListener('click', ()=>{
+    mediaTitleInput.value='';
+    mediaExtraInput.value='';
+    mediaFileInput.value='';
+    mediaUrlInput.value='';
+    mediaUrlInput.readOnly=false;
+    document.getElementById('previewTitle').textContent='';
+    document.getElementById('previewExtra').textContent='';
+    document.getElementById('previewMedia').innerHTML='<span class="preview-placeholder">PREVIEW</span>';
+    sendMediaBtn.disabled=true;
+});
+clearTextBtn.addEventListener('click', ()=>{
+    textTitleInput.value='';
+    textExtraInput.value='';
+    document.getElementById('textPreviewTitle').textContent='';
+    document.getElementById('textPreviewExtra').textContent='';
+    sendTextBtn.disabled=true;
+});
+
+// VALIDATION
+function validateMediaForm(){
+    const title = mediaTitleInput.value.trim();
+    const extra = mediaExtraInput.value.trim();
+    const mediaFilled = mediaUrlInput.value.trim().length>0;
+    sendMediaBtn.disabled = !(title.length>=1 && mediaFilled);
+
+    document.getElementById('previewTitle').textContent = title;
+    const previewExtra = document.getElementById('previewExtra');
+    const previewSep = document.getElementById('previewSeparator');
+    document.getElementById('previewExtra').textContent = extra;
+
+    // Show separator only when there is a title; size it to the larger of title/extra
+    if(previewSep){
+        if(title.length>0){
+            previewSep.hidden = false;
+            setTimeout(()=>{
+                const titleEl = document.getElementById('previewTitle');
+                const titleW = titleEl ? titleEl.offsetWidth : 0;
+                const extraW = previewExtra ? previewExtra.offsetWidth : 0;
+                previewSep.style.width = Math.max(titleW, extraW)+'px';
+            },0);
+        } else {
+            previewSep.hidden = true;
+        }
     }
-    mediaUrlInput.readOnly = false; // allow manual edits
-    mediaFileInput.value = '';
-    const videoExt = /(\.mp4|\.webm|\.ogg|\.mov|\.m4v)$/i;
-    const isVideo = videoExt.test(url);
-    renderInto(previewMediaArea, url, isVideo);
+    // Hide extra text element if empty
+    previewExtra.style.display = extra && extra.length>0 ? '' : 'none';
+}
+function validateTextForm(){
+    const title = textTitleInput.value.trim();
+    const text = textExtraInput.value.trim();
+    sendTextBtn.disabled = !(title.length>=1 && text.length>=1);
+
+    document.getElementById('textPreviewTitle').textContent = title;
+    const textPreviewExtra = document.getElementById('textPreviewExtra');
+    const textPreviewSep = document.getElementById('textPreviewSeparator');
+    textPreviewExtra.textContent = text;
+
+    // Show separator for text preview only when there is a title; size to larger of title/extra
+    if(textPreviewSep){
+        if(title.length>0){
+            textPreviewSep.hidden = false;
+            setTimeout(()=>{
+                const tEl = document.getElementById('textPreviewTitle');
+                const tW = tEl ? tEl.offsetWidth : 0;
+                const eW = textPreviewExtra ? textPreviewExtra.offsetWidth : 0;
+                textPreviewSep.style.width = Math.max(tW, eW)+'px';
+            },0);
+        } else {
+            textPreviewSep.hidden = true;
+        }
+    }
+    textPreviewExtra.style.display = text && text.length>0 ? '' : 'none';
 }
 
-creationSelect.addEventListener('change', function() {
-    const textSection = document.getElementById('textSection');
-    if (this.value === 'media') {
-        mediaSection.hidden = false;
-        textSection.hidden = true;
-    } else if (this.value === 'text') {
-        mediaSection.hidden = true;
-        textSection.hidden = false;
+// SEND CONTENT
+sendMediaBtn.addEventListener('click',()=>sendContent('media'));
+sendTextBtn.addEventListener('click',()=>sendContent('text'));
+
+async function sendContent(type){
+    let title, text, media='';
+    if(type==='media'){title=mediaTitleInput.value.trim(); text=mediaExtraInput.value.trim(); media=mediaUrlInput.value.trim();}
+    else {title=textTitleInput.value.trim(); text=textExtraInput.value.trim();}
+
+    const response = await fetch('?action=save',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({title,type,media,text})
+    });
+    const result = await response.json();
+    if(result.success){
+        alert('Content erfolgreich gespeichert!');
+        if(type==='media') clearMediaBtn.click();
+        else clearTextBtn.click();
     } else {
-        mediaSection.hidden = true;
-        textSection.hidden = true;
+        alert('Fehler: '+result.message);
     }
-});
-
-// Show file name in URL box when uploading a file
-if (mediaFileInput) {
-    mediaFileInput.addEventListener('change', function() {
-        if (this.files && this.files[0]) {
-            mediaUrlInput.value = this.files[0].name;
-            mediaUrlInput.readOnly = true;
-            const file = this.files[0];
-            const url = URL.createObjectURL(file);
-            const isVideo = file.type.startsWith('video');
-            const previewMediaArea = document.getElementById('previewMedia');
-            renderInto(previewMediaArea, url, isVideo);
-        }
-    });
 }
-
-if (mediaUrlInput) {
-    mediaUrlInput.addEventListener('change', handleUrlPreview);
-}
-
-// Update preview title and extra text in real-time
-if (mediaTitleInput) {
-    mediaTitleInput.addEventListener('input', function() {
-        document.getElementById('previewTitle').textContent = this.value;
-        const separator = document.getElementById('previewSeparator');
-        const hasContent = this.value.trim() || mediaExtraInput.value.trim();
-        separator.hidden = !hasContent;
-    });
-}
-
-if (mediaExtraInput) {
-    mediaExtraInput.addEventListener('input', function() {
-        document.getElementById('previewExtra').textContent = this.value;
-        const separator = document.getElementById('previewSeparator');
-        const hasContent = this.value.trim() || mediaTitleInput.value.trim();
-        separator.hidden = !hasContent;
-    });
-}
-
-if (clearMediaBtn) {
-    clearMediaBtn.addEventListener('click', function() {
-        mediaTitleInput.value = '';
-        mediaUrlInput.value = '';
-        mediaUrlInput.readOnly = false;
-        mediaExtraInput.value = '';
-        mediaFileInput.value = '';
-        document.getElementById('previewMedia').innerHTML = '<span class="preview-placeholder">PREVIEW</span>';
-        document.getElementById('previewTitle').textContent = '';
-        document.getElementById('previewExtra').textContent = '';
-        document.getElementById('previewSeparator').hidden = true;
-    });
-}
-
-const sendMediaBtn = document.getElementById('sendMedia');
-if (sendMediaBtn) {
-    sendMediaBtn.addEventListener('click', function() {
-        if (!mediaTitleInput.value.trim()) {
-            alert('Bitte Überschrift eingeben');
-            return;
-        }
-        if (!mediaUrlInput.value.trim()) {
-            alert('Bitte Bild/Video einfügen');
-            return;
-        }
-        if (!mediaExtraInput.value.trim()) {
-            alert('Bitte zusätzlichen Text eingeben');
-            return;
-        }
-        // TODO: Implement actual submission logic
-        alert('Send content functionality to be implemented');
-    });
-}
-
-// Text section handlers
-const textTitleInput = document.getElementById('textTitle');
-const textExtraInput = document.getElementById('textExtra');
-const clearTextBtn = document.getElementById('clearText');
-const sendTextBtn = document.getElementById('sendText');
-
-if (textTitleInput) {
-    textTitleInput.addEventListener('input', function() {
-        document.getElementById('textPreviewTitle').textContent = this.value;
-        const separator = document.getElementById('textPreviewSeparator');
-        const hasContent = this.value.trim() || textExtraInput.value.trim();
-        separator.hidden = !hasContent;
-    });
-}
-
-if (textExtraInput) {
-    textExtraInput.addEventListener('input', function() {
-        document.getElementById('textPreviewExtra').textContent = this.value;
-        const separator = document.getElementById('textPreviewSeparator');
-        const hasContent = this.value.trim() || textTitleInput.value.trim();
-        separator.hidden = !hasContent;
-    });
-}
-
-if (clearTextBtn) {
-    clearTextBtn.addEventListener('click', function() {
-        textTitleInput.value = '';
-        textExtraInput.value = '';
-        document.getElementById('textPreviewTitle').textContent = '';
-        document.getElementById('textPreviewExtra').textContent = '';
-        document.getElementById('textPreviewSeparator').hidden = true;
-    });
-}
-
-if (sendTextBtn) {
-    sendTextBtn.addEventListener('click', function() {
-        if (!textTitleInput.value.trim()) {
-            alert('Bitte Überschrift eingeben');
-            return;
-        }
-        if (!textExtraInput.value.trim()) {
-            alert('Bitte zusätzlichen Text eingeben');
-            return;
-        }
-        // TODO: Implement actual submission logic
-        alert('Send content functionality to be implemented');
-    });
-}
-
-// Play video on hover for small preview boxes
-// No image sizing JS, rely on CSS only
-
-document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('.queue-card .card-preview').forEach(function(preview) {
-        preview.addEventListener('mouseenter', function() {
-            const video = preview.querySelector('video');
-            if (video) {
-                video.muted = true;
-                video.play();
-            }
-        });
-        preview.addEventListener('mouseleave', function() {
-            const video = preview.querySelector('video');
-            if (video) {
-                video.pause();
-                video.currentTime = 0;
-            }
-        });
-    });
-});
-
-// Close modal on Escape key
-document.addEventListener('keydown', function(event) {
-    if (event.key === 'Escape') {
-        closeContentModal();
-    }
-});
 </script>
-
-
-
 </body>
 </html>
