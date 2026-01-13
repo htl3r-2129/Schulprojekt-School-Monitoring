@@ -1,82 +1,34 @@
 [
     {
-        "original_id": "12",
+        "original_id": "1",
         "order_id": 1,
-        "title": "sasdasdasd",
-        "media": "media/Images/6965651872e44.jpg",
-        "text": "sadsadasdasdasd",
-        "type": "image"
-    },
-    {
-        "original_id": "4",
-        "order_id": 2,
-        "title": "Luft",
-        "media": "media/Images/whitewhitey.jpg",
-        "text": "Frische Luft ist wichtig",
-        "type": "image"
-    },
-    {
-        "original_id": "5",
-        "order_id": 3,
-        "title": "Erde nochmal",
-        "media": "media/Images/AWWWWWWWWWWWW.jpg",
-        "text": "Bitte funktioniere",
+        "title": "Wir lieben die HTL!",
+        "media": "media/Images/20210218-20-jahre-keyvisual-scaled-2535462770.jpg",
+        "text": "",
         "type": "image"
     },
     {
         "original_id": "3",
-        "order_id": 4,
-        "title": "Erde",
-        "media": "media/Images/AWWWWWWWWWWWW.jpg",
-        "text": "",
-        "type": "image"
-    },
-    {
-        "original_id": "1",
-        "order_id": 5,
-        "title": "Wasser ist feucht und wichtig zu trinken !",
-        "media": "media/Videos/WALKWAY0025-0220.mp4",
-        "text": "",
+        "order_id": 2,
+        "title": "Bescherung",
+        "media": "media/Videos/hund.mp4",
+        "text": "Frohe Weinachten!",
         "type": "video"
     },
     {
-        "original_id": "7",
-        "order_id": 6,
-        "title": "Luft aber anders",
-        "media": "",
-        "text": "Frische Luft ist semi wichtig",
-        "type": ""
-    },
-    {
-        "original_id": "13",
-        "order_id": 7,
-        "title": "asdasdddddddddd",
-        "media": "",
-        "text": "asdasdasd",
-        "type": ""
-    },
-    {
-        "original_id": "16",
-        "order_id": 8,
-        "title": "asdasdasdasdasd",
-        "media": "media/Images/696568762dc5a.png",
-        "text": "asdsssssssssssssssssssssssss",
+        "original_id": "4",
+        "order_id": 3,
+        "title": "Ein guter Tag",
+        "media": "media/Images/IMG_0450.jpg",
+        "text": "Funktion über Form",
         "type": "image"
     },
     {
-        "original_id": "11",
-        "order_id": 9,
-        "title": "xss",
+        "original_id": "6",
+        "order_id": 4,
+        "title": "Das Itlers Gedicht",
         "media": "",
-        "text": "sss",
-        "type": ""
-    },
-    {
-        "original_id": "14",
-        "order_id": 10,
-        "title": "dddddddd",
-        "media": "",
-        "text": "asdasd",
+        "text": "Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum",
         "type": ""
     }
 ]

@@ -1,137 +1,83 @@
 [
     {
         "original_id": "1",
-        "title": "Wasser ist feucht und wichtig zu trinken !",
-        "type": "video",
-        "media": "media\/Videos\/WALKWAY0025-0220.mp4",
+        "title": "Wir lieben die HTL!",
+        "type": "image",
+        "media": "media\/Images\/20210218-20-jahre-keyvisual-scaled-2535462770.jpg",
         "approved": true,
         "ProvidedBy": "Gabriel Berger",
+        "text": ""
+    },
+    {
+        "original_id": "2",
+        "title": "Ein Krokodil",
+        "type": "image",
+        "media": "media\/Images\/VeryCute.jpg",
+        "approved": false,
+        "ProvidedBy": "Timon Pfeffer",
         "text": ""
     },
     {
         "original_id": "3",
-        "title": "Erde",
-        "type": "image",
-        "media": "media\/Images\/AWWWWWWWWWWWW.jpg",
+        "title": "Bescherung",
+        "type": "video",
+        "media": "media\/Videos\/hund.mp4",
         "approved": true,
-        "ProvidedBy": "",
-        "text": ""
+        "ProvidedBy": "Maxim Willinger",
+        "text": "Frohe Weinachten!"
     },
     {
         "original_id": "4",
-        "title": "Luft",
+        "title": "Ein guter Tag",
         "type": "image",
-        "media": "media\/Images\/whitewhitey.jpg",
+        "media": "media\/Images\/IMG_0450.jpg",
         "approved": true,
-        "ProvidedBy": "",
-        "text": "Frische Luft ist wichtig"
+        "ProvidedBy": "Cemre Cengiz",
+        "text": "Funktion über Form"
     },
     {
         "original_id": "5",
-        "title": "Erde nochmal",
+        "title": "Mein Hund",
         "type": "image",
-        "media": "media\/Images\/AWWWWWWWWWWWW.jpg",
+        "media": "media\/Images\/IMG_0686.jpg",
+        "approved": false,
+        "ProvidedBy": "Maxim Willinger",
+        "text": ""
+    },
+    {
+        "original_id": "6",
+        "title": "Das Itlers Gedicht",
+        "type": "",
+        "media": "",
         "approved": true,
-        "ProvidedBy": "",
-        "text": "Bitte funktioniere"
+        "ProvidedBy": "Gabriel Berger",
+        "text": "Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum"
     },
     {
         "original_id": "7",
-        "title": "Luft aber anders",
-        "type": "",
-        "media": "",
-        "approved": true,
-        "ProvidedBy": "",
-        "text": "Frische Luft ist semi wichtig"
+        "title": "MEDT Kunstwerk",
+        "type": "image",
+        "media": "media\/Images\/OldTimes.png",
+        "approved": false,
+        "ProvidedBy": "Gabriel Berger",
+        "text": "Gemacht in Blender"
     },
     {
         "original_id": "8",
-        "title": "sadssssssssss",
-        "type": "text",
-        "media": "",
+        "title": "Ein Witz",
+        "type": "image",
+        "media": "media\/Images\/funny-african-man-posing-pointing-fingers-at-camera-yellow-background.jpg",
         "approved": false,
-        "ProvidedBy": "Gabriel Berger",
-        "text": "asdsad"
+        "ProvidedBy": "Thomas Emersberger",
+        "text": "Das habt ihr nicht erwartet"
     },
     {
         "original_id": "9",
-        "title": "saaa",
-        "type": "text",
-        "media": "",
+        "title": "Spaziergang",
+        "type": "video",
+        "media": "media\/Videos\/VID_20221001_155642.mp4",
         "approved": false,
-        "ProvidedBy": "Gabriel Berger",
-        "text": "sa"
-    },
-    {
-        "original_id": "10",
-        "title": "saa",
-        "type": "text",
-        "media": "",
-        "approved": false,
-        "ProvidedBy": "Gabriel Berger",
-        "text": "sa"
-    },
-    {
-        "original_id": "11",
-        "title": "xss",
-        "type": "",
-        "media": "",
-        "approved": true,
-        "ProvidedBy": "Gabriel Berger",
-        "text": "sss"
-    },
-    {
-        "original_id": "12",
-        "title": "sasdasdasd",
-        "type": "image",
-        "media": "media\/Images\/6965651872e44.jpg",
-        "approved": true,
-        "ProvidedBy": "Gabriel Berger",
-        "text": "sadsadasdasdasd"
-    },
-    {
-        "original_id": "13",
-        "title": "asdasdddddddddd",
-        "type": "",
-        "media": "",
-        "approved": true,
-        "ProvidedBy": "Gabriel Berger",
-        "text": "asdasdasd"
-    },
-    {
-        "original_id": "14",
-        "title": "dddddddd",
-        "type": "",
-        "media": "",
-        "approved": true,
-        "ProvidedBy": "Gabriel Berger",
-        "text": "asdasd"
-    },
-    {
-        "original_id": "15",
-        "title": "ddddddddd",
-        "type": "",
-        "media": "",
-        "approved": false,
-        "ProvidedBy": "Gabriel Berger",
-        "text": "asd"
-    },
-    {
-        "original_id": "16",
-        "title": "asdasdasdasdasd",
-        "type": "image",
-        "media": "media\/Images\/696568762dc5a.png",
-        "approved": true,
-        "ProvidedBy": "Gabriel Berger",
-        "text": "asdsssssssssssssssssssssssss"
-    },
-    {
-        "original_id": "17",
-        "title": "sadsad",
-        "type": "image",
-        "media": "media\/Images\/696572dde30cf.png",
-        "approved": false,
-        "ProvidedBy": "Gabriel Berger",
-        "text": "sadasdasdsadsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss"
+        "ProvidedBy": "Maxim Willinger",
+        "text": ""
     }
 ]
