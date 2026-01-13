@@ -75,11 +75,13 @@ $blocked = $auth->getAllLocked();
         <div class="user-profile">
             <div class="user-info">
                 <div class="user-role">Administrator</div>
-                <span class="user-name"><<?= htmlspecialchars($_SESSION['name']); ?></span>
+                <div class="user-name-row">
+                    <span class="user-name"><?= htmlspecialchars($_SESSION['name']); ?></span>
+                    <a href="logout.php" class="btn accent logout">Log-out</a>
+                </div>
             </div>
         </div>
-    </div>
-</header>
+    </header>
         <main class="center-wrap">
             <h1 class="page-title">Manage Users</h1>
             <?php if (!empty($error)) echo "<p class='error-message'>" . htmlspecialchars($error, ENT_QUOTES) . "</p>"; ?>
