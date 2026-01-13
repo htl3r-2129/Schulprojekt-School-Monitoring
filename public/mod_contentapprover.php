@@ -165,7 +165,7 @@ body {
     <div class="brand">Schulmonitor</div>
     <div class="user-profile">
         <div class="user-info">
-            <div class="user-role">Administrator</div>
+            <div class="user-role">Moderator</div>
             <div class="user-name-row">
                 <span class="user-name"><?= htmlspecialchars($_SESSION['name']); ?></span>
                 <a href="logout.php" class="btn accent logout">Log-out</a>
