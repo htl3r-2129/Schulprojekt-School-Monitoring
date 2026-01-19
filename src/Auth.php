@@ -187,7 +187,9 @@ class Auth {
         $stmt->fetch();
 
         $sendMail = new SendMail();
-        $sendMail($result);
+        $sendMail($result); // TODO: generate random code and send that too
+
+        $code = rand(100000, 999999);
 
         return true;
     }
