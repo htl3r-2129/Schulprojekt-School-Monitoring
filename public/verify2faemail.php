@@ -10,12 +10,17 @@ $error = '';
 $success = '';
 
 $sent_email = $_SESSION['verify_email'];
-$_SESSION['verify_email'] = '';
+$uuid = $_SESSION['verify_id'];
 
 // If user submitted the verification code
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['code'])){
-
+        if ($auth->approve2Fa($uuid, $_POST['code'])) {
+            $_SESSION['user'] = $uuid;
+            $_SESSION['name'] = $auth->getUsername($uuid);
+            header(header: 'Location: dashboard.php');
+        }
+        $error = 'Code wrong.';
     }
 }
 ?>

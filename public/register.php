@@ -39,9 +39,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Übergabe der E-Mail als Platzhalter für $username und $email (Datenbank erwartet beides)
         $registration_result = $auth->register($username, $email, $password);
         // returned entweder false oder die uuid (skuffed)
-        if ($registration_result != false) {
+        if ($registration_result === true) {
+            $uuid = $auth->getUUID($email);
             $_SESSION['verify_email'] = $email;
-            $auth->sendTwoFaEmail($registration_result, $email);
+            $_SESSION['verify_id'] = $uuid;
+            $auth->sendTwoFaEmail($uuid, $email);
             header(header: 'Location: verify2faemail.php');
         } else {
             // Fehler (wird als String von Auth::register zurückgegeben, z.B. "DB-Verbindung fehlgeschlagen")

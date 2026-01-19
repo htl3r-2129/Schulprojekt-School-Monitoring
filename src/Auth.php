@@ -32,7 +32,7 @@ class Auth {
         $stmt->execute();
         if (!$stmt->fetch()){
             $user = new User($username, $email, $password, $this->db);
-            return $user->getUuid();
+            return true;
         }
         // TODO: show the error in a more pleasant way
         return false;
@@ -188,7 +188,7 @@ class Auth {
         $stmt->execute();
 
         $sendMail = new SendMail();
-        $sendMail($email, $code);
+//        $sendMail($email, $code);
 
         return true;
     }
@@ -200,14 +200,23 @@ class Auth {
 
     public function approve2Fa($uuid, $code_ext)
     {
-        $stmt = $this->db->getConn()->prepare("select 2faCode from user where PK_User_ID like ?;");
+//        echo "<script>console.log('UUID: {$uuid}' );</script>";
+
+        $stmt = $this->db->getConn()->prepare("select 2faCode from user where PK_User_ID = ?;");
         $stmt->bind_param("s", $uuid);
         $stmt->execute();
+        $stmt->store_result();
+
+//        echo "<script>console.log('Rows found: {$stmt->num_rows}');</script>";
+
         $stmt->bind_result($code_int);
         $stmt->fetch();
 
-        if ($code_int === $code_ext) {
-            $stmt = $this->db->getConn()->prepare("update user set 2faSuccess = true where PK_User_ID like ?;");
+//        echo "<script>console.log('Code given: {$code_ext}' );</script>";
+//        echo "<script>console.log('Code set: {$code_int}' );</script>";
+
+        if ($code_int == $code_ext) {
+            $stmt = $this->db->getConn()->prepare("update user set 2faSuccess = true where PK_User_ID = ?;");
             $stmt->bind_param("s", $uuid);
             $stmt->execute();
             return true;
