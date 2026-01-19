@@ -9,28 +9,13 @@ $auth = new Auth();
 $error = '';
 $success = '';
 
-// determine which email to show: POST (from previous form), GET (query), or session
-$sent_email = '';
-if (!empty($_POST['email'])) {
-    $sent_email = $_POST['email'];
-} elseif (!empty($_GET['email'])) {
-    $sent_email = $_GET['email'];
-} elseif (!empty($_SESSION['email'])) {
-    $sent_email = $_SESSION['email'];
-}
+$sent_email = $_SESSION['verify_email'];
+$_SESSION['verify_email'] = '';
 
 // If user submitted the verification code
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $code = trim($_POST['code'] ?? '');
-    if ($code === '') {
-        $error = 'Please enter the verification code.';
-    } else {
-        // Placeholder: in a real app verify the code with $auth or DB
-        if ($code === '123456') {
-            $success = 'E-Mail verified successfully.';
-        } else {
-            $error = 'Invalid verification code.';
-        }
+    if (isset($_POST['code'])){
+
     }
 }
 ?>
@@ -59,6 +44,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <form method="post" class="login-form" novalidate>
         <?php if (!empty($error)) echo "<p class='error-message'>" . htmlspecialchars($error, ENT_QUOTES) . "</p>"; ?>
         <?php if (!empty($success)) echo "<p class='success-message'>" . htmlspecialchars($success, ENT_QUOTES) . "</p>"; ?>
+
+        <label class="field-label">2-Factor-Code:</label>
+        <input type="number" name="code" placeholder="000000" required>
+
+        <button type="submit" class="btn accent">Verify</button>
     </form>
 </main>
 

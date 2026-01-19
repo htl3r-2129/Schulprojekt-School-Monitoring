@@ -31,8 +31,8 @@ class Auth {
         $stmt->bind_param("s", $email);
         $stmt->execute();
         if (!$stmt->fetch()){
-            new User($username, $email, $password, $this->db);
-            return true;
+            $user = new User($username, $email, $password, $this->db);
+            return $user->getUuid();
         }
         // TODO: show the error in a more pleasant way
         return false;
@@ -178,18 +178,17 @@ class Auth {
         return false;
     }
 
-    public function sendTwoFaEmail($uuid)
+    public function sendTwoFaEmail($uuid, $email)
     {
-        $stmt = $this->db->getConn()->prepare("select email from user where PK_User_ID = ?");
-        $stmt->bind_param("s", $uuid);
+        //        $code = rand(100000, 999999);
+        $code = 100000;
+
+        $stmt = $this->db->getConn()->prepare("update user set 2faCode = ? where PK_User_ID like ?;");
+        $stmt->bind_param("is", $code, $uuid);
         $stmt->execute();
-        $stmt->bind_result($result);
-        $stmt->fetch();
 
         $sendMail = new SendMail();
-        $sendMail($result); // TODO: generate random code and send that too
-
-        $code = rand(100000, 999999);
+        $sendMail($email, $code);
 
         return true;
     }
@@ -199,12 +198,18 @@ class Auth {
 
     }
 
-    public function approve2Fa($uuid)
+    public function approve2Fa($uuid, $code_ext)
     {
-        $stmt = $this->db->getConn()->prepare("update user set 2faSuccess = true where PK_User_ID like ?;");
+        $stmt = $this->db->getConn()->prepare("select 2faCode from user where PK_User_ID like ?;");
         $stmt->bind_param("s", $uuid);
+        $stmt->execute();
+        $stmt->bind_result($code_int);
+        $stmt->fetch();
 
-        if ($stmt->execute()){
+        if ($code_int === $code_ext) {
+            $stmt = $this->db->getConn()->prepare("update user set 2faSuccess = true where PK_User_ID like ?;");
+            $stmt->bind_param("s", $uuid);
+            $stmt->execute();
             return true;
         }
         return false;
