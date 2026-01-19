@@ -4,3 +4,4 @@ School Monitor.iml
 composer.lock
 public/queue.json
 public/content_source.json
+public/media

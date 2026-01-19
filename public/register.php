@@ -38,12 +38,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // --- 2. Registrierungsversuch ---
         // Übergabe der E-Mail als Platzhalter für $username und $email (Datenbank erwartet beides)
         $registration_result = $auth->register($username, $email, $password);
-        
+        // returned entweder false oder die uuid (skuffed)
         if ($registration_result === true) {
-            // Erfolg
-            $success = "Registrierung erfolgreich! Sie können sich jetzt <a href='login.php'>anmelden</a>.";
-            // Felder leeren
-            $email = '';
+            $uuid = $auth->getUUID($email);
+            $_SESSION['verify_email'] = $email;
+            $_SESSION['verify_id'] = $uuid;
+            $auth->sendTwoFaEmail($uuid, $email);
+            header(header: 'Location: verify2faemail.php');
         } else {
             // Fehler (wird als String von Auth::register zurückgegeben, z.B. "DB-Verbindung fehlgeschlagen")
             $error = "Registrierung fehlgeschlagen! Benutzer mit dieser E-Mail existiert bereits.";

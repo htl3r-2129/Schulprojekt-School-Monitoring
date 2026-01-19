@@ -6,6 +6,11 @@ use Insi\Ssm\DB;
 class User
 {
     protected $uuid;
+
+    public function getUuid(): string
+    {
+        return $this->uuid;
+    }
     protected $username;
     protected $email;
     protected $password;
