@@ -199,6 +199,7 @@ class Auth {
         $stmt->execute();
         $stmt->bind_result($code_int);
         $stmt->fetch();
+        $stmt->close();
 
         if ($code_int == $code_ext) {
             $stmt = $this->db->getConn()->prepare("update user set 2faSuccess = true where PK_User_ID = ?;");
@@ -207,6 +208,11 @@ class Auth {
             return true;
         }
         return false;
+    }
+
+    public function set2faSuccess($uuid)
+    {
+
     }
 
     public function check2FaSuccess($uuid)
