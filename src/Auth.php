@@ -180,40 +180,25 @@ class Auth {
 
     public function sendTwoFaEmail($uuid, $email)
     {
-        //        $code = rand(100000, 999999);
-        $code = 100000;
+        $code = rand(100000, 999999);
 
         $stmt = $this->db->getConn()->prepare("update user set 2faCode = ? where PK_User_ID like ?;");
         $stmt->bind_param("is", $code, $uuid);
         $stmt->execute();
 
         $sendMail = new SendMail();
-//        $sendMail($email, $code);
+        $sendMail($email, $code);
 
         return true;
     }
 
-    public function sendResetPasswordEmail($uuid)
-    {
-
-    }
-
     public function approve2Fa($uuid, $code_ext)
     {
-//        echo "<script>console.log('UUID: {$uuid}' );</script>";
-
         $stmt = $this->db->getConn()->prepare("select 2faCode from user where PK_User_ID = ?;");
         $stmt->bind_param("s", $uuid);
         $stmt->execute();
-        $stmt->store_result();
-
-//        echo "<script>console.log('Rows found: {$stmt->num_rows}');</script>";
-
         $stmt->bind_result($code_int);
         $stmt->fetch();
-
-//        echo "<script>console.log('Code given: {$code_ext}' );</script>";
-//        echo "<script>console.log('Code set: {$code_int}' );</script>";
 
         if ($code_int == $code_ext) {
             $stmt = $this->db->getConn()->prepare("update user set 2faSuccess = true where PK_User_ID = ?;");
@@ -222,6 +207,17 @@ class Auth {
             return true;
         }
         return false;
+    }
+
+    public function check2FaSuccess($uuid)
+    {
+        $stmt = $this->db->getConn()->prepare("select 2faSuccess from user where PK_User_ID = ?");
+        $stmt->bind_param("s", $uuid);
+        $stmt->execute();
+        $stmt->bind_result($result);
+        $stmt->fetch();
+
+        return $result;
     }
 
     public function deleteUser($uuid)

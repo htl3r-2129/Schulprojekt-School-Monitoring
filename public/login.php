@@ -18,11 +18,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($auth->login($email, $password)) {
         $uuid = $auth->getUUID($email);
-        session_regenerate_id(true);
-        $_SESSION['user'] = $uuid;
-        $_SESSION['name'] = $auth->getUsername($uuid);
-        header(header: 'Location: dashboard.php');
-        exit;
+        if ($auth->check2FaSuccess($uuid)){
+            session_regenerate_id(true);
+            $_SESSION['user'] = $uuid;
+            $_SESSION['name'] = $auth->getUsername($uuid);
+            header(header: 'Location: dashboard.php');
+            exit;
+        } else {
+            $error = '2 Factor Authentication has not been completed!';
+        }
     } else {
         $error = "Benutzername oder Passwort ist falsch!";
     }
