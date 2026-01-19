@@ -21,8 +21,6 @@ final class SendMail{
             apiKey: '681d6f06a290d7c6f1bae7708cac31a5'
         )->send($email);
 
-        var_dump(ResponseHelper::toArray($response));
-
         return Command::SUCCESS;
     }
 }
