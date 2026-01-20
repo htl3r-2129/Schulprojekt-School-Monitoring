@@ -180,14 +180,15 @@ class Auth {
 
     public function sendTwoFaEmail($uuid, $email)
     {
-        $code = rand(100000, 999999);
+//        $code = rand(100000, 999999);
+        $code = 100000;
 
         $stmt = $this->db->getConn()->prepare("update user set 2faCode = ? where PK_User_ID like ?;");
         $stmt->bind_param("is", $code, $uuid);
         $stmt->execute();
 
         $sendMail = new SendMail();
-        $sendMail($email, $code);
+//        $sendMail($email, $code);
 
         return true;
     }
@@ -199,6 +200,7 @@ class Auth {
         $stmt->execute();
         $stmt->bind_result($code_int);
         $stmt->fetch();
+        $stmt->close();
 
         if ($code_int == $code_ext) {
             $stmt = $this->db->getConn()->prepare("update user set 2faSuccess = true where PK_User_ID = ?;");
@@ -207,6 +209,11 @@ class Auth {
             return true;
         }
         return false;
+    }
+
+    public function set2faSuccess($uuid)
+    {
+
     }
 
     public function check2FaSuccess($uuid)
