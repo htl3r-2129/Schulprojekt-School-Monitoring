@@ -3,6 +3,7 @@ namespace Insi\Ssm;
 require_once '../vendor/autoload.php';
 use Insi\Ssm\User;
 use Insi\Ssm\DB;
+use Insi\Ssm\SendMail;
 
 class Auth {
     private $db;
@@ -30,7 +31,7 @@ class Auth {
         $stmt->bind_param("s", $email);
         $stmt->execute();
         if (!$stmt->fetch()){
-            new User($username, $email, $password, $this->db);
+            $user = new User($username, $email, $password, $this->db);
             return true;
         }
         // TODO: show the error in a more pleasant way
@@ -177,29 +178,53 @@ class Auth {
         return false;
     }
 
-    public function sendTwoFaEmail($uuid)
+    public function sendTwoFaEmail($uuid, $email)
     {
-//        TODO: smtp-Server is required to send emails
-//        $msg = "This is a test email for 2-Factor-Authentication for the School Monitor Project.";
-//        $msg = wordwrap($msg, 70);
-//
-//        mail($this->email, "2 Factor Code", $msg);
+//        $code = rand(100000, 999999);
+        $code = 100000;
+
+        $stmt = $this->db->getConn()->prepare("update user set 2faCode = ? where PK_User_ID like ?;");
+        $stmt->bind_param("is", $code, $uuid);
+        $stmt->execute();
+
+        $sendMail = new SendMail();
+//        $sendMail($email, $code);
+
+        return true;
     }
 
-    public function sendResetPasswordEmail($uuid)
+    public function approve2Fa($uuid, $code_ext)
     {
-
-    }
-
-    public function approve2Fa($uuid)
-    {
-        $stmt = $this->db->getConn()->prepare("update user set 2faSuccess = true where PK_User_ID like ?;");
+        $stmt = $this->db->getConn()->prepare("select 2faCode from user where PK_User_ID = ?;");
         $stmt->bind_param("s", $uuid);
+        $stmt->execute();
+        $stmt->bind_result($code_int);
+        $stmt->fetch();
+        $stmt->close();
 
-        if ($stmt->execute()){
+        if ($code_int == $code_ext) {
+            $stmt = $this->db->getConn()->prepare("update user set 2faSuccess = true where PK_User_ID = ?;");
+            $stmt->bind_param("s", $uuid);
+            $stmt->execute();
             return true;
         }
         return false;
+    }
+
+    public function set2faSuccess($uuid)
+    {
+
+    }
+
+    public function check2FaSuccess($uuid)
+    {
+        $stmt = $this->db->getConn()->prepare("select 2faSuccess from user where PK_User_ID = ?");
+        $stmt->bind_param("s", $uuid);
+        $stmt->execute();
+        $stmt->bind_result($result);
+        $stmt->fetch();
+
+        return $result;
     }
 
     public function deleteUser($uuid)
