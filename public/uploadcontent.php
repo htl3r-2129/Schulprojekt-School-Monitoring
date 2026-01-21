@@ -1,6 +1,12 @@
 <?php
 session_start();
 
+// --- PHP CONFIG FÜR GROSSE UPLOADS ---
+ini_set('upload_max_filesize', '220M');
+ini_set('post_max_size', '220M');
+ini_set('max_execution_time', '300'); // optional für große Uploads
+ini_set('memory_limit', '256M');      // optional für große Dateien
+
 // Composer Autoload
 require __DIR__ . '/../vendor/autoload.php';
 use Insi\Ssm\Auth;
@@ -12,15 +18,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action'])) {
     header('Content-Type: application/json');
     $action = $_GET['action'];
 
-    // Media Upload
+    // --- MEDIA UPLOAD ---
     if ($action === 'upload') {
         if (!isset($_FILES['mediaFile'])) {
             echo json_encode(['success'=>false,'message'=>'Keine Datei hochgeladen']);
             exit;
         }
         $file = $_FILES['mediaFile'];
-        $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
 
+        // Upload-Limit prüfen (220 MB)
+        $maxSize = 220 * 1024 * 1024; // 220 MB in Bytes
+        if ($file['size'] > $maxSize) {
+            echo json_encode(['success'=>false,'message'=>'Datei zu groß. Maximal 220 MB erlaubt']);
+            exit;
+        }
+
+        $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
         $allowedImages = ['jpg','jpeg','png','gif','webp'];
         $allowedVideos = ['mp4','webm','ogg','mov','m4v'];
 
@@ -48,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action'])) {
         exit;
     }
 
-    // Save Content
+    // --- SAVE CONTENT ---
     if ($action === 'save') {
         $jsonFile = __DIR__ . '/content_source.json';
         if (!file_exists($jsonFile)) file_put_contents($jsonFile, json_encode([]));
@@ -234,11 +247,9 @@ creationSelect.addEventListener('change',()=>{
     else if(creationSelect.value==='text'){mediaSection.hidden=true;textSection.hidden=false;}
     else{mediaSection.hidden=true;textSection.hidden=true;}
 });
-
-// Ensure initial visibility matches the default selection
 creationSelect.dispatchEvent(new Event('change'));
 
-// Preview render function
+// Preview render
 function renderInto(target,src,isVideo){
     target.innerHTML='';
     if(isVideo){
@@ -306,7 +317,6 @@ function validateMediaForm(){
     const previewSep = document.getElementById('previewSeparator');
     document.getElementById('previewExtra').textContent = extra;
 
-    // Show separator only when there is a title; size it to the larger of title/extra
     if(previewSep){
         if(title.length>0){
             previewSep.hidden = false;
@@ -316,11 +326,8 @@ function validateMediaForm(){
                 const extraW = previewExtra ? previewExtra.offsetWidth : 0;
                 previewSep.style.width = Math.max(titleW, extraW)+'px';
             },0);
-        } else {
-            previewSep.hidden = true;
-        }
+        } else { previewSep.hidden = true; }
     }
-    // Hide extra text element if empty
     previewExtra.style.display = extra && extra.length>0 ? '' : 'none';
 }
 function validateTextForm(){
@@ -333,7 +340,6 @@ function validateTextForm(){
     const textPreviewSep = document.getElementById('textPreviewSeparator');
     textPreviewExtra.textContent = text;
 
-    // Show separator for text preview only when there is a title; size to larger of title/extra
     if(textPreviewSep){
         if(title.length>0){
             textPreviewSep.hidden = false;
@@ -343,9 +349,7 @@ function validateTextForm(){
                 const eW = textPreviewExtra ? textPreviewExtra.offsetWidth : 0;
                 textPreviewSep.style.width = Math.max(tW, eW)+'px';
             },0);
-        } else {
-            textPreviewSep.hidden = true;
-        }
+        } else { textPreviewSep.hidden = true; }
     }
     textPreviewExtra.style.display = text && text.length>0 ? '' : 'none';
 }

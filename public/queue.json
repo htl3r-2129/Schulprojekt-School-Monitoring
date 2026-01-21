@@ -3,16 +3,16 @@
         "original_id": "1",
         "order_id": 1,
         "title": "Wir lieben die HTL!",
-        "type": "image",
         "media": "media/Images/20210218-20-jahre-keyvisual-scaled-2535462770.jpg",
-        "text": ""
+        "text": "",
+        "type": "image"
     },
     {
         "original_id": "6",
         "order_id": 2,
         "title": "Das Itlers Gedicht",
-        "type": "",
         "media": "",
-        "text": "Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum"
+        "text": "Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum",
+        "type": ""
     }
 ]

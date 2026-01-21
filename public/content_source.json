@@ -3,7 +3,7 @@
         "original_id": "1",
         "title": "Wir lieben die HTL!",
         "type": "image",
-        "media": "media/Images/20210218-20-jahre-keyvisual-scaled-2535462770.jpg",
+        "media": "media\/Images\/20210218-20-jahre-keyvisual-scaled-2535462770.jpg",
         "approved": true,
         "ProvidedBy": "Gabriel Berger",
         "text": ""
@@ -12,7 +12,7 @@
         "original_id": "5",
         "title": "Mein Hund",
         "type": "image",
-        "media": "media/Images/IMG_0686.jpg",
+        "media": "media\/Images\/IMG_0686.jpg",
         "approved": false,
         "ProvidedBy": "Maxim Willinger",
         "text": ""
@@ -30,9 +30,18 @@
         "original_id": "7",
         "title": "MEDT Kunstwerk",
         "type": "image",
-        "media": "media/Images/OldTimes.png",
+        "media": "media\/Images\/OldTimes.png",
         "approved": false,
         "ProvidedBy": "Gabriel Berger",
         "text": "Gemacht in Blender"
+    },
+    {
+        "original_id": "8",
+        "title": "ddd",
+        "type": "image",
+        "media": "media\/Images\/6971472c93b9b.png",
+        "approved": false,
+        "ProvidedBy": "Admin",
+        "text": "sdfsdf"
     }
 ]
