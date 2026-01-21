@@ -42,14 +42,11 @@ function saveSettings(string $file, array $data): void {
 /* ======================================================
    LOAD SETTINGS + DEFAULTS
 ====================================================== */
-
 $settings = array_merge([
     'betriebszeit_start'   => '08:00',
     'betriebszeit_end'     => '17:45',
     'bilderzeit'           => '10s',
-    'max_storage'          => '500GB',
-    'instant_message'      => '',
-    'instant_message_time' => ''
+    'max_storage'          => '500GB'
 ], loadSettings($settingsFile));
 
 /* ======================================================
@@ -64,9 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'betriebszeit_start'   => '08:00',
             'betriebszeit_end'     => '17:45',
             'bilderzeit'           => '10s',
-            'max_storage'          => '500GB',
-            'instant_message'      => '',
-            'instant_message_time' => ''
+            'max_storage'          => '500GB'
         ];
 
         saveSettings($settingsFile, $settings);
@@ -86,24 +81,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    if (isset($_POST['send_message'])) {
-
-        $msg  = trim($_POST['instant_message'] ?? '');
-        $time = trim($_POST['instant_message_time'] ?? '');
-
-        if ($msg === '') {
-            $error = 'Please enter a message to send.';
-        } elseif (mb_strlen($msg) > 255) {
-            $error = 'Message must be 255 characters or fewer.';
-        } else {
-            $settings['instant_message'] = $msg;
-            $settings['instant_message_time'] = $time;
-
-            saveSettings($settingsFile, $settings);
-            header('Location: admin.php?sent=1');
-            exit;
-        }
-    }
 }
 
 /* ======================================================
@@ -137,12 +114,6 @@ $jsonOutput = [
     "Speicher"       => preg_replace('/\D/', '', $settings['max_storage'])
 ];
 
-$jsonInstOutput = [
-    "Message" => $settings['instant_message'],
-    "Time"    => preg_replace('/\D/', '', $settings['instant_message_time']),
-    "Active"  => !empty($settings['instant_message'])
-];
-
 $wantsJson =
     isset($_SERVER['HTTP_ACCEPT']) &&
     str_contains($_SERVER['HTTP_ACCEPT'], 'application/json');
@@ -151,9 +122,7 @@ $api = $_GET['api'] ?? null;
 
 if ($wantsJson) {
     header('Content-Type: application/json; charset=utf-8');
-    echo json_encode(
-        $api === 'instant-message' ? $jsonInstOutput : $jsonOutput
-    );
+    echo json_encode($jsonOutput);
     exit;
 }
 
@@ -215,18 +184,7 @@ $last_name  = 'NACHNAME';
                     </div>
             </div>
 
-            <div class="form-row">
-                <label>Instant-Message:</label>
-            </div>
-            <div class="message-wrapper">
-                <textarea name="instant_message"><?= htmlspecialchars($settings['instant_message']) ?></textarea>
-            </div>
-            <div class="message-controls">
-                <input type="number" class="small-input" name="instant_message_time"
-                       value="<?= htmlspecialchars($settings['instant_message_time']) ?>"
-                       placeholder="Zeit in s" min="1">
-                <button type="submit" name="send_message" class="btn primary send">Send</button>
-            </div>
+            <!-- Instant message feature removed -->
 
             <div class="form-row">
                 <label>Bilderzeit:</label>

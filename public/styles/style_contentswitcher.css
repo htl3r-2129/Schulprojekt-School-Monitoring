@@ -118,56 +118,7 @@
       overflow: hidden;
     }
 
-    /* Instant message styling */
-    .slide .text.instant {
-      background: var(--primary-red);
-      color: #ffffff;
-      padding: 16px 0;
-      border-radius: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0;
-      font-size: clamp(24px, 4vw, 48px);
-      line-height: 1.5;
-      font-weight: 700;
-    }
-
-    /* Instant Message Overlay */
-    .instant-message-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      width: 100vw;
-      height: 100vh;
-      background: var(--primary-red);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 5000;
-    }
-
-    .instant-message-overlay.active {
-      display: flex;
-    }
-
-    .instant-message-content {
-      color: #ffffff;
-      font-size: clamp(24px, 4vw, 48px);
-      line-height: 1.5;
-      font-weight: 700;
-      text-align: center;
-      padding: 40px;
-      max-width: 90%;
-    }
-
-    /* Hide title and separator for instant messages */
-    .slide:has(.text.instant) h1,
-    .slide:has(.text.instant) .text-separator {
-      display: none;
-    }
+    /* instant-message styling removed */
 
     /* Text separator bar */
     .text-separator {

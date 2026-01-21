@@ -138,8 +138,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action'])) {
 <div class="creation-control">
 <label class="sr-only" for="creationSelect">Select content type</label>
 <select id="creationSelect" class="select-control">
-<option value="" selected>Select an option</option>
-<option value="media">Media</option>
+<option value="media" selected>Media</option>
 <option value="text">Text</option>
 </select>
 </div>
@@ -235,6 +234,9 @@ creationSelect.addEventListener('change',()=>{
     else if(creationSelect.value==='text'){mediaSection.hidden=true;textSection.hidden=false;}
     else{mediaSection.hidden=true;textSection.hidden=true;}
 });
+
+// Ensure initial visibility matches the default selection
+creationSelect.dispatchEvent(new Event('change'));
 
 // Preview render function
 function renderInto(target,src,isVideo){
