@@ -1,7 +1,9 @@
-<?php 
+<?php
 session_start();
 
-// --- JSON API: Prevent caching globally ---
+/* =========================================================
+   JSON Helper
+   ========================================================= */
 function sendNoCacheJson($data) {
     header('Content-Type: application/json; charset=utf-8');
     header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
@@ -11,116 +13,90 @@ function sendNoCacheJson($data) {
     exit;
 }
 
-// --- File paths ---
-$queueFile = __DIR__ . '/queue.json';
+/* =========================================================
+   Paths
+   ========================================================= */
+$queueFile         = __DIR__ . '/queue.json';
 $contentSourceFile = __DIR__ . '/content_source.json';
-$queue_items = [];
-$content_source = [];
 
-// --- JSON Content API ---
+/* =========================================================
+   🔴 DELETE HANDLER – MUSS GANZ OBEN SEIN
+   ========================================================= */
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_id'])) {
+
+    $delete_id = (string)$_POST['delete_id'];
+
+    /* ---------- content_source.json ---------- */
+    $content_source = file_exists($contentSourceFile)
+        ? json_decode(file_get_contents($contentSourceFile), true)
+        : [];
+
+    foreach ($content_source as $idx => $item) {
+        if ((string)$item['original_id'] === $delete_id) {
+
+            // Datei löschen
+            if (!empty($item['media'])) {
+                $mediaPath = realpath(__DIR__ . '/' . $item['media']);
+                if ($mediaPath && is_file($mediaPath)) {
+                    unlink($mediaPath);
+                }
+            }
+
+            unset($content_source[$idx]);
+            break;
+        }
+    }
+
+    $content_source = array_values($content_source);
+    file_put_contents(
+        $contentSourceFile,
+        json_encode($content_source, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
+    );
+
+    /* ---------- queue.json ---------- */
+    $queue_items = file_exists($queueFile)
+        ? json_decode(file_get_contents($queueFile), true)
+        : [];
+
+    $queue_items = array_filter(
+        $queue_items,
+        fn($item) => (string)$item['original_id'] !== $delete_id
+    );
+
+    $queue_items = array_values($queue_items);
+    foreach ($queue_items as $i => &$item) {
+        $item['order_id'] = $i + 1;
+    }
+    unset($item);
+
+    file_put_contents(
+        $queueFile,
+        json_encode($queue_items, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
+    );
+
+    sendNoCacheJson(['success' => true]);
+}
+
+/* =========================================================
+   JSON API
+   ========================================================= */
 if (isset($_GET['get_content_json'])) {
-    $content_source = file_exists($contentSourceFile) 
-        ? json_decode(file_get_contents($contentSourceFile), true) 
+    $content_source = file_exists($contentSourceFile)
+        ? json_decode(file_get_contents($contentSourceFile), true)
         : [];
     sendNoCacheJson($content_source);
 }
 
-// --- Disable caching for the entire page ---
+/* =========================================================
+   Cache Headers
+   ========================================================= */
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
-header("Cache-Control: post-check=0, pre-check=0", false);
 header("Pragma: no-cache");
 header("Expires: 0");
 
-// --- DELETE Content via AJAX ---
-if($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['delete_id'])){
-    $delete_id = $_POST['delete_id'];
-
-    $content_source = file_exists($contentSourceFile) ? json_decode(file_get_contents($contentSourceFile), true) : [];
-    $content_source = array_filter($content_source, fn($item) => $item['original_id'] != $delete_id);
-    $content_source = array_values($content_source);
-    file_put_contents($contentSourceFile, json_encode($content_source, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
-
-    $queue_items = file_exists($queueFile) ? json_decode(file_get_contents($queueFile), true) : [];
-    $queue_items = array_filter($queue_items, fn($item) => $item['original_id'] != $delete_id);
-    $queue_items = array_values($queue_items);
-
-    foreach($queue_items as $idx => &$item) $item['order_id'] = $idx+1;
-    unset($item);
-
-    file_put_contents($queueFile, json_encode($queue_items, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
-
-    sendNoCacheJson(['success'=>true]);
-}
-
-// --- Load content_source.json and filter only approved ---
-if(file_exists($contentSourceFile)){
-    $content_source = json_decode(file_get_contents($contentSourceFile), true) ?? [];
-    $content_source = array_filter($content_source, fn($item) => isset($item['approved']) && $item['approved'] === true);
-    $content_source = array_values($content_source);
-}
-
-// --- Load queue.json as main source ---
-if(file_exists($queueFile)){
-    $queue_items = json_decode(file_get_contents($queueFile), true) ?? [];
-}
-
-// --- Prepare ProvidedBy map ---
-$providedByMap = [];
-foreach($content_source as $c){
-    $providedByMap[$c['original_id']] = !empty(trim($c['ProvidedBy'])) ? 'Von: '.$c['ProvidedBy'] : 'Von: Unbekannt';
-}
-
-// --- Sync: queue.json only shows content_source.json items, update titles/media/text/type ---
-$source_map = [];
-foreach($content_source as $item) $source_map[$item['original_id']] = $item;
-
-$new_queue = [];
-foreach($queue_items as $q_item){
-    if(isset($source_map[$q_item['original_id']])){
-        $src = $source_map[$q_item['original_id']];
-        $new_queue[] = [
-            'original_id' => $q_item['original_id'],
-            'order_id'    => $q_item['order_id'],
-            'title'       => $src['title'] ?? $q_item['title'],
-            'media'       => $src['media'] ?? $q_item['media'],
-            'text'        => $src['text'] ?? $q_item['text'],
-            'type'        => $src['type'] ?? $q_item['type']
-        ];
-        unset($source_map[$q_item['original_id']]);
-    }
-}
-
-$order_counter = count($new_queue)+1;
-foreach($source_map as $item){
-    $new_queue[] = [
-        'original_id' => $item['original_id'],
-        'order_id'    => $order_counter++,
-        'title'       => $item['title'],
-        'media'       => $item['media'],
-        'text'        => $item['text'],
-        'type'        => $item['type']
-    ];
-}
-
-$queue_items = $new_queue;
-
-file_put_contents($queueFile, json_encode($queue_items, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
-
-// --- POST Save Queue (Drag&Drop changes) ---
-if($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['queue_data'])){
-    $data = json_decode($_POST['queue_data'], true);
-    foreach($data as &$item) unset($item['uploader_text']);
-    unset($item);
-
-    if(file_put_contents($queueFile, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES))){
-        $message = "Queue saved successfully!";
-        $queue_items = $data;
-    } else {
-        $message = "Failed to write queue.json";
-    }
-}
-
-// Composer Autoload
+/* =========================================================
+   Auth
+   ========================================================= */
 require_once __DIR__ . '/../vendor/autoload.php';
 use Insi\Ssm\Auth;
 
@@ -130,7 +106,102 @@ if (!isset($_SESSION['user']) || !$auth->isModerator($_SESSION['user'])) {
     exit;
 }
 
-// --- Export queue as JSON ---
+/* =========================================================
+   Load content_source.json (approved only)
+   ========================================================= */
+$content_source = file_exists($contentSourceFile)
+    ? json_decode(file_get_contents($contentSourceFile), true)
+    : [];
+
+$content_source = array_values(array_filter(
+    $content_source,
+    fn($i) => !empty($i['approved'])
+));
+
+/* =========================================================
+   Load queue.json
+   ========================================================= */
+$queue_items = file_exists($queueFile)
+    ? json_decode(file_get_contents($queueFile), true)
+    : [];
+
+/* =========================================================
+   ProvidedBy Map
+   ========================================================= */
+$providedByMap = [];
+foreach ($content_source as $c) {
+    $providedByMap[$c['original_id']] =
+        !empty(trim($c['ProvidedBy'] ?? ''))
+            ? 'Von: '.$c['ProvidedBy']
+            : 'Von: Unbekannt';
+}
+
+/* =========================================================
+   SYNC (nur bei Page Load GET)
+   ========================================================= */
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+
+    $source_map = [];
+    foreach ($content_source as $item) $source_map[$item['original_id']] = $item;
+
+    $new_queue = [];
+    foreach ($queue_items as $q_item) {
+        if (isset($source_map[$q_item['original_id']])) {
+            $src = $source_map[$q_item['original_id']];
+            $new_queue[] = [
+                'original_id' => $q_item['original_id'],
+                'order_id'    => $q_item['order_id'],
+                'title'       => $src['title'] ?? $q_item['title'],
+                'media'       => $src['media'] ?? $q_item['media'],
+                'text'        => $src['text']  ?? $q_item['text'],
+                'type'        => $src['type']  ?? $q_item['type']
+            ];
+            unset($source_map[$q_item['original_id']]);
+        }
+    }
+
+    $order_counter = count($new_queue) + 1;
+    foreach ($source_map as $item) {
+        $new_queue[] = [
+            'original_id' => $item['original_id'],
+            'order_id'    => $order_counter++,
+            'title'       => $item['title'],
+            'media'       => $item['media'],
+            'text'        => $item['text'],
+            'type'        => $item['type']
+        ];
+    }
+
+    $queue_items = $new_queue;
+    file_put_contents(
+        $queueFile,
+        json_encode($queue_items, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
+    );
+}
+
+/* =========================================================
+   POST Save Queue (Drag&Drop changes)
+   ========================================================= */
+if($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['queue_data'])){
+    $data = json_decode($_POST['queue_data'], true);
+
+    foreach($data as &$item) unset($item['uploader_text']);
+    unset($item);
+
+    if(file_put_contents(
+        $queueFile,
+        json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
+    )){
+        $message = "Queue saved successfully!";
+        $queue_items = $data;
+    } else {
+        $message = "Failed to write queue.json";
+    }
+}
+
+/* =========================================================
+   Export queue.json
+   ========================================================= */
 if (isset($_GET['export']) && $_GET['export'] === 'json') {
     $out = [];
     foreach ($queue_items as $item) {
@@ -143,7 +214,9 @@ if (isset($_GET['export']) && $_GET['export'] === 'json') {
     sendNoCacheJson($out);
 }
 
-// --- Receive client-side JSON via POST ---
+/* =========================================================
+   Receive client-side JSON via POST
+   ========================================================= */
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['save_client_json'])) {
     $input = file_get_contents('php://input');
     $data = json_decode($input, true);
@@ -157,7 +230,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['save_client_json'])) {
         'server_queue' => $queue_items
     ]);
 }
+
 ?>
+
 <!DOCTYPE html>
 <html lang="de">
 <head>
