@@ -28,10 +28,7 @@
     </div>
   </div>
 
-  <!-- Instant Message Overlay -->
-  <div class="instant-message-overlay" id="instantOverlay">
-    <div class="instant-message-content" id="instantContent"></div>
-  </div>
+  <!-- Instant message overlay removed -->
 
   <!--Here beginns the js sript-->
 
@@ -60,8 +57,7 @@
 
     //default time
     let slideDurationSeconds = 1;
-    //instant time
-    let instantDurationSeconds = 5;
+    // instant-message feature removed
 
     //++++++++++++++++++++ FETCH-CONTROL ++++++++++++++++++++   
 
@@ -112,14 +108,11 @@
             titles.push(item.title);
             texts.push(item.text ?? "");
             if (!item.media || item.media.trim() === "") {
-              media.push({
-                instant: false
-              });
+              media.push({});
             } else {
               media.push({
                 type: item.type?.toLowerCase() === "video" ? "video" : "image",
-                src: item.media,
-                instant: false
+                src: item.media
               });
             }
           });
@@ -160,7 +153,8 @@
 
         //++++++ TEXT CONTROL ++++++
         if (texts[i] && texts[i].trim() !== "" || (media[i] !== null && media[i] !== undefined && (media[i].type === "video" || media[i].type === "image"))) {
-          const isInstant = media[i]?.instant === true;
+          // instant messaging removed; treat all slides as normal
+          const isInstant = false;
 
           // Add separator bar before text
           const separator = document.createElement('hr');
@@ -170,9 +164,7 @@
           if (texts[i] && texts[i].trim() !== "") {
             const d = document.createElement('div');
             d.className = 'text';
-            if (isInstant) {
-              d.classList.add('instant');
-            }
+            // no instant class applied
             d.textContent = texts[i];
             slide.appendChild(d);
           }
@@ -280,38 +272,11 @@
       // Re-adjust on window resize
       window.addEventListener('resize', adjustSeparators);
 
-      //++++++ INSTANT MESSAGE OVERLAY CONTROL ++++++
-      const instantOverlay = document.getElementById('instantOverlay');
-      const instantContent = document.getElementById('instantContent');
-      let instantTimer = null;
-
-      function updateInstantMessageOverlay(index) {
-        // Clear any existing instant message timer
-        clearTimeout(instantTimer);
-
-        if (media[index]?.instant === true && texts[index]) {
-          // Show overlay with instant message
-          instantContent.textContent = texts[index];
-          instantOverlay.classList.add('active');
-
-          // Auto-hide after instantDurationSeconds
-          instantTimer = setTimeout(() => {
-            instantOverlay.classList.remove('active');
-          }, Number(instantDurationSeconds) * 1000);
-        } else {
-          // Hide overlay for non-instant slides
-          instantOverlay.classList.remove('active');
-        }
-      }
+      // Instant message overlay/logic removed
 
       //++++++ TIME CONTROL ++++++
       function getDurationMs(i) {
-        // instant
-        if (media[i].instant === true) {
-          return Number(instantDurationSeconds) * 1000;
-        }
-
-        // global
+        // global duration for all slides
         return Number(slideDurationSeconds) * 1000;
       }
 
@@ -328,8 +293,7 @@
         const y = -index * window.innerHeight;
         slidesInner.style.transform = `translateY(${y}px)`;
 
-        // Update instant message overlay
-        updateInstantMessageOverlay(index);
+        // instant message feature removed
 
         //Stops all videos (again) to play the selected one (-> idiotic)
         slideData.forEach((sd, idx) => {
