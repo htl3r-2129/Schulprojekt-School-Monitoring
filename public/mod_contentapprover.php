@@ -32,6 +32,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id = $_POST['original_id'] ?? null;
 
     if ($id) {
+
+        // --------------------
+        // APPROVE
+        // --------------------
         if ($action === 'approve') {
             foreach ($json as &$entry) {
                 if ($entry['original_id'] === $id) {
@@ -42,16 +46,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             unset($entry);
         }
 
+        // --------------------
+        // DELETE (JSON + FILE)
+        // --------------------
         if ($action === 'delete') {
-            $json = array_filter($json, fn($entry) => $entry['original_id'] !== $id);
-            $json = array_values($json); // Reindex array
+
+            foreach ($json as $index => $entry) {
+                if ($entry['original_id'] === $id) {
+
+                    // Datei löschen, falls vorhanden
+                    if (!empty($entry['media'])) {
+
+                        // Absoluter Pfad (media liegt im selben Ordner)
+                        $mediaPath = realpath(__DIR__ . '/' . $entry['media']);
+
+                        // Sicherheitsprüfung
+                        if ($mediaPath && is_file($mediaPath)) {
+                            unlink($mediaPath);
+                        }
+                    }
+
+                    // JSON-Eintrag entfernen
+                    unset($json[$index]);
+                    break;
+                }
+            }
+
+            // Array neu indexieren
+            $json = array_values($json);
         }
 
-        file_put_contents($file, json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+        // JSON speichern
+        file_put_contents(
+            $file,
+            json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)
+        );
+
         echo 'OK';
         exit;
     }
 }
+
 
 // Nur Items mit approved = false anzeigen
 $queue_items = array_filter($json, fn($item) => empty($item['approved']));
